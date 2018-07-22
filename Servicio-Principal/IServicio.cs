@@ -13,5 +13,8 @@ namespace Servicio_Principal
     {
         [OperationContract(IsInitiating = true)]
         bool Conectar(Operador oper);
+
+        [OperationContract(IsOneWay = true)]
+        void EjecutarComando(Operador oper, string sCmd);
     }
 }

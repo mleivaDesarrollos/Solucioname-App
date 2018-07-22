@@ -932,7 +932,7 @@ namespace ConsoleHostTesting.ServicioSolucioname {
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="ServicioSolucioname.IServicio", CallbackContract=typeof(ConsoleHostTesting.ServicioSolucioname.IServicioCallback), SessionMode=System.ServiceModel.SessionMode.Required)]
+    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="ServicioSolucioname.IServicio", CallbackContract=typeof(ConsoleHostTesting.ServicioSolucioname.IServicioCallback))]
     public interface IServicio {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/Conectar", ReplyAction="http://tempuri.org/IServicio/ConectarResponse")]
@@ -940,6 +940,12 @@ namespace ConsoleHostTesting.ServicioSolucioname {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/Conectar", ReplyAction="http://tempuri.org/IServicio/ConectarResponse")]
         System.Threading.Tasks.Task<bool> ConectarAsync(ConsoleHostTesting.ServicioSolucioname.Operador oper);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/EjecutarComando")]
+        void EjecutarComando(ConsoleHostTesting.ServicioSolucioname.Operador oper, string sCmd);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/EjecutarComando")]
+        System.Threading.Tasks.Task EjecutarComandoAsync(ConsoleHostTesting.ServicioSolucioname.Operador oper, string sCmd);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -986,6 +992,14 @@ namespace ConsoleHostTesting.ServicioSolucioname {
         
         public System.Threading.Tasks.Task<bool> ConectarAsync(ConsoleHostTesting.ServicioSolucioname.Operador oper) {
             return base.Channel.ConectarAsync(oper);
+        }
+        
+        public void EjecutarComando(ConsoleHostTesting.ServicioSolucioname.Operador oper, string sCmd) {
+            base.Channel.EjecutarComando(oper, sCmd);
+        }
+        
+        public System.Threading.Tasks.Task EjecutarComandoAsync(ConsoleHostTesting.ServicioSolucioname.Operador oper, string sCmd) {
+            return base.Channel.EjecutarComandoAsync(oper, sCmd);
         }
     }
 }

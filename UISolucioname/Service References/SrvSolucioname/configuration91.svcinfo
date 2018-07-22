@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<SavedWcfConfigurationInformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="9.1" CheckSum="Sn48VP9SgfpguM7HkPE0Dk686QE=">
+<SavedWcfConfigurationInformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="9.1" CheckSum="xYOUkWBUEsViyR/Sem2j5n7ERl4=">
   <bindingConfigurations>
     <bindingConfiguration bindingType="netTcpBinding" name="DualTCPBinding">
       <properties>
@@ -121,7 +121,7 @@
     </bindingConfiguration>
   </bindingConfigurations>
   <endpoints>
-    <endpoint name="DualTCPBinding" contract="ServicioSolucioname.IServicio" bindingType="netTcpBinding" address="net.tcp://localhost:8000/Servicio-Principal/tcp" bindingConfiguration="DualTCPBinding">
+    <endpoint name="DualTCPBinding" contract="SrvSolucioname.IServicio" bindingType="netTcpBinding" address="net.tcp://localhost:8000/Servicio-Principal/tcp" bindingConfiguration="DualTCPBinding">
       <properties>
         <property path="/address" isComplexType="false" isExplicitlyDefined="true" clrType="System.Uri, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue>net.tcp://localhost:8000/Servicio-Principal/tcp</serializedValue>
@@ -136,7 +136,7 @@
           <serializedValue>DualTCPBinding</serializedValue>
         </property>
         <property path="/contract" isComplexType="false" isExplicitlyDefined="true" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>ServicioSolucioname.IServicio</serializedValue>
+          <serializedValue>SrvSolucioname.IServicio</serializedValue>
         </property>
         <property path="/headers" isComplexType="true" isExplicitlyDefined="false" clrType="System.ServiceModel.Configuration.AddressHeaderCollectionElement, System.ServiceModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue>System.ServiceModel.Configuration.AddressHeaderCollectionElement</serializedValue>

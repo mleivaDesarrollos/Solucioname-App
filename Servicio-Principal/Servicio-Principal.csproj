@@ -52,6 +52,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConsoleCmd\Actions\Action.cs" />
+    <Compile Include="ConsoleCmd\Actions\Test.cs" />
+    <Compile Include="ConsoleCmd\Command.cs" />
     <Compile Include="Data\Mensaje.cs" />
     <Compile Include="IServicio.cs" />
     <Compile Include="IServicioCallback.cs" />

@@ -23,9 +23,9 @@ namespace Servicio_Principal
                 // Inicializamos una nueva instancia del servicio
                 ServiceHost hosting = new ServiceHost(typeof(Servicio));
                 // Abrimos la conexión
-                hosting.Open();
+                hosting.Open();                
                 // Informamos que la conexión está abierta y mantenemos en ejecución consola hasta que se presione una tecla
-                Console.WriteLine("El servicio se encuentra operando y está activo.");
+                Console.WriteLine("El servicio se encuentra operando y está activo.");   
                 Console.WriteLine("Presione cualquier tecla para detenerlo...");
                 Console.ReadKey();
                 // Cerramos la conexión luego de recibir la confirmación de finalización

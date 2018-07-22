@@ -40,36 +40,49 @@ namespace ConsoleHostTesting
         /// <summary>
         /// 
         /// </summary>
-        public void Conectarse()
+        public bool Conectarse()
         {
             // Si no esta abierto el Proxy, se genera una apertura de conexión
             if (Proxy.State != CommunicationState.Opened)
             {
                 Proxy.Open();
+                
             }
-            // Generamos une nueva entidad operador
-            Operador oper = new Operador()
-            {
-                UserName = "Mleiva",
-                Nombre = "Maximiliano",
-                Password = "Europa07",
-                Apellido = "Leiva"
-            };
             // Generamos una solicitud de conexión y mostramos por pantalla el mensaje de conexión exitosa
-            if (Proxy.Conectar(oper))
+            if (Proxy.Conectar(Program.consoleAdm))
             {
                 Console.WriteLine("Conexión Exitosa. Actualmente estas interactuando con el servicio.");
+                return true;
             }
             else
             {
                 Console.WriteLine("Se ha producido una falla al intentar conectarse. ");
-            }
-            Proxy.Close();
+                return false;
+            }            
         }
 
         public void EnviarAsunto(Asunto a)
         {
             Console.WriteLine("Un asunto ha sido enviado para su gestion : " + a.Numero + ". Descripción breve: " + a.DescripcionBreve);
+        }
+
+        /// <summary>
+        /// Envia un comando al servidor
+        /// </summary>
+        /// <param name="sComando"></param>
+        public void EnviarComandoServidor(string sComando)
+        {
+            if(Command.Check(sComando))
+            {
+                
+                // Ejecutamos el comando en el servidor
+                Proxy.EjecutarComando(Program.consoleAdm, sComando);
+                Console.WriteLine("Comando Enviado a servidor.");
+            }
+            else
+            {
+                Console.WriteLine("Comando Invalido");
+            }
         }
     }
 }

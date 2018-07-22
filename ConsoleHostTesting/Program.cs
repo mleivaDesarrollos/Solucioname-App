@@ -8,6 +8,12 @@ namespace ConsoleHostTesting
 {
     class Program
     {
+        public static ConsoleHostTesting.ServicioSolucioname.Operador consoleAdm = new ServicioSolucioname.Operador()
+        {
+            UserName = "ConsoleAdmin",
+            Password = "Fm130414"
+        };
+
         static void Main(string[] args)
         {
             // Consola de prueba - Conexión a servicio Solucioname
@@ -17,8 +23,15 @@ namespace ConsoleHostTesting
             try
             {
                 // Solicitamos conexión nueva
-                intServicio.Conectarse();
-                Console.ReadKey();
+                if(intServicio.Conectarse())
+                {
+                    Console.WriteLine("Conexion establecida. Modo administrador mediante comando:");
+                    while (true)
+                    {
+                        string comando = Console.ReadLine();
+                        intServicio.EnviarComandoServidor(comando);
+                    }
+                }
             }
             catch (Exception ex)
             {

@@ -65,6 +65,7 @@
                         <TextBlock DockPanel.Dock="Right" FontSize="25" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0 0 5 5">SUIT Operador</TextBlock>
                         <TextBlock Name="btnUnlog" DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0 0 0 4" MouseLeftButtonDown="btnUnlog_MouseLeftButtonDown">Desloguear</TextBlock>
                         <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Name="txtUsuarioLogueado" Margin="20 0 0 4">Maximiliano Leiva</TextBlock>
+                        <TextBlock DockPanel.Dock="Right" VerticalAlignment="Center" Name="txtConectarServicio" Margin="20 0 0 4" MouseLeftButtonDown="txtConectarServicio_MouseLeftButtonDown">Establecer conexion con servicio.</TextBlock>
                     </DockPanel>
                 </Border>
                 <Border Grid.Row="1" BorderBrush="{StaticResource AppBorderColor}" BorderThickness="3">

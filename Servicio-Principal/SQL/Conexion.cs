@@ -12,6 +12,6 @@ namespace Servicio_Principal.SQL
         /// <summary>
         /// Cadena de conexión utilizada para acceder a los datos alamacenados en persistencia de base de datos
         /// </summary>
-        internal static string Cadena = ConfigurationManager.ConnectionStrings["CadenaServicio"].ConnectionString;
+        internal static string Cadena = ConfigurationManager.ConnectionStrings["CadenaServicioFX"].ConnectionString;
     }
 }

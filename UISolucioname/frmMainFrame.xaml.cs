@@ -13,7 +13,9 @@ namespace UISolucioname
     {
         public PaginaAsunto pgAsunto = null;
 
-        public PaginaActuacion pgActuacion = null;       
+        public PaginaActuacion pgActuacion = null;
+
+        private ServiceOperation.OperatorService _serviceInterface = null;
 
         public PaginaAsunto pagAsunto
         {
@@ -232,14 +234,34 @@ namespace UISolucioname
                 e.Cancel = true;
             }
         }
-        // Generamos una nueva entidad de tipo nuevo Dia
-        //Util.AsuntoDiario nuevoDia = new Util.AsuntoDiario();
-        //// Almacenamos el orden máximo
-        //int iOrdMax = pEntAsunto.Estados.Select((ea) => ea.Ord).ToArray().Max();
-        //// Cargamos los datos del asunto recibido
-        //nuevoDia.Numero = pEntAsunto.Numero;
-        //// Con el orden maximo buscamos el asunto
-        //nuevoDia.UltimoEstado = pEntAsunto.Estados.Find((ea) => ea.Ord == iOrdMax).Tipo.Descripcion;
-        //lstAsuntosDiarios.Add(nuevoDia);            
+
+        /// <summary>
+        /// Controla las variables para poder emitir una conexion hacia la base de datos
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void txtConectarServicio_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            // Controlamos si la variable de interface es nula
+            if(_serviceInterface == null)
+            {
+                // Inicializamos una nueva instancia del proxy
+                _serviceInterface = new ServiceOperation.OperatorService(this);
+            }
+            // Intentamos conexion con interface
+            _serviceInterface.ConectarConServicio();
+        }
+        
+        /// <summary>
+        /// Interfaz abierta para que el servicio pueda establecer comunicacion con la capa de UI
+        /// </summary>
+        public void NuevoAsuntoDesdeServicio(Entidades.Asunto pAsuntoRecibido)
+        {
+            // Se dispone de una accion asincronica para modificar la UI
+            Dispatcher.BeginInvoke((Action)(() => 
+            {
+                Util.MsgBox.Error("Has recibido un nuevo asunto: " + pAsuntoRecibido.Numero);
+            }));
+        }
     }
 }

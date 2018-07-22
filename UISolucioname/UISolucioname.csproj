@@ -78,6 +78,8 @@
       <HintPath>..\..\..\..\..\..\..\Program Files\System.Data.SQLite\2015\bin\System.Data.SQLite.EF6.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -95,7 +97,7 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="WindowsFormsIntegration" />
     <Reference Include="Xceed.Wpf.Toolkit">
-      <HintPath>..\..\Extended WPF Toolkit Binaries .NET 4.x\Xceed.Wpf.Toolkit.dll</HintPath>
+      <HintPath>..\..\..\Librerias\Extended WPF\Xceed.Wpf.Toolkit.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -133,6 +135,12 @@
     <Compile Include="pgeReporte.xaml.cs">
       <DependentUpon>pgeReporte.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Service References\SrvSolucioname\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceOperation\OperatorService.cs" />
     <Compile Include="ThreadManage\Tooltip.cs" />
     <Compile Include="frmLogin.xaml.cs">
       <DependentUpon>frmLogin.xaml</DependentUpon>
@@ -197,22 +205,25 @@
     <EmbeddedResource Include="Solucioname.db">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
+    <None Include="Service References\SrvSolucioname\Entidades.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SrvSolucioname\service.wsdl" />
+    <None Include="Service References\SrvSolucioname\service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SrvSolucioname\service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SrvSolucioname\Servicio_Principal.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <Resource Include="santander.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Entidades\Entidades.csproj">
-      <Project>{878f7654-6fa4-483e-af7c-329e2dd7a0bc}</Project>
-      <Name>Entidades</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Logica\Logica.csproj">
-      <Project>{57dd643c-6bc6-4d4d-9a6e-ae869a7ad72f}</Project>
-      <Name>Logica</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Page Include="frmMainFrame.xaml">
@@ -311,6 +322,34 @@
       <IncludeHash>True</IncludeHash>
       <FileType>Assembly</FileType>
     </PublishFile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Entidades\Entidades.csproj">
+      <Project>{878f7654-6fa4-483e-af7c-329e2dd7a0bc}</Project>
+      <Name>Entidades</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Logica\Logica.csproj">
+      <Project>{57dd643c-6bc6-4d4d-9a6e-ae869a7ad72f}</Project>
+      <Name>Logica</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\SrvSolucioname\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\SrvSolucioname\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\SrvSolucioname\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\SrvSolucioname\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
