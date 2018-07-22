@@ -49,7 +49,7 @@ namespace UISolucioname.ServiceOperation
 
         public void Mensaje(Mensaje m)
         {
-            
+            Util.MsgBox.Error("El servicio ha enviado el siguiente mensaje: " + m.Contenido);
         }
 
         /// <summary>
@@ -71,18 +71,14 @@ namespace UISolucioname.ServiceOperation
         {
             // Abrimos la conexión
             AbrirConexion();
-            // Generamos un operador nuevo
-            Entidades.Operador pOperador = new Entidades.Operador()
-            {
-                UserName = "mleiva",
-                Password = "Europa07",
-                Nombre = "Maximiliano",
-                Apellido = "Leiva"
-            };
             // Ejecutamos la solicitud de conexion pasando los parametros requeridos por el servicio SOAP
-            if (proxy.Conectar(pOperador))
+            if (proxy.Conectar(App.Current.Properties["user"] as Entidades.Operador))
             {
                 Util.MsgBox.Error("Conexion con servicio establecida.");
+            }
+            else
+            {
+                Util.MsgBox.Error("Conexion Rechazada.");
             }
         }
     }

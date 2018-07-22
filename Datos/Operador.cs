@@ -46,6 +46,7 @@ namespace Datos
                                 {
                                     UserName = pOperador.UserName,
                                     Nombre = rdrLectorUsuario["nombre"].ToString(),
+                                    Password = pOperador.Password,
                                     Apellido = rdrLectorUsuario["apellido"].ToString(),
                                     DNI = rdrLectorUsuario["DNI"].ToString()
                                 };

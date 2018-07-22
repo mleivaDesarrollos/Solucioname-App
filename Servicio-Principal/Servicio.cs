@@ -45,8 +45,7 @@ namespace Servicio_Principal
                 {
                     if (isConsoleAdmin(oper))
                     {
-                        Console.WriteLine("Se ha logueado un administrador de consola.");
-                        CallbackActual.Mensaje(new Mensaje() { Contenido = "Admitido en el servidor" });
+                        Console.WriteLine("Se ha logueado un administrador de consola.");                                        
                         return true;
                     }
                     SQL.Operador connOperador = new SQL.Operador();
@@ -123,7 +122,23 @@ namespace Servicio_Principal
 
         public void TestCommand()
         {
-            Console.WriteLine("Has enviado un comando de prueba");
+            // Recorremos todos los clientes conectados y le mandamos un mensaje
+            foreach (var callback in lstOperadoresConectados.Values)
+            {
+                callback.Mensaje(new Mensaje() { Contenido = "Comando prueba desde consola." });
+            }
+        }
+
+        /// <summary>
+        /// Envia un mensaje a todos los operadores logueados
+        /// </summary>
+        public void MessageToAllOperators(string sMessage)
+        {
+            // Recorremos todos los clientes conectados
+            foreach (var callback in lstOperadoresConectados.Values)
+            {
+                callback.Mensaje(new Mensaje() { Contenido = "El administrador ha enviado el siguiente mensaje: " + sMessage });
+            }
         }
 
         /// <summary>

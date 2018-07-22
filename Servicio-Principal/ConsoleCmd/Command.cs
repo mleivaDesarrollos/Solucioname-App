@@ -17,7 +17,8 @@ namespace Servicio_Principal
         public static List<Command> List = new List<Command>()
         {
             new Command() { Name = "test" , Parameters = 0, Action = new ConsoleCmd.Actions.Test()},
-            new Command() { Name = "dummy", Parameters = 3, Action = new ConsoleCmd.Actions.Test()}
+            new Command() { Name = "dummy", Parameters = 3, Action = new ConsoleCmd.Actions.Test()},
+            new Command() { Name = "message" , Parameters = 2, Action = new ConsoleCmd.Actions.Test()},
         };
 
         /// <summary>
