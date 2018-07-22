@@ -11,7 +11,7 @@ namespace ConsoleHostTesting
         static void Main(string[] args)
         {
             // Consola de prueba - Conexión a servicio Solucioname
-            Console.WriteLine("Consola de verificación de servicio : Solucioname Gestion. aguarde.");
+            Console.WriteLine("Consola de verificación de servicio : Solucioname Gestion. aguarde sorete.");
             // Generamos una nueva entidad vinculada con el Callback de cliente
             InteraccionServicio intServicio = new InteraccionServicio();
             try
