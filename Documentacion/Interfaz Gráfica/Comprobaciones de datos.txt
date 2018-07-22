@@ -1,0 +1,13 @@
+Comprobaciones de datos a realizar al proceder con un alta:
+-----------------------------------------------------------
+
+ACTUACION
+    -En Actuación, el campo NUMERO se debe comprobar que tenga formato 5000XXXX. Usar REGEX
+    -En Remedy, comprobar que tenga formato HD100000XXXXX o INCXXXXX, USAR REGEX
+
+COMUNES
+    - Los estados cargados deben comprobar que el ORDEN corresponda con el tiempo, las ordenes van en escalada ascendente de 1 en 1, requieriendo que los tiempos cargados sean mayores que el anterior obligatoriamente. Rechazar los tiempos cargados que sean anteriores a la orden anterior. La misma comprobación debe ejecutarse sobre las ordenes eliminadas
+        Caso de prueba
+        Tenemos 5 ordenes, eliminamos la 3ra. La orden que se debe agregar entre la 4 y la 2. Debe cumplir lo siguiente:
+            -la orden nueva 3 debe tener un periodo mayor a la 2
+            -la orden nueva 3 debe tener un periodo menor a la 4

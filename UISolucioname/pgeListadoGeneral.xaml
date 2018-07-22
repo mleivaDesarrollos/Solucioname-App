@@ -1,0 +1,65 @@
+﻿<Page x:Class="UISolucioname.pgeListadoGeneral"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:UISolucioname"
+      mc:Ignorable="d" 
+      MinHeight="300" MinWidth="300"
+      Title="pgeListadoGeneral">
+    <Grid>
+        <Border BorderBrush="{StaticResource AppBorderColor}" BorderThickness="1" Margin="0,3,0,-3">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="32"/>
+                    <RowDefinition Height="1*"/>
+                </Grid.RowDefinitions>
+                <Border BorderBrush="{StaticResource AppBorderColor}" BorderThickness="1" Background="{StaticResource AppContentTextColor}">
+                    <StackPanel Orientation="Horizontal" Margin="3">
+                        <Label>Filtro :</Label>
+                        <ComboBox Name="cboFiltro" Width="120" IsReadOnly="True">
+                            <ComboBoxItem Name="cboFiltroPorFecha" Content="Por Fecha" Selector.IsSelected="True"/>
+                            <ComboBoxItem Name="cboFiltroPorAsunto" Content="Por Asunto" />
+                        </ComboBox>
+                        <StackPanel Name="stpPorFecha" Orientation="Horizontal" IsVisibleChanged="stpPorFecha_IsVisibleChanged">
+                            <Label>Valor :</Label>
+                            <ComboBox Name="cboFiltroMes" Width="70" IsReadOnly="True" Margin="2 0" DisplayMemberPath="Descripcion" SelectedValuePath="Numero"/>
+                            <ComboBox Name="cboFiltroAno" Width="50" IsReadOnly="True" Margin="2 0" />
+                        </StackPanel>
+                        <StackPanel Name="stpFiltroNumero" Orientation="Horizontal" Visibility="Collapsed">
+                            <Label>Asunto: </Label>
+                            <Label>3000</Label>
+                            <TextBox Name="txtFiltroAsunto" MaxLength="6" MinWidth="60" VerticalAlignment="Center" TextChanged="FiltrarListadoGeneral"/>
+                            <CheckBox Name="chkFiltrarListadoActual" VerticalAlignment="Center" Margin="5 0" Unchecked="chkFiltrarListadoActual_Unchecked" Checked="chkFiltrarListadoActual_Checked">Filtrar resultados actuales</CheckBox>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Row="1" BorderThickness="1" BorderBrush="{StaticResource AppBorderColor}" Margin="3">
+                    <DataGrid Name="dgListadoGeneral" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column" >
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Num. Asunto" Binding="{Binding num_asunto}"/>
+                            <DataGridTextColumn Header="Descripcion breve" Width="1*" Binding="{Binding Path=descripcion_breve}"/>
+                            <DataGridTextColumn Header="U. Estado" Width="0.5*" Binding="{Binding Path=Ultimo_Estado}" />
+                            <DataGridTextColumn Header="U. Modificación" Binding="{Binding Path=Ultima_Fecha, StringFormat=dd/MM/yyyy}" />
+                        </DataGrid.Columns>
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="ContextMenu">
+                                    <Setter.Value>
+                                        <ContextMenu Visibility="Collapsed"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
+                        <DataGrid.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Name="mniEliminarAsunto" Header="Eliminar" Click="mniEliminarAsunto_Click"/>
+                                <MenuItem Name="mniModificarAsunto" Header="Modificar" Click="mniModificarAsunto_Click"/>
+                            </ContextMenu>
+                        </DataGrid.ContextMenu>
+                    </DataGrid>                    
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</Page>

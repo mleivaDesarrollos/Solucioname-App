@@ -1,0 +1,174 @@
+﻿<Page x:Class="UISolucioname.pgeActuacion"
+      xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:UISolucioname"
+      mc:Ignorable="d"      
+      Title="pgeActuacion">
+
+    <Grid Background="{StaticResource AppContentTextColor}">
+        <Grid.Resources>
+            <local:DataSource x:Key="Ods"/>
+            <Style x:Key="TextBoxInError" TargetType="{x:Type TextBox}">
+                <Style.Triggers>
+                    <Trigger Property="IsEnabled" Value="true">
+                        <Setter Property="Validation.ErrorTemplate">
+                            <Setter.Value>
+                                <ControlTemplate>
+                                    <DockPanel>
+                                        
+                                        <TextBlock Margin="3" Foreground="Red" FontSize="10">!</TextBlock>
+                                        <AdornedElementPlaceholder/>
+                                    </DockPanel>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Trigger>
+                    <Trigger Property="IsEnabled" Value="false">
+                        <Setter Property="Validation.ErrorTemplate" Value="{x:Null}"/>
+                    </Trigger>
+                    <MultiTrigger>
+                        <MultiTrigger.Conditions>
+                            <Condition Property="Validation.HasError" Value="true"/>
+                            <Condition Property="IsEnabled" Value="true"/>
+                        </MultiTrigger.Conditions>
+                        <Setter Property="ToolTip"
+                                Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                        <Setter Property="BorderBrush" Value="Red"/>
+                        <Setter Property="BorderThickness" Value="1"/>
+                    </MultiTrigger>
+                </Style.Triggers>
+            </Style>
+        </Grid.Resources>
+        <Border Margin="4">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.3*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <GroupBox Header="Detalles" Margin="5 0 5 0">
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel.Resources>
+                            <Style TargetType="{x:Type Control}" x:Key="MargenStack">
+                                <Setter Property="Margin" Value="3 5 3 0"/>
+                                <Setter Property="FontSize" Value="10"/>
+                            </Style>
+                            <Style TargetType="Label" BasedOn="{StaticResource MargenStack}">
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                            </Style>
+                            <Style TargetType="TextBox" BasedOn="{StaticResource MargenStack}">
+                                <Setter Property="MinWidth" Value="80"/>
+                            </Style>
+                            <Style TargetType="ComboBox" BasedOn="{StaticResource MargenStack}">
+                                <Setter Property="MinWidth" Value="80"/>
+                            </Style>
+                        </StackPanel.Resources>
+                        <Label>Numero:</Label>
+                        <TextBox Name="txtNumActuacion" MaxLength="10" Style="{StaticResource TextBoxInError}">
+                            <TextBox.Resources>
+                                <local:ValidarActuacion x:Key="ReglaAct" Element="{x:Reference txtNumActuacion}"/>
+                            </TextBox.Resources>
+                            <TextBox.Text>
+                                <Binding Path="Actuacion" Source="{StaticResource Ods}" UpdateSourceTrigger="PropertyChanged">
+                                    <Binding.ValidationRules>
+                                        <StaticResource ResourceKey="ReglaAct"/>
+                                    </Binding.ValidationRules>
+                                </Binding>
+                            </TextBox.Text>
+                        </TextBox>
+                        <Label>Remedy:</Label>
+                        <TextBox Name="txtRemedy" MaxLength="15"/>
+                        <Label>Tipo:</Label>
+                        <ComboBox Name="cboTipoActuacion" IsReadOnly="True" DisplayMemberPath="Descripcion" SelectedValuePath="Id" SelectionChanged="cboTipoActuacion_SelectionChanged" />
+                        <Label>Grupo asignado:</Label>
+                        <ComboBox Name="cboGrupos" IsReadOnly="True" DisplayMemberPath="Descripcion" SelectedValuePath="Id" />
+                    </StackPanel>
+                </GroupBox>
+                <Border Grid.Column="1" BorderBrush="{StaticResource AppContentColor}" BorderThickness="4 0 0 0" >
+                    <GroupBox Margin="5 0 0 0" Header="Estados">
+                        <Grid Margin="3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="0.9*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border BorderBrush="{StaticResource AppContentColor}" BorderThickness="0 0 2 0" Margin="0 0 4 0">
+                                <GroupBox Header="Información detallada" Margin="0 0 5 0">
+                                    <Grid Margin="3">
+                                        <Grid.Resources>
+                                            <Style TargetType="{x:Type Control}" x:Key="Margen">
+                                                <Setter Property="Margin" Value="0 5 0 5"/>
+                                                <Setter Property="FontSize" Value="10"/>
+                                            </Style>
+                                            <Style TargetType="Label" BasedOn="{StaticResource Margen}"/>
+                                            <Style TargetType="xctk:MaskedTextBox" BasedOn="{StaticResource Margen}"/>
+                                            <Style TargetType="ComboBox" BasedOn="{StaticResource Margen}"/>
+                                            <Style TargetType="xctk:MultiLineTextEditor" BasedOn="{StaticResource Margen}"/>                                            
+                                        </Grid.Resources>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="0.6*"/>
+                                            <ColumnDefinition Width="1*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="35"/>
+                                            <RowDefinition Height="35"/>
+                                            <RowDefinition Height="35"/>
+                                            <RowDefinition Height="35"/>
+                                            <RowDefinition Height="35"/>
+                                            <RowDefinition Height="35"/>
+                                            <RowDefinition Height="35"/>
+                                        </Grid.RowDefinitions>
+                                        <StackPanel Grid.ColumnSpan="2" Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <xctk:MaskedTextBox Name="txtFechaEstadoActuacion" Mask="00-00-0000" />
+                                            <xctk:MaskedTextBox Name="txtHoraEstadoActuacion" Mask="00:00:00"/>
+                                        </StackPanel>
+                                        <ComboBox Grid.Column="1" Grid.Row="2" Name="cboTipoEstadoActuacion" SelectedValuePath="Id" DisplayMemberPath="Descripcion"/>
+                                        <ComboBox Grid.Column="1" Grid.Row="3" Name="cboOrdEstadoActuacion"/>
+                                        <xctk:MultiLineTextEditor Grid.Column="1" Grid.Row="4" Name="txtDetalleEstadoActuacion" TextWrapping="Wrap" TextAlignment="Left" DropDownHeight="150" DropDownWidth="200"/>
+                                        <Label Grid.ColumnSpan="2" HorizontalAlignment="Center">Fecha:</Label>
+                                        <Label Grid.Row="2">Tipo :</Label>
+                                        <Label Grid.Row="3">Orden :</Label>
+                                        <Label Grid.Row="4">Detalle :</Label>
+                                        <Button Grid.Row="5" Grid.ColumnSpan="2" Name="btnGuardarCambios" Margin="0 7" FontSize="10" Click="btnGuardarCambios_Click">Guardar Cambios</Button>
+                                        <Button Grid.Row="6" Grid.ColumnSpan="2" Name="btnDescartarCambios" Margin="0 7" FontSize="10" Click="btnDescartarCambios_Click">Descartar cambios</Button>
+                                        
+                                    </Grid>
+                                </GroupBox>
+                            </Border>
+                            <Grid Grid.Column="1">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="25"/>
+                                </Grid.RowDefinitions>
+                                <DataGrid Name="dgListadoActuacionEstados" IsReadOnly="True" HeadersVisibility="Column" Margin="2" SelectionChanged="dgListadoActuacionEstados_SelectionChanged" AutoGenerateColumns="False">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Ord" Binding="{Binding Ord}"/>
+                                        <DataGridTextColumn Header="Estado" Width="1*" Binding="{Binding Tipo.Descripcion}"/>
+                                        <DataGridTextColumn Header="Horario" Width="1*" Binding="{Binding FechaHora}"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <Grid Grid.Row="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition MinWidth="50"/>
+                                        <ColumnDefinition MinWidth="50"/>
+                                        <ColumnDefinition MinWidth="50"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.Resources>
+                                        <Style TargetType="Button" BasedOn="{StaticResource AppButtonColor}">
+                                            <Setter Property="Margin" Value="2 1 2 1"/>
+                                            <Setter Property="FontSize" Value="10"/>
+                                        </Style>
+                                    </Grid.Resources>
+                                    <Button Grid.Column="1" Name="btnModificarEstadoActuacion" Click="btnModificarEstadoActuacion_Click">Modificar</Button>
+                                    <Button Name="btnEliminarEstadoActuacion" Click="btnEliminarEstadoActuacion_Click">Eliminar</Button>
+                                    <Button Grid.Column="2" Name="btnNuevoEstadoActuacion" Click="btnNuevoEstadoActuacion_Click">Nuevo</Button>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </GroupBox>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</Page>

@@ -1,0 +1,74 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UISolucioname.Util"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" x:Class="UISolucioname.frmLogin"
+        mc:Ignorable="d"
+        AllowsTransparency="True"
+        WindowStyle = "None"
+        WindowStartupLocation="CenterScreen"
+        Icon="Santander.ico"
+        Title="Solucioname - Gestión" Height="200" Width="400">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <Border x:Name="BarraTitulo" Background="{StaticResource AppContentColor}" BorderBrush="{StaticResource AppBorderColor}" BorderThickness="5 5 5 0">
+            <DockPanel LastChildFill="False">
+                <DockPanel.Resources>
+                    <Style TargetType="{x:Type Button}">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="IsTabStop" Value="False"/>
+                    </Style>
+                </DockPanel.Resources>
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Foreground="White" Margin="5 0 0 0"><Run Text="Solucioname - Gestión : Logueo"/></TextBlock>
+                <Button x:Name="btnCerrarWindow" DockPanel.Dock="Right">
+                    <DockPanel>
+                        <Image Source="/Images/CloseButton.png" />
+                    </DockPanel>
+                </Button>
+            </DockPanel>
+        </Border>
+        <Border Grid.Row="1" BorderBrush="{StaticResource AppBorderColor}" BorderThickness="5 2 5 5">
+            <Grid x:Name="grdContenedor" Margin="15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="0.7*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="0.4*"/>
+                </Grid.RowDefinitions>
+                <Grid.Resources>
+                    <Style TargetType="{x:Type Control}" x:Key="txtBoxFormat">
+                        <Setter Property="Height" Value="25"/>
+                        <Setter Property="Margin" Value="3 5"/>
+                    </Style>
+                    <Style TargetType="Label">
+                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                        <Setter Property="Margin" Value="0 0 5 0"/>
+                    </Style>
+                    <Style TargetType="PasswordBox" BasedOn="{StaticResource txtBoxFormat}"/>
+                    <Style TargetType="TextBox" BasedOn="{StaticResource txtBoxFormat}"/>
+                    <Style TargetType="Button" BasedOn="{StaticResource AppButtonColor}">
+                        <Setter Property="Margin" Value="8 10"/>
+                    </Style>
+                </Grid.Resources>
+                <Label Content="Nombre de usuario:"/>
+                <Label Grid.Row="1" Content="Contraseña:"/>
+                <TextBox Name="txtUsername" Grid.Column="1" TabIndex="0"/>
+                <PasswordBox Name="txtPassword" Grid.Column="1" Grid.Row="1" TabIndex="1"/>
+                <Button Grid.Column="2" Name="btnLoguear" Click="btnLoguear_Click" IsDefault="True" TabIndex="2">Ingresar</Button>
+                <Button Grid.Column="2" Grid.Row="1" Name="btnSalir" Click="btnSalir_Click" IsCancel="True" TabIndex="3">Salir</Button>                
+            </Grid>
+
+        </Border>
+
+    </Grid>
+</Window>

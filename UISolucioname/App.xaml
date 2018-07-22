@@ -1,0 +1,18 @@
+﻿<Application x:Class="UISolucioname.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:UISolucioname"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             Startup="Application_Startup">
+    <Application.Resources>
+        <sys:String x:Key="AppVersion">V1.0 - BETA</sys:String>
+        <SolidColorBrush x:Key="AppBorderColor" Color="#FF2B0000"/>
+        <SolidColorBrush x:Key="AppContentColor" Color="Red"/>
+        <SolidColorBrush x:Key="AppContentTextColor" Color="White"/>        
+        <Style TargetType="{x:Type Control}" x:Key="AppButtonColor">
+            <Setter Property="Background" Value="{StaticResource AppContentColor}"/>
+            <Setter Property="Foreground" Value="{StaticResource AppContentTextColor}"/>
+        </Style>
+        <Style TargetType="Button" BasedOn="{StaticResource AppButtonColor}"/>
+    </Application.Resources>
+</Application>
