@@ -52,9 +52,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConsoleCmd\Actions\Action.cs" />
-    <Compile Include="ConsoleCmd\Actions\Test.cs" />
-    <Compile Include="ConsoleCmd\Command.cs" />
+    <Compile Include="ConsoleCmd\ICommandExecution.cs" />
+    <Compile Include="ConsoleCmd\MessageExecution.cs" />
     <Compile Include="Data\Mensaje.cs" />
     <Compile Include="IServicio.cs" />
     <Compile Include="IServicioCallback.cs" />
@@ -77,6 +76,7 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

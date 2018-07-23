@@ -52,6 +52,11 @@
     <Compile Include="AsuntoDiario.cs" />
     <Compile Include="Estado.cs" />
     <Compile Include="GrupoResolutor.cs" />
+    <Compile Include="Service\Command.cs" />
+    <Compile Include="Service\Commands\Execution\CommandExecution.cs" />
+    <Compile Include="Service\Commands\Execution\ICommandExecution.cs" />
+    <Compile Include="Service\Commands\Execution\MessageExecution.cs" />
+    <Compile Include="Service\Commands\Message.cs" />
     <Compile Include="TipoEstado.cs" />
     <Compile Include="Gestion.cs" />
     <Compile Include="Operador.cs" />
@@ -60,6 +65,7 @@
   <ItemGroup>
     <Content Include="santander.ico" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

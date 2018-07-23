@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Servicio_Principal.ConsoleCmd.Actions
+namespace Entidades.Service.Commands.Execution
 {
-    public class Message : Action
+    public class MessageExecution : Message, ICommandExecution
     {
-        public void Call(Servicio currentServiceInstance, string[] parameters)
+        public void Call(string pMsj)
         {
             
         }

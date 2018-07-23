@@ -61,28 +61,10 @@ namespace ConsoleHostTesting
             }            
         }
 
-        public void EnviarAsunto(Asunto a)
+        public void EnviarAsunto(Entidades.Asunto a)
         {
             Console.WriteLine("Un asunto ha sido enviado para su gestion : " + a.Numero + ". Descripción breve: " + a.DescripcionBreve);
         }
-
-        /// <summary>
-        /// Envia un comando al servidor
-        /// </summary>
-        /// <param name="sComando"></param>
-        public void EnviarComandoServidor(string sComando)
-        {
-            if(Command.Check(sComando))
-            {
-                
-                // Ejecutamos el comando en el servidor
-                Proxy.EjecutarComando(Program.consoleAdm, sComando);
-                Console.WriteLine("Comando Enviado a servidor.");
-            }
-            else
-            {
-                Console.WriteLine("Comando Invalido");
-            }
-        }
+        
     }
 }

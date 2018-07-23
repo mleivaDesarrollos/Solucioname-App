@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ServiceModel;
 using Entidades;
+using Servicio_Principal.ConsoleCmd;
 
 namespace Servicio_Principal
 {
@@ -165,13 +166,13 @@ namespace Servicio_Principal
             {
                 // Validamos si el usuario corresponde al usuario de consola
                 if (isConsoleAdmin(oper))
-                {
+                {/*
                     // Validamos el comando pasado por parametro
                     if (Command.Check(sCmd))
                     {
                         // Ejecutamos el comando pasado por parametro
                         Command.Run(this, sCmd);
-                    }
+                    }*/
                 }
                 else
                 {

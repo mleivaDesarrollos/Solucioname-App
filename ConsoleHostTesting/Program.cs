@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Entidades.Service;
 
 namespace ConsoleHostTesting
 {
     class Program
     {
-        public static ConsoleHostTesting.ServicioSolucioname.Operador consoleAdm = new ServicioSolucioname.Operador()
+        public static Entidades.Operador consoleAdm = new Entidades.Operador()
         {
             UserName = "ConsoleAdmin",
             Password = "Fm130414"
@@ -16,6 +17,22 @@ namespace ConsoleHostTesting
 
         static void Main(string[] args)
         {
+            Console.WriteLine("Conexion establecida. Modo administrador mediante comando:");
+            while (true)
+            {
+                string comando = Console.ReadLine();
+                using (Command cmd = Command.Get(comando))
+                {
+                    if (cmd != null)
+                    {
+                        foreach (var ExecutionMessage in Entidades.Service.Commands.Execution.CommandExecution.lstCmdExec)
+                        {
+
+                        }
+                    }
+                }
+            }
+            /*
             // Consola de prueba - Conexión a servicio Solucioname
             Console.WriteLine("Consola de verificación de servicio : Solucioname Gestion. aguarde sorete.");
             // Generamos una nueva entidad vinculada con el Callback de cliente
@@ -25,12 +42,7 @@ namespace ConsoleHostTesting
                 // Solicitamos conexión nueva
                 if(intServicio.Conectarse())
                 {
-                    Console.WriteLine("Conexion establecida. Modo administrador mediante comando:");
-                    while (true)
-                    {
-                        string comando = Console.ReadLine();
-                        intServicio.EnviarComandoServidor(comando);
-                    }
+                    
                 }
             }
             catch (Exception ex)
@@ -42,7 +54,7 @@ namespace ConsoleHostTesting
             // Informamos la finalización de la tarea
             Console.WriteLine("Se ha finalizado las tareas programadas");
             Console.ReadKey();
-
+            */
         }
     }
 }
