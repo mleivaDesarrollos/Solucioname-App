@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Servicio_Principal.ConsoleCmd
+namespace Servicio_Principal.CommandExecution
 {
-    interface ICommandExecution
+    public interface IExecution
     {
         void Call(Servicio currentServiceInstance);
+
+        IExecution Convert(Entidades.Service.Command commSource)
     }
 }

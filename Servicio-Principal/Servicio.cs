@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ServiceModel;
 using Entidades;
-using Servicio_Principal.ConsoleCmd;
 
 namespace Servicio_Principal
 {
@@ -160,30 +159,19 @@ namespace Servicio_Principal
         /// </summary>
         /// <param name="oper"></param>
         /// <param name="sCmd"></param>
-        public void EjecutarComando(Operador oper, string sCmd)
+        public void EjecutarComando(Operador oper, Entidades.Service.Command command)
         {
             try
             {
-                // Validamos si el usuario corresponde al usuario de consola
-                if (isConsoleAdmin(oper))
-                {/*
-                    // Validamos el comando pasado por parametro
-                    if (Command.Check(sCmd))
-                    {
-                        // Ejecutamos el comando pasado por parametro
-                        Command.Run(this, sCmd);
-                    }*/
-                }
-                else
-                {
-                    // Si el comando proviene de un usuario no autorizado, se debe informar en consola
-                    Console.WriteLine("ALERTA : El usuario " + oper.UserName + " esta intentando enviar comando de consola sin estar autorizado.");
-                }
+                // Se rechaza la ejecución del comando si la solicitud no priviene de un adminstrador de consola
+                if (!isConsoleAdmin(oper)) throw new Exception(string.Format(Error.CONSOLE_COMMAND_CALLED_BY_STANDARD_USER, oper.UserName));
+                // Ejecutamos la accion si es que la misma es encontrada
+                CommandExecution.Execution.getRelatedAction(command).Call(this);
             }
             catch (Exception ex)
             {
-                
-                Console.WriteLine("Error al procesar comando: " +ex.Message);
+                // Al procesarse una exception se informa por consola el resultado                
+                Console.WriteLine(ex.Message);
             }            
         }
     }

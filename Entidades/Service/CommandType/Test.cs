@@ -4,13 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Entidades.Service.Commands
+namespace Entidades.Service.CommandType
 {
     public class Test : Command
     {
-        internal override bool CheckParameters(string[] parameters)
+        public Test() : base("test")
         {
-            throw new NotImplementedException();
+
+        }
+
+        internal override void loadAndCheckparameters(string[] parameters)
+        {
+            
         }
     }
 }

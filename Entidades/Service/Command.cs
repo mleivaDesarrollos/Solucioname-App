@@ -3,62 +3,40 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Entidades.Service.Commands;
+using System.Runtime.Serialization;
 
 namespace Entidades.Service
 {
-    public abstract class Command : IDisposable
+    [DataContract]
+    public abstract class Command
     {
-        public string Name { get; set; }
-
-        public Command(string paramName)
+        /// <summary>
+        /// Nombre del comando
+        /// </summary>
+        [DataMember]
+        public String Name
         {
-            Name = paramName;
+            get; set;
         }
 
-        public static readonly List<Command> List = new List<Command>()
+        /// <summary>
+        /// Al instanciar un comando se debe definir el nombre del mismo
+        /// </summary>
+        /// <param name="commName"></param>
+        public Command(string commName)
         {
-            new Message()
+            Name = commName;
+        }
+
+        /// <summary>
+        /// Lista que contiene los tipos de comandos almacenados
+        /// </summary>
+        public static List<Command> List = new List<Command>()
+        {
+            new CommandType.Message(),
+            new CommandType.Test()
         };
 
-        /// <summary>
-        /// Chequeamos si el comando pasado por consola es valido, 
-        /// se devuelve el comando en cuestión si cumple con los parametros y con el nombre.        
-        /// </summary>
-        /// <param name="sCommand"></param>
-        /// <returns>null si no encuentro comando relacionado, devuelve un comando</returns>
-        public static Command Get(string sCommand)
-        {
-            // Dividimos el comando por espacios
-            string command = sCommand.Split(null)[0];
-            string[] parameters = sCommand.Split(null).Skip(1).ToArray();
-            // Buscamos el comando cargado dentro del listado de comandos
-            Command cmdFind = List.Find((x) => x.Name.ToLower() == command.ToLower());
-            // Si se encuentra el comando averiguamos si tiene la cantidad de parametros adecuados
-            if (cmdFind != null)
-            {
-                // Duplicamos el comando para no modificar el lsitado original
-                cmdFind = cmdFind.MemberwiseClone() as Command;
-                // Chequeamos los parametros pasados al comando
-                if (cmdFind.CheckParameters(parameters))
-                {
-                    return cmdFind;
-                }                
-            }            
-            return null;
-        }
-
-        /// <summary>
-        /// Metodo dispuesto para comprobar los parametros pasados por comando
-        /// Cada herencia deberá chequear sus parametros correspondientes
-        /// </summary>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
-        internal abstract bool CheckParameters(string[] parameters);
-
-        public void Dispose()
-        {
-            
-        }
+        internal abstract void loadAndCheckparameters(string[] parameters);
     }
 }

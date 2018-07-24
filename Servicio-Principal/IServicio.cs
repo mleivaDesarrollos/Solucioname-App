@@ -15,6 +15,6 @@ namespace Servicio_Principal
         bool Conectar(Operador oper);
 
         [OperationContract(IsOneWay = true)]
-        void EjecutarComando(Operador oper, string sCmd);
+        void EjecutarComando(Operador oper, Entidades.Service.Command command);
     }
 }
