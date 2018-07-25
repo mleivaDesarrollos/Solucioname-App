@@ -10,6 +10,6 @@ namespace Servicio_Principal.CommandExecution
     {
         void Call(Servicio currentServiceInstance);
 
-        IExecution Convert(Entidades.Service.Command commSource)
+        IExecution Convert(Entidades.Service.Command commSource);
     }
 }

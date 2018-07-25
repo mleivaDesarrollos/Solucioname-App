@@ -20,7 +20,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/Entidades" minOccurs="0" name="oper" nillable="true" type="q2:Operador" />
-        <xs:element minOccurs="0" name="sCmd" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="strCommand" nillable="true" type="xs:string" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

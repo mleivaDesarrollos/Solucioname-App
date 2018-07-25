@@ -16,23 +16,7 @@ namespace ConsoleHostTesting
         };
 
         static void Main(string[] args)
-        {
-            Console.WriteLine("Conexion establecida. Modo administrador mediante comando:");
-            while (true)
-            {
-                string comando = Console.ReadLine();
-                using (Command cmd = Command.Get(comando))
-                {
-                    if (cmd != null)
-                    {
-                        foreach (var ExecutionMessage in Entidades.Service.Commands.Execution.CommandExecution.lstCmdExec)
-                        {
-
-                        }
-                    }
-                }
-            }
-            /*
+        {            
             // Consola de prueba - Conexión a servicio Solucioname
             Console.WriteLine("Consola de verificación de servicio : Solucioname Gestion. aguarde sorete.");
             // Generamos una nueva entidad vinculada con el Callback de cliente
@@ -42,7 +26,28 @@ namespace ConsoleHostTesting
                 // Solicitamos conexión nueva
                 if(intServicio.Conectarse())
                 {
-                    
+                    Console.WriteLine("Connection completed. Send a command:");
+                    while (true)
+                    {
+                        try
+                        {
+                            // Esperamos el comando
+                            string strNewCommand = Console.ReadLine();
+                            // Obtenemos el comando desde entidades
+                            // Por restricciones de SOAP, no es posible enviar el objeto heredado al servicio de manera nativa
+                            // Por tal motivo este proceso es utilizado únicamente como un medio de validación
+                            // que permita comprobar si el comando esta correctamente construido
+                            // El servicio se encargará de construir la entidad con sus herencias utilizando
+                            // las mismas clases que ejecutan las validaciones
+                            Command newCommand = Command.Get(strNewCommand);
+                            // Ejecutamos el comando
+                            intServicio.EnviarComando(strNewCommand);                            
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.Message);
+                        }                        
+                    }
                 }
             }
             catch (Exception ex)
@@ -53,8 +58,7 @@ namespace ConsoleHostTesting
             }
             // Informamos la finalización de la tarea
             Console.WriteLine("Se ha finalizado las tareas programadas");
-            Console.ReadKey();
-            */
+            Console.ReadKey();            
         }
     }
 }

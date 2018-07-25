@@ -53,6 +53,7 @@
     <Compile Include="Estado.cs" />
     <Compile Include="GrupoResolutor.cs" />
     <Compile Include="Service\Command.cs" />
+    <Compile Include="Service\CommandType\Gestion.cs" />
     <Compile Include="Service\CommandType\Message.cs" />
     <Compile Include="Service\CommandType\Test.cs" />
     <Compile Include="TipoEstado.cs" />

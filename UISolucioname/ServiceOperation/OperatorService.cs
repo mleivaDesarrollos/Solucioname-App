@@ -40,6 +40,10 @@ namespace UISolucioname.ServiceOperation
                 }
                 return _proxy;
             }
+            set
+            {
+                _proxy = value;
+            }
         }
 
         public void EnviarAsunto(Entidades.Asunto a)
@@ -55,12 +59,24 @@ namespace UISolucioname.ServiceOperation
         /// <summary>
         /// Realiza la apertura de conexión del proxy haciendo las comprobaciones correspondientes
         /// </summary>
-        private void AbrirConexion()
+        private void ManejarProxy()
         {
-            if(proxy.State != CommunicationState.Opened)
+            switch (proxy.State)
             {
-                // Realizamos apertura
-                proxy.Open();
+                case CommunicationState.Created:
+                    proxy.Open();
+                    break;
+                case CommunicationState.Opening:
+                case CommunicationState.Opened:
+                    break;
+                case CommunicationState.Closing:
+                case CommunicationState.Closed:
+                case CommunicationState.Faulted:
+                    proxy = null;
+                    proxy.Open();
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -70,7 +86,7 @@ namespace UISolucioname.ServiceOperation
         public void ConectarConServicio()
         {
             // Abrimos la conexión
-            AbrirConexion();
+            ManejarProxy();
             // Ejecutamos la solicitud de conexion pasando los parametros requeridos por el servicio SOAP
             if (proxy.Conectar(App.Current.Properties["user"] as Entidades.Operador))
             {

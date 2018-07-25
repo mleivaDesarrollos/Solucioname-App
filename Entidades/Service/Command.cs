@@ -37,6 +37,28 @@ namespace Entidades.Service
             new CommandType.Test()
         };
 
+        /// <summary>
+        /// Se recibe una cadena de caracteres como parametros y se procesa para conseguir un comando
+        /// </summary>
+        /// <param name="strCommand"></param>
+        public static Command Get(string strCommand)
+        {
+            // Comprobamos si el comando recibió valores
+            if (strCommand.Length == 0) throw new Exception("Empty Command.");
+            // Dividimos la cadena de caracteres comunicada en comando y parametros
+            string command = strCommand.Split(null)[0];
+            string[] parameters = strCommand.Split(null).Skip(1).ToArray();
+            // Buscamos si dentro de los listados de comandos almacenados se encuentra algún comando relacionado con el comando pasado por parametro
+            Command commandResult = List.Find((cmdToFind) => cmdToFind.Name == command);
+            // Si no encontramos el comando disparamos una excepción
+            if (commandResult == null) throw new Exception("Command not found.");
+            // Cargamos los parametros correspondientes al comando según lo pasado en la cadena de caracteres
+            commandResult.loadAndCheckparameters(parameters);
+            // Devolvemos el valor procesado
+            return commandResult;
+        }
+
+
         internal abstract void loadAndCheckparameters(string[] parameters);
     }
 }

@@ -85,10 +85,10 @@ namespace UISolucioname.SrvSolucioname {
         System.Threading.Tasks.Task<bool> ConectarAsync(Entidades.Operador oper);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/EjecutarComando")]
-        void EjecutarComando(Entidades.Operador oper, string sCmd);
+        void EjecutarComando(Entidades.Operador oper, string strCommand);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/EjecutarComando")]
-        System.Threading.Tasks.Task EjecutarComandoAsync(Entidades.Operador oper, string sCmd);
+        System.Threading.Tasks.Task EjecutarComandoAsync(Entidades.Operador oper, string strCommand);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -137,12 +137,12 @@ namespace UISolucioname.SrvSolucioname {
             return base.Channel.ConectarAsync(oper);
         }
         
-        public void EjecutarComando(Entidades.Operador oper, string sCmd) {
-            base.Channel.EjecutarComando(oper, sCmd);
+        public void EjecutarComando(Entidades.Operador oper, string strCommand) {
+            base.Channel.EjecutarComando(oper, strCommand);
         }
         
-        public System.Threading.Tasks.Task EjecutarComandoAsync(Entidades.Operador oper, string sCmd) {
-            return base.Channel.EjecutarComandoAsync(oper, sCmd);
+        public System.Threading.Tasks.Task EjecutarComandoAsync(Entidades.Operador oper, string strCommand) {
+            return base.Channel.EjecutarComandoAsync(oper, strCommand);
         }
     }
 }

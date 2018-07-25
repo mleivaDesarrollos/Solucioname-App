@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ServiceModel;
 using Entidades;
+using Entidades.Service;
 
 namespace Servicio_Principal
 {
@@ -12,6 +13,11 @@ namespace Servicio_Principal
     public class Servicio : IServicio
     {
         Dictionary<Operador, IServicioCallback> lstOperadoresConectados = new Dictionary<Operador, IServicioCallback>();
+
+        /// <summary>
+        /// Lista que se utilizará para procesos de limpieza de operadores que ya perdieron la conexión al servidor
+        /// </summary>
+        List<IServicioCallback> lstOperatorToRemove = new List<IServicioCallback>();
 
         object syncObject = new object();
 
@@ -137,8 +143,57 @@ namespace Servicio_Principal
             // Recorremos todos los clientes conectados
             foreach (var callback in lstOperadoresConectados.Values)
             {
-                callback.Mensaje(new Mensaje() { Contenido = "El administrador ha enviado el siguiente mensaje: " + sMessage });
+                try
+                {
+                    // Controlamos con un bloque Try Catch el envío de mensajes, por si el callback ya no responde y debe ser removido del listado
+                    callback.Mensaje(new Mensaje() { Contenido = sMessage });
+                }
+                catch (Exception)
+                {
+                    // Si hay una excepción, es posible que el cliente ya no este activo, por lo que se progrmaa para que el mismo sea eliminado posteriormente
+                    lstOperatorToRemove.Add(callback);
+                }                
             }
+            cleanOperatorsWithFails();
+        }
+
+        /// <summary>
+        /// Procesa el listado de operadores conectados que tuvieron algún problema de conexión en el proceso
+        /// </summary>
+        private void cleanOperatorsWithFails()
+        {
+            // Recorremos el listado de operadores a eliminar
+            foreach (var callbackFromOperatorDelete in lstOperatorToRemove)
+            {
+                // Removemos el operador del listado de conectados
+                removeConnectedOperator(callbackFromOperatorDelete);
+            }
+            // Limpiamos el listado de conectados
+            lstOperatorToRemove.Clear();
+        }
+
+        /// <summary>
+        /// Devuelve un callback relacionado a un operador desde el listado de conectados
+        /// </summary>
+        /// <param name=""></param>
+        /// <returns></returns>
+        private Entidades.Operador getConnectedOperator(IServicioCallback iscOperatorRelated)
+        {
+            return lstOperadoresConectados.First((oper) => oper.Value == iscOperatorRelated).Key;
+        }
+
+        /// <summary>
+        /// Remueve un operador del listado de conectados
+        /// </summary>
+        /// <param name="callbackToRemove"></param>
+        private void removeConnectedOperator(IServicioCallback callbackRelated)
+        {
+            // Obtenemos el operador conectado
+            Entidades.Operador connectedOperator = getConnectedOperator(callbackRelated);           
+            // Removemos el operador de los operadores conectados
+            lstOperadoresConectados.Remove(connectedOperator);
+            // Informamos que el cliente fue desconectado
+            Console.WriteLine("the operator {0} has been removed from the connected operators.", connectedOperator.UserName);
         }
 
         /// <summary>
@@ -159,20 +214,24 @@ namespace Servicio_Principal
         /// </summary>
         /// <param name="oper"></param>
         /// <param name="sCmd"></param>
-        public void EjecutarComando(Operador oper, Entidades.Service.Command command)
-        {
+        public void EjecutarComando(Operador oper, string strCommand)
+        {   
             try
             {
                 // Se rechaza la ejecución del comando si la solicitud no priviene de un adminstrador de consola
                 if (!isConsoleAdmin(oper)) throw new Exception(string.Format(Error.CONSOLE_COMMAND_CALLED_BY_STANDARD_USER, oper.UserName));
+                // Construimos el comando a partir de la cadena de caractéres
+                Command commandBuild = Command.Get(strCommand);                
                 // Ejecutamos la accion si es que la misma es encontrada
-                CommandExecution.Execution.getRelatedAction(command).Call(this);
+                CommandExecution.Execution.getRelatedAction(commandBuild).Call(this);
+                // Avisamos por consola que el comando ha sido ejecutado correctamente
+                Console.WriteLine(commandBuild.Name + " has been executed succefully.");
             }
             catch (Exception ex)
             {
                 // Al procesarse una exception se informa por consola el resultado                
                 Console.WriteLine(ex.Message);
-            }            
+            }     
         }
     }
 }
