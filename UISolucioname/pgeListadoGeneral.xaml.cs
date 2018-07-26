@@ -133,7 +133,7 @@ namespace UISolucioname
                         // Generamos un nueva entidad de asunto que será cargada con los datos requieridos para que la baja se procese
                         Entidades.Asunto entAsunto = new Entidades.Asunto() {
                             Numero = (dgListadoGeneral.SelectedItem as DataRowView)["num_asunto"].ToString(),
-                            Operador = App.Current.Properties["user"] as Entidades.Operador
+                            Oper = App.Current.Properties["user"] as Entidades.Operador
                         };
                         // Procesamos el pedido de baja utilizando el objeto de lógica
                         logAsunto.Eliminar(entAsunto);

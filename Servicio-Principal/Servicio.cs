@@ -177,9 +177,19 @@ namespace Servicio_Principal
         /// </summary>
         /// <param name=""></param>
         /// <returns></returns>
-        private Entidades.Operador getConnectedOperator(IServicioCallback iscOperatorRelated)
+        internal Entidades.Operador getConnectedOperator(IServicioCallback iscOperatorRelated)
         {
             return lstOperadoresConectados.First((oper) => oper.Value == iscOperatorRelated).Key;
+        }
+
+        /// <summary>
+        /// Obtiene el callback del listado de clientes conectados
+        /// </summary>
+        /// <param name="operParameter"></param>
+        /// <returns>Devuelve el callback relacionado con el operador indicado</returns>
+        internal IServicioCallback getOperatorCallback(Entidades.Operador operParameter)
+        {
+            return lstOperadoresConectados.First((opConnected) => opConnected.Key.UserName == operParameter.UserName).Value;
         }
 
         /// <summary>

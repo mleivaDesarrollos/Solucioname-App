@@ -16,7 +16,7 @@ namespace Entidades
             get; set;
         }
         [DataMember]
-        public Operador Operador
+        public Operador Oper
         {
             get; set;
         }

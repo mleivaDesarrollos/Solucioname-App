@@ -27,10 +27,20 @@ namespace Entidades.Service.CommandType
         /// <param name="parameters"></param>
         internal override void loadAndCheckparameters(string[] parameters)
         {
-            if (parameters.Length != 3)
+            // Si los parametros pasados por consola son menores a 3, se rechaza la generación del comando.
+            if (parameters.Length <= 3) throw new Exception("usage : gestion [operator] [asunto_number] [short_description]");
+            // Subdividimos los parametros 
+            string strOperator = parameters[0];
+            string strNumero = parameters[1];
+            StringBuilder sbDescription = new StringBuilder();
+            // Almacenamos los valores desde la posicion 3 hacia adelante para la descripción breve
+            foreach (var strWordShortDescription in parameters.Skip(3).ToArray())
             {
-
+                // Agregamos cada palabra a la descripción breve
+                sbDescription.Append(strWordShortDescription + " ");
             }
+            // Generamos un nuevo asunto y almacenamos la información guardada
+            Asunto = new Asunto() { Numero = strNumero, Oper = new Operador() { UserName = strOperator }, DescripcionBreve = sbDescription.ToString() };
         }
     }
 }

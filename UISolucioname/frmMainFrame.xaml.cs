@@ -182,7 +182,7 @@ namespace UISolucioname
                     Entidades.Asunto entAsunto = new Entidades.Asunto()
                     {
                         Numero = (dgAsuntosDia.SelectedItem as Entidades.AsuntoDiario).Numero,
-                        Operador = App.Current.Properties["user"] as Entidades.Operador
+                        Oper = App.Current.Properties["user"] as Entidades.Operador
                     };
                     // Procesamos la entidad y la eliminamos
                     logAsunto.Eliminar(entAsunto);

@@ -35,7 +35,7 @@ namespace Datos
                 {
                     // Parametrizamos la consulta
                     cmdConsultaEstados.Parameters.Agregar("@Numero", pEntAsunto.Numero);
-                    cmdConsultaEstados.Parameters.Agregar("@Operador", pEntAsunto.Operador.UserName);
+                    cmdConsultaEstados.Parameters.Agregar("@Operador", pEntAsunto.Oper.UserName);
                     // Leemos los resultados obtenidos
                     using (SQLiteDataReader rdrAsuntoEstados = cmdConsultaEstados.ExecuteReader())
                     {
@@ -72,7 +72,7 @@ namespace Datos
             {
                 // Agregamos los valores repetidos
                 cmdIngresarEstados.Parameters.Agregar("@Numero", pAsunto.Numero);
-                cmdIngresarEstados.Parameters.Agregar("@Operador", pAsunto.Operador.UserName);
+                cmdIngresarEstados.Parameters.Agregar("@Operador", pAsunto.Oper.UserName);
                 // Recorremos los estados almacenados
                 foreach (var estados in pAsunto.Estados)
                 {
@@ -100,7 +100,7 @@ namespace Datos
             {
                 // Parametrizamos la consulta
                 cmdDeleteEstadosAsuntos.Parameters.Agregar("@Numero", pAsunto.Numero);
-                cmdDeleteEstadosAsuntos.Parameters.Agregar("@Operador", pAsunto.Operador.UserName);
+                cmdDeleteEstadosAsuntos.Parameters.Agregar("@Operador", pAsunto.Oper.UserName);
                 // Ejecutamos el Query
                 cmdDeleteEstadosAsuntos.ExecuteNonQuery();
             }

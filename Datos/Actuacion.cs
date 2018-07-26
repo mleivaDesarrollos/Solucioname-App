@@ -56,7 +56,7 @@ namespace Datos
             {
                 // Parametrizamos la consulta
                 cmdEliminarActuacion.Parameters.Agregar("@Asunto", pAsunto.Numero);
-                cmdEliminarActuacion.Parameters.Agregar("@Operador", pAsunto.Operador.UserName);
+                cmdEliminarActuacion.Parameters.Agregar("@Operador", pAsunto.Oper.UserName);
                 // Ejecutamos el lector relacionado al comando
                 using (SQLiteDataReader rdrActRelacionadas = cmdEliminarActuacion.ExecuteReader())
                 {
@@ -66,7 +66,7 @@ namespace Datos
                     while (rdrActRelacionadas.Read())
                     {
                         // Generamos una nueva entidad de actuacion
-                        Entidades.Actuacion entAct = new Entidades.Actuacion() { Numero = rdrActRelacionadas["numero"].ToString(), Operador = pAsunto.Operador };
+                        Entidades.Actuacion entAct = new Entidades.Actuacion() { Numero = rdrActRelacionadas["numero"].ToString(), Operador = pAsunto.Oper };
                         // Agregamos la entidad al listado
                         lstAct.Add(entAct);
                     }
@@ -84,7 +84,7 @@ namespace Datos
             {
                 // Parametrizamos la consulta
                 cmdEliminarActuacion.Parameters.Agregar("@Numero", pAsunto.Numero);
-                cmdEliminarActuacion.Parameters.Agregar("@Operador", pAsunto.Operador.UserName);
+                cmdEliminarActuacion.Parameters.Agregar("@Operador", pAsunto.Oper.UserName);
                 // Ejecutamos el comando
                 cmdEliminarActuacion.ExecuteNonQuery();
             }
@@ -122,7 +122,7 @@ namespace Datos
             {
                 // Parametrizamos la consulta a ejecutar
                 cmdConsultaActuacion.Parameters.Agregar("@AsuntoRelacionado", pAsunto.Numero);
-                cmdConsultaActuacion.Parameters.Agregar("@Operador", pAsunto.Operador.UserName);
+                cmdConsultaActuacion.Parameters.Agregar("@Operador", pAsunto.Oper.UserName);
                 // Ejecutamos el lector de datos sobre el comando generado
                 using (SQLiteDataReader rdrActuacion = cmdConsultaActuacion.ExecuteReader())
                 {
@@ -137,7 +137,7 @@ namespace Datos
                             Tipo = new Entidades.ActuacionTipo() { Id = Convert.ToInt32(rdrActuacion["tipo"]) },
                             RemedyRelacionado = rdrActuacion["remedy_relacionado"].ToString()                            
                         };
-                        entActuacion.Operador = pAsunto.Operador;
+                        entActuacion.Operador = pAsunto.Oper;
                         // Traemos los estados de actuación y lo cargamos sobre la entidad
                         entActuacion.Estados = EstadoActuacion.TraerSegunActuacion(entActuacion, conn);
                     }

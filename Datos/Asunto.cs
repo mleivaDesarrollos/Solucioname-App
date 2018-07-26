@@ -32,7 +32,7 @@ namespace Datos
                     {
                         // Parametrizamos los valores agregados
                         cmdIngresarAsunto.Parameters.Agregar("@Numero", pEntAsunto.Numero);
-                        cmdIngresarAsunto.Parameters.Agregar("@Operador", pEntAsunto.Operador.UserName);
+                        cmdIngresarAsunto.Parameters.Agregar("@Operador", pEntAsunto.Oper.UserName);
                         cmdIngresarAsunto.Parameters.Agregar("@Descripcion_breve", pEntAsunto.DescripcionBreve);
                         cmdIngresarAsunto.Parameters.Agregar("@Grupo_Derivado", pEntAsunto.GrupoDerivado);
                         cmdIngresarAsunto.Parameters.Agregar("@Reportable", pEntAsunto.Reportable ? 1 : 0);
@@ -78,7 +78,7 @@ namespace Datos
                         {
                             // Agregamos los parametros al comando
                             cmdEliminarAsunto.Parameters.Agregar("@Numero", pEntAsunto.Numero);
-                            cmdEliminarAsunto.Parameters.Agregar("@Operador", pEntAsunto.Operador.UserName);
+                            cmdEliminarAsunto.Parameters.Agregar("@Operador", pEntAsunto.Oper.UserName);
                             // Ejecutamos la eliminación por comando
                             cmdEliminarAsunto.ExecuteNonQuery();
                         }
@@ -119,7 +119,7 @@ namespace Datos
                             // Parametrizamo la consulta
                             cmdActualizarAsunto.Parameters.Agregar("@DescripcionBreve", pEntAsunto.DescripcionBreve);
                             cmdActualizarAsunto.Parameters.Agregar("@GrupoDerivado", pEntAsunto.GrupoDerivado);
-                            cmdActualizarAsunto.Parameters.Agregar("@Operador", pEntAsunto.Operador.UserName);
+                            cmdActualizarAsunto.Parameters.Agregar("@Operador", pEntAsunto.Oper.UserName);
                             cmdActualizarAsunto.Parameters.Agregar("@Reportable", pEntAsunto.Reportable ? 1: 0);
                             cmdActualizarAsunto.Parameters.Agregar("@Numero", pEntAsunto.Numero);
                             // Ejecutamos la actualización
@@ -168,7 +168,7 @@ namespace Datos
                     String strConsultaAsunto = "SELECT descripcion_breve, grupo_derivado, reportable FROM asuntos where operador = @IdOperador and numero=@Numero";
                     using (SQLiteCommand cmdConsultaAsunto = new SQLiteCommand(strConsultaAsunto, c))
                     {
-                        cmdConsultaAsunto.Parameters.Agregar("@IdOperador", pEntAsunto.Operador.UserName);
+                        cmdConsultaAsunto.Parameters.Agregar("@IdOperador", pEntAsunto.Oper.UserName);
                         cmdConsultaAsunto.Parameters.Agregar("@Numero", pEntAsunto.Numero);
                         using (SQLiteDataReader rdrConsultaAsunto = cmdConsultaAsunto.ExecuteReader())
                         {
@@ -180,7 +180,7 @@ namespace Datos
                                     entAsunto.GrupoDerivado.Id = rdrConsultaAsunto.GetInt32(1);
                                 }
                                 entAsunto.Numero = pEntAsunto.Numero;
-                                entAsunto.Operador = pEntAsunto.Operador;                            
+                                entAsunto.Oper = pEntAsunto.Oper;                            
                                 entAsunto.DescripcionBreve = rdrConsultaAsunto["descripcion_breve"].ToString();
                                 entAsunto.Reportable = Convert.ToBoolean(rdrConsultaAsunto["reportable"]);
                                 entAsunto.Estados = EstadoAsunto.TraerListaEstadosPorAsunto(pEntAsunto);
@@ -217,7 +217,7 @@ namespace Datos
                     {
                         // Parametrizamos la consulta
                         cmdConsultaAsunto.Parameters.Agregar("@Numero", pAsunto.Numero);
-                        cmdConsultaAsunto.Parameters.Agregar("@Operador", pAsunto.Operador.UserName);
+                        cmdConsultaAsunto.Parameters.Agregar("@Operador", pAsunto.Oper.UserName);
                         // Ejecutamos la consulta con un lector
                         using (SQLiteDataReader rdrAsunto = cmdConsultaAsunto.ExecuteReader())
                         {
@@ -348,7 +348,7 @@ namespace Datos
                             // Generamos una nueva entidad de asunto, donde almacenaremos los diferentes estados recolectados
                             Entidades.Asunto entAsuntoDiario = new Entidades.Asunto();
                             // Almacenamos el número y el operador sobre el asunto
-                            entAsuntoDiario.Operador = pOper;
+                            entAsuntoDiario.Oper = pOper;
                             entAsuntoDiario.Numero = rdrLectorAsunto["numero"].ToString();
                             // Traemos los estados del asunto recorrido
                             entAsuntoDiario.Estados = EstadoAsunto.TraerListaEstadosPorAsunto(entAsuntoDiario);

@@ -34,7 +34,8 @@ namespace Entidades.Service
         public static List<Command> List = new List<Command>()
         {
             new CommandType.Message(),
-            new CommandType.Test()
+            new CommandType.Test(),
+            new CommandType.Gestion()
         };
 
         /// <summary>

@@ -189,7 +189,7 @@ namespace UISolucioname
                     entAsunto = new Entidades.Asunto()
                     {
                         Numero = pSNumero,
-                        Operador = App.Current.Properties["user"] as Entidades.Operador
+                        Oper = App.Current.Properties["user"] as Entidades.Operador
                     };
                     entAsunto = logAsunto.TraerAsunto(entAsunto);
                     // Cargamos los campos correspondientes
@@ -305,7 +305,7 @@ namespace UISolucioname
             {
                 // Generamos la nueva entidad
                 entAsunto = new Entidades.Asunto();
-                entAsunto.Operador = App.Current.Properties["user"] as Entidades.Operador;
+                entAsunto.Oper = App.Current.Properties["user"] as Entidades.Operador;
                 entAsunto.Estados = new List<Entidades.Estado>();
                 Entidades.Estado entEstadoAsunto = new Entidades.Estado()
                 {
@@ -763,7 +763,7 @@ namespace UISolucioname
                         // Generamos un objeto de logica asunto para averiguar si el asunto está cargado
                         Logica.Asunto logAsunto = new Logica.Asunto();
                         // Generamos un asunto que contenga solo este número cargado
-                        Entidades.Asunto entAsunto = new Entidades.Asunto() { Numero = txtNumAsunto.Text, Operador = App.Current.Properties["user"] as Entidades.Operador };
+                        Entidades.Asunto entAsunto = new Entidades.Asunto() { Numero = txtNumAsunto.Text, Oper = App.Current.Properties["user"] as Entidades.Operador };
                         // Ejecutamos la consulta a la base de datos con el valor del campo cargado
                         if (logAsunto.ExisteAsunto(entAsunto))
                         {
