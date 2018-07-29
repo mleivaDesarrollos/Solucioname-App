@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.ServiceModel;
 using Entidades;
 using Entidades.Service;
+using System.Configuration;
+using System.Timers;
 
 namespace Servicio_Principal
 {
@@ -18,6 +20,13 @@ namespace Servicio_Principal
         /// Lista que se utilizará para procesos de limpieza de operadores que ya perdieron la conexión al servidor
         /// </summary>
         List<IServicioCallback> lstOperatorToRemove = new List<IServicioCallback>();
+
+        List<Entidades.Asunto> lstAsuntosToDeliver = new List<Asunto>();
+
+        /// <summary>
+        /// Temporizador asignado para la distribución de asuntos pendientes
+        /// </summary>
+        System.Timers.Timer deliverAsuntosPendingTimer;
 
         object syncObject = new object();
 
@@ -36,8 +45,55 @@ namespace Servicio_Principal
             {
                 return OperationContext.Current.GetCallbackChannel<IServicioCallback>();
             }
-        }       
+        }
 
+        /// <summary>
+        /// Constructor de servicio, se utilizá para realizar la inicialización de variables importantes
+        /// </summary>
+        public Servicio()
+        {
+            // Cargamos los asuntos encolados en memoria
+            lstAsuntosToDeliver = SQL.Asunto.getQueue();
+            // Iniciamos el servicio de temporizador
+            Console.WriteLine("Starting asunto pending to deliver timer task...");
+            StartSendAsuntosPending();
+        }
+
+        private void StartSendAsuntosPending()
+        {
+            // Inicializamos el valor del timer
+            deliverAsuntosPendingTimer = new System.Timers.Timer();
+            // Configuramos el timer de manera correspondiente
+            try
+            {
+                // Obtenemos el intervalo de repetición del timer
+                deliverAsuntosPendingTimer.Interval = Convert.ToDouble(ConfigurationManager.AppSettings.GetValues("DELIVER_PENDING_ASUNTOS_TIME_INTERVAL"));
+                // Establecemos la funcion relacionada
+                deliverAsuntosPendingTimer.Elapsed += DeliverPendingAsuntos;
+                // Habilitamos el servico temporizador
+                deliverAsuntosPendingTimer.Enabled = true;           
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+        
+        private void DeliverPendingAsuntos(object o, ElapsedEventArgs e)
+        {
+            // Convertimos el objeto pasado por parametro a timer
+            System.Timers.Timer pendingDeliverAsuntosTimer = o as System.Timers.Timer;
+            // Recorremos el listado de asuntos pasado por parametro
+            foreach (var asuntoToDeliver in lstAsuntosToDeliver)
+            {
+                try
+                {
+                    // Enviamos el callback al cliente
+                    getOperatorCallback(asuntoToDeliver.Oper).EnviarAsunto(asuntoToDeliver);
+                }
+                catch (Exception) { }
+            }
+        }
         /// <summary>
         /// Procesa una solicitud de conexión al servicio
         /// </summary>
@@ -189,7 +245,15 @@ namespace Servicio_Principal
         /// <returns>Devuelve el callback relacionado con el operador indicado</returns>
         internal IServicioCallback getOperatorCallback(Entidades.Operador operParameter)
         {
-            return lstOperadoresConectados.First((opConnected) => opConnected.Key.UserName == operParameter.UserName).Value;
+            try
+            {
+                return lstOperadoresConectados.First((opConnected) => opConnected.Key.UserName == operParameter.UserName).Value;
+            }
+            catch (Exception)
+            {
+                throw new Exception(string.Format(Error.CALLBACK_RELATED_WITH_OPERATOR_NOTFOUND, operParameter.UserName));
+            }
+            
         }
 
         /// <summary>

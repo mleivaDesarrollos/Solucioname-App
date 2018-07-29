@@ -12,11 +12,9 @@ namespace Servicio_Principal.CommandExecution
         public void Call(Servicio currentServiceInstance)
         {
             // Obtenemos el Callback desde el cliente
-            IServicioCallback callbackCliente = currentServiceInstance.getOperatorCallback(Asunto.Oper);
-            if (callbackCliente == null) throw new Exception(string.Format(Error.CALLBACK_RELATED_WITH_OPERATOR_NOTFOUND, Asunto.Oper.UserName));
+            IServicioCallback callbackCliente = currentServiceInstance.getOperatorCallback(Asunto.Oper);            
             // Se envía el asunto utilizando los métodos de callback del cliente para enviar la solicutd
             callbackCliente.EnviarAsunto(Asunto);
-
         }
 
         /// <summary>

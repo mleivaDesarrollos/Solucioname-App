@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandExecution\Execution.cs" />
+    <Compile Include="CommandExecution\Gestion.cs" />
     <Compile Include="CommandExecution\IExecution.cs" />
     <Compile Include="CommandExecution\Message.cs" />
     <Compile Include="CommandExecution\Test.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Servicio.cs" />
+    <Compile Include="SQL\Asunto.cs" />
     <Compile Include="SQL\Conexion.cs" />
     <Compile Include="SQL\Operador.cs" />
     <Compile Include="SQL\Util\SQLite.cs" />

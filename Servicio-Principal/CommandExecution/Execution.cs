@@ -11,7 +11,8 @@ namespace Servicio_Principal.CommandExecution
         public static List<IExecution> List = new List<IExecution>()
         {
             new Message(),
-            new Test()
+            new Test(),
+            new Gestion()
         };
 
         /// <summary>

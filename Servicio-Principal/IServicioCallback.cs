@@ -16,5 +16,6 @@ namespace Servicio_Principal
 
         [OperationContract(IsOneWay = true)]
         void EnviarAsunto(Asunto a);
+
     }
 }
