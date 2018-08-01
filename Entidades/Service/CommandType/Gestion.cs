@@ -28,13 +28,13 @@ namespace Entidades.Service.CommandType
         internal override void loadAndCheckparameters(string[] parameters)
         {
             // Si los parametros pasados por consola son menores a 3, se rechaza la generación del comando.
-            if (parameters.Length <= 3) throw new Exception("usage : gestion [operator] [asunto_number] [short_description]");
+            if (parameters.Length < 3) throw new Exception("usage : gestion [operator] [asunto_number] [short_description]");
             // Subdividimos los parametros 
             string strOperator = parameters[0];
             string strNumero = parameters[1];
             StringBuilder sbDescription = new StringBuilder();
             // Almacenamos los valores desde la posicion 3 hacia adelante para la descripción breve
-            foreach (var strWordShortDescription in parameters.Skip(3).ToArray())
+            foreach (var strWordShortDescription in parameters.Skip(2).ToArray())
             {
                 // Agregamos cada palabra a la descripción breve
                 sbDescription.Append(strWordShortDescription + " ");

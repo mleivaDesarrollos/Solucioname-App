@@ -19,12 +19,14 @@ namespace Servicio_Principal.SQL
             using (SQLiteConnection c = new SQLiteConnection(Conexion.Cadena))
             {
                 c.Open();
-                string strAddAsuntoToQueue = "INSERT INTO asuntos_pendiente_asignacion VALUES (@Numero, @Oper)";
+                string strAddAsuntoToQueue = "INSERT INTO asuntos_pendiente_asignacion VALUES (@Numero, @Oper, @ShortDesc, @Reporting)";
                 using (SQLiteCommand cmdAddAsuntoToQueue = new SQLiteCommand(strAddAsuntoToQueue, c))
                 {
                     // Parametrizamos los valores del asunto cargado
                     cmdAddAsuntoToQueue.Parameters.Agregar("@Numero", asunto.Numero);
                     cmdAddAsuntoToQueue.Parameters.Agregar("@Oper", asunto.Oper.UserName);
+                    cmdAddAsuntoToQueue.Parameters.Agregar("@ShortDesc", asunto.DescripcionBreve);
+                    cmdAddAsuntoToQueue.Parameters.Agregar("@Reporting", asunto.Reportable);
                     // Ejecutamos el comando parametrizado
                     cmdAddAsuntoToQueue.ExecuteNonQuery();
                 }
@@ -67,7 +69,7 @@ namespace Servicio_Principal.SQL
                 {
                     c.Open();
                     string strDeliverPendingToday = @"
-                            SELECT apa.numero, apa.operador from asuntos_pendiente_asignacion as apa
+                            SELECT apa.numero, apa.operador, apa.short_description, apa.for_report from asuntos_pendiente_asignacion as apa
                             join operadores_horarios as oph on oph.operador = apa.operador
                             where oph.dayofweek = strftime('%w', 'now', 'localtime')";
                     using (SQLiteCommand cmdDeliverPendingToday = new SQLiteCommand(strDeliverPendingToday, c))
@@ -80,7 +82,9 @@ namespace Servicio_Principal.SQL
                                 lstAsuntosPending.Add(new Entidades.Asunto()
                                 {
                                     Numero = rdrDeliverPendingToday["numero"].ToString(),
-                                    Oper = new Entidades.Operador() { UserName = rdrDeliverPendingToday["operador"].ToString() }
+                                    Oper = new Entidades.Operador() { UserName = rdrDeliverPendingToday["operador"].ToString() },
+                                    DescripcionBreve = rdrDeliverPendingToday["short_description"].ToString(),
+                                    Reportable = Convert.ToBoolean(rdrDeliverPendingToday["for_report"])
                                 });
                             }
                         }

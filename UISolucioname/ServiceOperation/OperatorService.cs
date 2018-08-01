@@ -104,7 +104,7 @@ namespace UISolucioname.ServiceOperation
         /// <summary>
         /// Realiza la apertura de conexión del proxy haciendo las comprobaciones correspondientes
         /// </summary>
-        private void ManejarProxy()
+        private void HandleProxy()
         {
             switch (proxy.State)
             {
@@ -116,31 +116,51 @@ namespace UISolucioname.ServiceOperation
                     break;
                 case CommunicationState.Closing:
                 case CommunicationState.Closed:
-                case CommunicationState.Faulted:
                     proxy = null;
-                    proxy.Open();
+                    break;
+                case CommunicationState.Faulted:                    
                     break;
                 default:
                     break;
             }
+            _frmOperatorWindow.setConnectionStatus(proxy.State);
         }
 
         /// <summary>
         /// Gestiona las conexiones de servicio correspondientes
         /// </summary>
-        public void ConectarConServicio()
+        public void ConnectService()
         {
             // Abrimos la conexión
-            ManejarProxy();
+            HandleProxy();
             // Ejecutamos la solicitud de conexion pasando los parametros requeridos por el servicio SOAP
             if (proxy.Conectar(App.Current.Properties["user"] as Entidades.Operador))
-            {
-                Util.MsgBox.Error("Conexion con servicio establecida.");
+            {                
+                _frmOperatorWindow.setConnectionStatus(CommunicationState.Opened);
             }
             else
             {
-                Util.MsgBox.Error("Conexion Rechazada.");
+                Util.MsgBox.Error("Conexion Rechazada. Claves de usuario no reconocidas.");
+                _frmOperatorWindow.setConnectionStatus(CommunicationState.Faulted);
             }
+        }
+
+        /// <summary>
+        /// Desconecta el proxy
+        /// </summary>
+        public void DisconnectService()
+        {
+            proxy.Close();
+            _frmOperatorWindow.setConnectionStatus(CommunicationState.Closed);
+        }
+
+        /// <summary>
+        /// Devuelve a la capa de presentación el estado de la conexión
+        /// </summary>
+        /// <returns></returns>
+        public CommunicationState getConnectionState()
+        {
+            return proxy.State;
         }
     }
 }

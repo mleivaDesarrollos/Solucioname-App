@@ -351,6 +351,12 @@
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\greenstatus.png" />
+    <Resource Include="Images\idlestatus.png" />
+    <Resource Include="Images\redstatus.png" />
+    <Resource Include="Images\yellowstatus.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

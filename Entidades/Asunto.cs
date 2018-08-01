@@ -4,16 +4,30 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
 
 namespace Entidades
 {
     [DataContract]
     public class Asunto
     {
+        private string _numero;
+
         [DataMember]
         public String Numero
         {
-            get; set;
+            get
+            {
+                return _numero;
+            }
+            set
+            {
+                // Generamos un regex para corroborar que el valor pasado cumple con los parametros de generación
+                Regex rgxCheckAsunto = new Regex(@"^3000\d{6}$");
+                if (!rgxCheckAsunto.IsMatch(value))
+                    throw new Exception("Error : Wrong asunto number. The asunto need to start with 3000 and finishes with 6 numbers.");
+                _numero = value;
+            }
         }
         [DataMember]
         public Operador Oper

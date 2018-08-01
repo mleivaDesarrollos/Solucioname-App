@@ -65,7 +65,6 @@
                         <TextBlock DockPanel.Dock="Right" FontSize="25" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0 0 5 5">SUIT Operador</TextBlock>
                         <TextBlock Name="btnUnlog" DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0 0 0 4" MouseLeftButtonDown="btnUnlog_MouseLeftButtonDown">Desloguear</TextBlock>
                         <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Name="txtUsuarioLogueado" Margin="20 0 0 4">Maximiliano Leiva</TextBlock>
-                        <TextBlock DockPanel.Dock="Right" VerticalAlignment="Center" Name="txtConectarServicio" Margin="20 0 0 4" MouseLeftButtonDown="txtConectarServicio_MouseLeftButtonDown">Establecer conexion con servicio.</TextBlock>
                     </DockPanel>
                 </Border>
                 <Border Grid.Row="1" BorderBrush="{StaticResource AppBorderColor}" BorderThickness="3">
@@ -132,11 +131,26 @@
                             </Grid>
                         </Border>
                         <StackPanel Grid.Row="1" Grid.ColumnSpan="2">
-                            <StatusBar Height="33" Background="{StaticResource AppContentColor}">                                
-                                <TextBlock FontWeight="Bold" Margin="3" FontSize="16" Foreground="White">Listo</TextBlock>
-                                <TextBlock Name="lblMessage" Visibility="Hidden" FontSize="16" Foreground="{StaticResource AppContentTextColor}">Se ha recibido un nuevo asunto.</TextBlock>
-                            </StatusBar>
-
+                            <Grid Background="{StaticResource AppContentColor}" Height="33">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="170"/>
+                                    <ColumnDefinition Width="1*"/>
+                                    <ColumnDefinition Width="170"/>
+                                </Grid.ColumnDefinitions>
+                                <Border BorderThickness="0 0 3 0" BorderBrush="{StaticResource AppContentTextColor}" Margin="0 4 0 6" >
+                                    <TextBlock FontWeight="Bold" Margin="3" FontSize="16" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center">Listo</TextBlock>
+                                </Border>
+                                <Border Grid.Column="1" BorderThickness="0 0 3 0" BorderBrush="{StaticResource AppContentTextColor}" Margin="0 4 0 6">
+                                    <TextBlock Name="lblMessage" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Hidden" FontSize="16" Foreground="{StaticResource AppContentTextColor}">Se ha recibido un nuevo asunto.</TextBlock>
+                                </Border>
+                                <StackPanel Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Right">
+                                    <Image Name="imgConnectStatus" Width="20" Height="20" Margin="7" Source="Images/idlestatus.png"/>
+                                    <ComboBox Name="cboConnect" IsReadOnly="True" Margin="3 5" Width="100" SelectionChanged="cboConnect_SelectionChanged">
+                                        <ComboBoxItem Name="optConnected" Content="Conectado" />
+                                        <ComboBoxItem Name="optNotConnected" Content="No conectado" IsSelected="True" />
+                                    </ComboBox>
+                                </StackPanel>
+                            </Grid>
                         </StackPanel>
                     </Grid>
                 </Border>

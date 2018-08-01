@@ -1,9 +1,11 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.ServiceModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 
 namespace UISolucioname
 {
@@ -237,24 +239,7 @@ namespace UISolucioname
                 e.Cancel = true;
             }
         }
-
-        /// <summary>
-        /// Controla las variables para poder emitir una conexion hacia la base de datos
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void txtConectarServicio_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            // Controlamos si la variable de interface es nula
-            if(_serviceInterface == null)
-            {
-                // Inicializamos una nueva instancia del proxy
-                _serviceInterface = new ServiceOperation.OperatorService(this);
-            }
-            // Intentamos conexion con interface
-            _serviceInterface.ConectarConServicio();
-        }
-        
+               
         /// <summary>
         /// Interfaz abierta para que el servicio pueda establecer comunicacion con la capa de UI
         /// </summary>
@@ -299,6 +284,56 @@ namespace UISolucioname
         {
             // Pausamos la ejecución teniendo en cuenta la cantidad de segundos solicitados
             System.Threading.Thread.Sleep(iCantSegs * 1000);
+        }
+
+        private void cboConnect_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (optConnected.IsSelected)
+            {
+                // Controlamos si la variable de interface es nula
+                if (_serviceInterface == null)
+                {
+                    // Inicializamos una nueva instancia del proxy
+                    _serviceInterface = new ServiceOperation.OperatorService(this);                    
+                }
+                // Intentamos conexion con interface
+                _serviceInterface.ConnectService();
+            }
+            else if (optNotConnected.IsSelected)
+            {
+                if (_serviceInterface != null)
+                {
+                    _serviceInterface.DisconnectService();                    
+                }
+            }
+        }
+
+        /// <summary>
+        /// Informa gráficamente el estado de la conexión de proxy para que el usuario pueda saberlo
+        /// </summary>
+        /// <param name="proxyStatus"></param>
+        public void setConnectionStatus(CommunicationState proxyStatus)
+        {
+            switch (proxyStatus)
+            {
+                case CommunicationState.Created:
+                    break;
+                case CommunicationState.Opening:
+                    break;
+                case CommunicationState.Opened:
+                    imgConnectStatus.Source = new BitmapImage(new Uri(@"/Images/greenstatus.png", UriKind.Relative));
+                    break;
+                case CommunicationState.Closing:
+                    break;
+                case CommunicationState.Closed:
+                    imgConnectStatus.Source = new BitmapImage(new Uri(@"/Images/idlestatus.png", UriKind.Relative));
+                    break;
+                case CommunicationState.Faulted:
+                    imgConnectStatus.Source = new BitmapImage(new Uri(@"/Images/redstatus.png", UriKind.Relative));
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }
