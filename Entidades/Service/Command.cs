@@ -35,7 +35,8 @@ namespace Entidades.Service
         {
             new CommandType.Message(),
             new CommandType.Test(),
-            new CommandType.Gestion()
+            new CommandType.Gestion(),
+            new CommandType.Operator()
         };
 
         /// <summary>

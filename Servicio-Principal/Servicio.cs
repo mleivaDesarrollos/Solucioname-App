@@ -23,7 +23,10 @@ namespace Servicio_Principal
         /// <summary>
         /// Lista que se utilizará para procesos de limpieza de operadores que ya perdieron la conexión al servidor
         /// </summary>
-        List<IServicioCallback> lstOperatorToRemove = new List<IServicioCallback>();        
+        List<IServicioCallback> lstOperatorToRemove = new List<IServicioCallback>();
+
+        // Almacenamos el callback del administrador de consola en una variable separada
+        internal IServicioCallback ConsoleAdminCallback = null;
 
         /// <summary>
         /// Listado de asuntos pendientes de entrega a operadores
@@ -49,11 +52,27 @@ namespace Servicio_Principal
         /// <summary>
         /// Obtenemos el callback correspondiente al cliente que esta interactuando con el servicio en este momento
         /// </summary>
-        public IServicioCallback CallbackActual
+        public IServicioCallback CurrentCallback
         {
             get
             {
                 return OperationContext.Current.GetCallbackChannel<IServicioCallback>();
+            }
+        }
+
+        public string GetCallbackHostname
+        {
+            get
+            {
+;                return OperationContext.Current.RequestContext.RequestMessage.Headers.To.Host;
+            }
+        }
+
+        public string GetFullShortDateTime
+        {
+            get
+            {
+                return DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString();
             }
         }
         #region constructor_of_service
@@ -81,8 +100,9 @@ namespace Servicio_Principal
                 if (oper.UserName != null)
                 {
                     if (isConsoleAdmin(oper))
-                    {
-                        Console.WriteLine("Se ha logueado un administrador de consola.");                                        
+                    {                        
+                        Console.WriteLine(GetFullShortDateTime + " : Console Administrator has been logged in from remote host : " + GetCallbackHostname);
+                        ConsoleAdminCallback = CurrentCallback;
                         return true;
                     }
                     SQL.Operador connOperador = new SQL.Operador();
@@ -96,7 +116,7 @@ namespace Servicio_Principal
                         // Luego de las comprobaciones de agregado ejecutamos el agregado al servicio
                         addOperator(oper);
                         // Operador con credenciales correctas. Validamos si ya esta cargado
-                        Console.WriteLine("Usuario : " + oper.UserName + " ha sido ingresado correctamente.");
+                        Console.WriteLine(GetFullShortDateTime + " : user " + oper.UserName + " has been logged in. Host: " + GetCallbackHostname);
                         return true;
                     }
                     return false;
@@ -117,6 +137,15 @@ namespace Servicio_Principal
             // Como la tarea esta a cargo de la clase AsuntosPendingDeliverTask
             // La ejecución y preparación del procedimiento queda a cargo de esa clase
             ConfirmAsuntoReceipt(asuntoToConfirm);
+        }
+
+        /// <summary>
+        /// Solicitud de desconexión de usuario
+        /// </summary>
+        /// <param name="oper"></param>
+        public void Disconnect(Operador oper)
+        {
+            removeOperator(oper);
         }
 
         /// <summary>
@@ -170,6 +199,7 @@ namespace Servicio_Principal
                 lstOperadoresConectados.Remove(
                     lstOperadoresConectados.Keys.First( oper => oper.UserName == pOper.UserName)
                     );
+                Console.WriteLine(GetFullShortDateTime + " : user " + pOper.UserName + " has been disconnected.");
             }
             catch (Exception ex)
             {
@@ -186,7 +216,7 @@ namespace Servicio_Principal
             try
             {
                 // Agregamos la combinacion de operador y callback al listado del servicio
-                lstOperadoresConectados.Add(pOper, CallbackActual);
+                lstOperadoresConectados.Add(pOper, CurrentCallback);
             }
             catch (Exception ex)
             {
@@ -285,7 +315,25 @@ namespace Servicio_Principal
             }
             cleanOperatorsWithFails();
         }
-
+        
+        /// <summary>
+        /// Devuelve un listado con nombres de usuarios conectados al servicio actualmente
+        /// </summary>
+        /// <returns></returns>
+        internal void retreiveListOfConnectedOperators()
+        {
+            // Preparamos el listado para procesar
+            string lstOperatorConnected = "";
+            // Agregamos un mensaje inicial
+            lstOperatorConnected += @"List of operators connected to service:\n";
+            // Recorremos el listado de operadores conectados
+            foreach (var operConnected in lstOperadoresConectados.Keys)
+            {
+                lstOperatorConnected += operConnected.UserName + ", ";
+            }
+            // Devolvemos el listado ya procesado
+            ConsoleAdminCallback.Mensaje(new Mensaje() { Contenido = lstOperatorConnected });
+        }
 
         /// <summary>
         /// Valida si es el administrador de consola

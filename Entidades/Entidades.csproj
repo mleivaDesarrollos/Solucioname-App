@@ -55,6 +55,7 @@
     <Compile Include="Service\Command.cs" />
     <Compile Include="Service\CommandType\Gestion.cs" />
     <Compile Include="Service\CommandType\Message.cs" />
+    <Compile Include="Service\CommandType\Operator.cs" />
     <Compile Include="Service\CommandType\Test.cs" />
     <Compile Include="TipoEstado.cs" />
     <Compile Include="Gestion.cs" />

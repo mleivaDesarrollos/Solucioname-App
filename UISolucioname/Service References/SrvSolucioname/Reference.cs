@@ -84,6 +84,12 @@ namespace UISolucioname.SrvSolucioname {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/Conectar", ReplyAction="http://tempuri.org/IServicio/ConectarResponse")]
         System.Threading.Tasks.Task<bool> ConectarAsync(Entidades.Operador oper);
         
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsTerminating=true, Action="http://tempuri.org/IServicio/Disconnect")]
+        void Disconnect(Entidades.Operador oper);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsTerminating=true, Action="http://tempuri.org/IServicio/Disconnect")]
+        System.Threading.Tasks.Task DisconnectAsync(Entidades.Operador oper);
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/EjecutarComando")]
         void EjecutarComando(Entidades.Operador oper, string strCommand);
         
@@ -141,6 +147,14 @@ namespace UISolucioname.SrvSolucioname {
         
         public System.Threading.Tasks.Task<bool> ConectarAsync(Entidades.Operador oper) {
             return base.Channel.ConectarAsync(oper);
+        }
+        
+        public void Disconnect(Entidades.Operador oper) {
+            base.Channel.Disconnect(oper);
+        }
+        
+        public System.Threading.Tasks.Task DisconnectAsync(Entidades.Operador oper) {
+            return base.Channel.DisconnectAsync(oper);
         }
         
         public void EjecutarComando(Entidades.Operador oper, string strCommand) {

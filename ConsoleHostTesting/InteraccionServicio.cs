@@ -38,7 +38,7 @@ namespace ConsoleHostTesting
         /// <param name="m"></param>
         public void Mensaje(Mensaje m)
         {
-            Console.WriteLine("El servicio ha emitido un mensaje : " + m.Contenido);
+            Console.WriteLine(m.Contenido);
         }
 
         /// <summary>

@@ -12,7 +12,8 @@ namespace Servicio_Principal.CommandExecution
         {
             new Message(),
             new Test(),
-            new Gestion()
+            new Gestion(),
+            new Operator(),
         };
 
         /// <summary>

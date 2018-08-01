@@ -150,6 +150,7 @@ namespace UISolucioname.ServiceOperation
         /// </summary>
         public void DisconnectService()
         {
+            proxy.Disconnect(App.Current.Properties["user"] as Operador);    
             proxy.Close();
             _frmOperatorWindow.setConnectionStatus(CommunicationState.Closed);
         }

@@ -14,6 +14,9 @@ namespace Servicio_Principal
         [OperationContract(IsInitiating = true)]
         bool Conectar(Operador oper);
 
+        [OperationContract(IsTerminating = true, IsOneWay = true)]
+        void Disconnect(Operador oper); 
+
         [OperationContract(IsOneWay = true)]
         void EjecutarComando(Operador oper, string strCommand);
 
