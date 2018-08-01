@@ -46,9 +46,54 @@ namespace UISolucioname.ServiceOperation
             }
         }
 
+        /// <summary>
+        /// Procedimiento disponible para que el servicio opere sobre el operador cliente
+        /// </summary>
+        /// <param name="a"></param>
         public void EnviarAsunto(Entidades.Asunto a)
         {
-            Util.MsgBox.Error("Asunto recibido: " + a.Numero);
+            try
+            {
+                // Generamos un objeto de logica para procesar el agregado de los asuntos
+                Logica.Asunto logAsunto = new Logica.Asunto();
+                // Gestionamos una variable operador disponible para el método
+                Operador operLogged = App.Current.Properties["user"] as Operador;
+                // Si el operador al que era destino de este asunto no es el logueado, se lanza una excepción
+                if (a.Oper.UserName != operLogged.UserName)
+                    throw new Exception("Se ha recibido un asunto de un operador erroneo. Informar al administrador. Asunto: " + a.Numero + ". Operador: " + a.Oper.UserName);
+                // TODO : A modo de prueba inicial, el primer estado lo generamos en la capa de presentación. Esto debería ser generado en el servicio, para mantener fidelidad con el horario de entrada del asunto en bandeja
+                if (a.Estados == null)
+                    a.Estados = new List<Estado>()
+                    {
+                        new Estado()
+                        {
+                            Ord = 1,
+                            Detalle = "Nuevo asunto asignado",
+                            FechaHora = DateTime.Now,
+                            Tipo = Logica.TipoEstado.TraerEstadoAsuntoInicialNormal()
+                        }
+                    };
+                // Consultamos si el asunto en cuestion existe en la base de datos del operador
+                if (!logAsunto.ExisteAsunto(a))
+                {
+                    // Si no existe, se agrega a la base de datos
+                    logAsunto.Agregar(a);
+                }
+                // Enviamos la confirmación al servidor de que el asunto fue procesado de manera correcta y agregado a la base de datos
+                // Como SOAP no puede procesar listas, para no colgar el servicio nullificamos el listado de estados
+                a.Estados = null;
+                proxy.AsuntoReceiptCompleted(a);
+                // Actualizamos la capa de presentación y los casos diarios
+                _frmOperatorWindow.CargarAsuntosDiarios();
+                _frmOperatorWindow.pagListadogeneral.ActualizarListado();
+                // Mostramos un mensaje en la barra de estado
+                _frmOperatorWindow.ShowMessageOnStatusBar("Has recibido un nuevo asunto.", 10);
+            }
+            catch (Exception ex)
+            {
+                // Se informa a la capa de presentación del error ocurrido
+                Util.MsgBox.Error("Se intentó recibir un asunto desde servicio pero ha ocurrido un error: " + ex.Message); 
+            }
         }
 
         public void Mensaje(Mensaje m)

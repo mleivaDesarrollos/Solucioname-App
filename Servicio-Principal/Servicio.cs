@@ -8,26 +8,36 @@ using Entidades;
 using Entidades.Service;
 using System.Configuration;
 using System.Timers;
+using System.Collections.ObjectModel;
 
 namespace Servicio_Principal
 {
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple, UseSynchronizationContext = false)]
-    public class Servicio : IServicio
+    public partial class Servicio : IServicio
     {
+        /// <summary>
+        /// Listado de operadores conectados con sus correspondientes nombres de usuario
+        /// </summary>
         Dictionary<Operador, IServicioCallback> lstOperadoresConectados = new Dictionary<Operador, IServicioCallback>();
 
         /// <summary>
         /// Lista que se utilizará para procesos de limpieza de operadores que ya perdieron la conexión al servidor
         /// </summary>
-        List<IServicioCallback> lstOperatorToRemove = new List<IServicioCallback>();
+        List<IServicioCallback> lstOperatorToRemove = new List<IServicioCallback>();        
 
-        List<Entidades.Asunto> lstAsuntosToDeliver = new List<Asunto>();
+        /// <summary>
+        /// Listado de asuntos pendientes de entrega a operadores
+        /// </summary>
+        internal ObservableCollection<Entidades.Asunto> lstAsuntosToDeliver = new ObservableCollection<Entidades.Asunto>();
 
         /// <summary>
         /// Temporizador asignado para la distribución de asuntos pendientes
         /// </summary>
         System.Timers.Timer deliverAsuntosPendingTimer;
 
+        /// <summary>
+        /// Objeto de sincronización, utilizado fundamentalmente para no producir deadlocks en peticiones de usuario
+        /// </summary>
         object syncObject = new object();
 
         Entidades.Operador consoleAdmin = new Operador()
@@ -46,54 +56,19 @@ namespace Servicio_Principal
                 return OperationContext.Current.GetCallbackChannel<IServicioCallback>();
             }
         }
-
+        #region constructor_of_service
         /// <summary>
         /// Constructor de servicio, se utilizá para realizar la inicialización de variables importantes
         /// </summary>
         public Servicio()
         {
-            // Cargamos los asuntos encolados en memoria
-            lstAsuntosToDeliver = SQL.Asunto.getQueue();
-            // Iniciamos el servicio de temporizador
-            Console.WriteLine("Starting asunto pending to deliver timer task...");
-            StartSendAsuntosPending();
+            // Configuramos el servicio de envío de asuntos y lo activamos
+            ConfigSendAsuntosPending();
+            StartSendAsuntosPending();            
         }
+        #endregion
 
-        private void StartSendAsuntosPending()
-        {
-            // Inicializamos el valor del timer
-            deliverAsuntosPendingTimer = new System.Timers.Timer();
-            // Configuramos el timer de manera correspondiente
-            try
-            {
-                // Obtenemos el intervalo de repetición del timer
-                deliverAsuntosPendingTimer.Interval = Convert.ToDouble(ConfigurationManager.AppSettings.GetValues("DELIVER_PENDING_ASUNTOS_TIME_INTERVAL"));
-                // Establecemos la funcion relacionada
-                deliverAsuntosPendingTimer.Elapsed += DeliverPendingAsuntos;
-                // Habilitamos el servico temporizador
-                deliverAsuntosPendingTimer.Enabled = true;           
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
-        
-        private void DeliverPendingAsuntos(object o, ElapsedEventArgs e)
-        {
-            // Convertimos el objeto pasado por parametro a timer
-            System.Timers.Timer pendingDeliverAsuntosTimer = o as System.Timers.Timer;
-            // Recorremos el listado de asuntos pasado por parametro
-            foreach (var asuntoToDeliver in lstAsuntosToDeliver)
-            {
-                try
-                {
-                    // Enviamos el callback al cliente
-                    getOperatorCallback(asuntoToDeliver.Oper).EnviarAsunto(asuntoToDeliver);
-                }
-                catch (Exception) { }
-            }
-        }
+        #region contract_implementation
         /// <summary>
         /// Procesa una solicitud de conexión al servicio
         /// </summary>
@@ -135,6 +110,43 @@ namespace Servicio_Principal
             }                   
         }
 
+
+
+        public void AsuntoReceiptCompleted(Asunto asuntoToConfirm)
+        {
+            // Como la tarea esta a cargo de la clase AsuntosPendingDeliverTask
+            // La ejecución y preparación del procedimiento queda a cargo de esa clase
+            ConfirmAsuntoReceipt(asuntoToConfirm);
+        }
+
+        /// <summary>
+        /// Por cliente de consola, se envian comandos a los clientes conectados
+        /// </summary>
+        /// <param name="oper"></param>
+        /// <param name="sCmd"></param>
+        public void EjecutarComando(Operador oper, string strCommand)
+        {
+            try
+            {
+                // Se rechaza la ejecución del comando si la solicitud no priviene de un adminstrador de consola
+                if (!isConsoleAdmin(oper)) throw new Exception(string.Format(Error.CONSOLE_COMMAND_CALLED_BY_STANDARD_USER, oper.UserName));
+                // Construimos el comando a partir de la cadena de caractéres
+                Command commandBuild = Command.Get(strCommand);
+                // Ejecutamos la accion si es que la misma es encontrada
+                CommandExecution.Execution.getRelatedAction(commandBuild).Call(this);
+                // Avisamos por consola que el comando ha sido ejecutado correctamente
+                Console.WriteLine(commandBuild.Name + " has been executed succefully.");
+            }
+            catch (Exception ex)
+            {
+                // Al procesarse una exception se informa por consola el resultado                
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        #endregion
+
+        #region operator_administration
         /// <summary>
         /// Validamos si el operador ya se encuentra logueado dentro del sistema
         /// </summary>
@@ -182,35 +194,19 @@ namespace Servicio_Principal
             }
         }
 
-        public void TestCommand()
-        {
-            // Recorremos todos los clientes conectados y le mandamos un mensaje
-            foreach (var callback in lstOperadoresConectados.Values)
-            {
-                callback.Mensaje(new Mensaje() { Contenido = "Comando prueba desde consola." });
-            }
-        }
 
         /// <summary>
-        /// Envia un mensaje a todos los operadores logueados
+        /// Remueve un operador del listado de conectados
         /// </summary>
-        public void MessageToAllOperators(string sMessage)
+        /// <param name="callbackToRemove"></param>
+        private void removeConnectedOperator(IServicioCallback callbackRelated)
         {
-            // Recorremos todos los clientes conectados
-            foreach (var callback in lstOperadoresConectados.Values)
-            {
-                try
-                {
-                    // Controlamos con un bloque Try Catch el envío de mensajes, por si el callback ya no responde y debe ser removido del listado
-                    callback.Mensaje(new Mensaje() { Contenido = sMessage });
-                }
-                catch (Exception)
-                {
-                    // Si hay una excepción, es posible que el cliente ya no este activo, por lo que se progrmaa para que el mismo sea eliminado posteriormente
-                    lstOperatorToRemove.Add(callback);
-                }                
-            }
-            cleanOperatorsWithFails();
+            // Obtenemos el operador conectado
+            Entidades.Operador connectedOperator = getConnectedOperator(callbackRelated);
+            // Removemos el operador de los operadores conectados
+            lstOperadoresConectados.Remove(connectedOperator);
+            // Informamos que el cliente fue desconectado
+            Console.WriteLine("the operator {0} has been removed from the connected operators.", connectedOperator.UserName);
         }
 
         /// <summary>
@@ -253,22 +249,43 @@ namespace Servicio_Principal
             {
                 throw new Exception(string.Format(Error.CALLBACK_RELATED_WITH_OPERATOR_NOTFOUND, operParameter.UserName));
             }
-            
+
+        }
+
+        #endregion
+
+        #region command_helpers
+        public void TestCommand()
+        {
+            // Recorremos todos los clientes conectados y le mandamos un mensaje
+            foreach (var callback in lstOperadoresConectados.Values)
+            {
+                callback.Mensaje(new Mensaje() { Contenido = "Comando prueba desde consola." });
+            }
         }
 
         /// <summary>
-        /// Remueve un operador del listado de conectados
+        /// Envia un mensaje a todos los operadores logueados
         /// </summary>
-        /// <param name="callbackToRemove"></param>
-        private void removeConnectedOperator(IServicioCallback callbackRelated)
+        public void MessageToAllOperators(string sMessage)
         {
-            // Obtenemos el operador conectado
-            Entidades.Operador connectedOperator = getConnectedOperator(callbackRelated);           
-            // Removemos el operador de los operadores conectados
-            lstOperadoresConectados.Remove(connectedOperator);
-            // Informamos que el cliente fue desconectado
-            Console.WriteLine("the operator {0} has been removed from the connected operators.", connectedOperator.UserName);
+            // Recorremos todos los clientes conectados
+            foreach (var callback in lstOperadoresConectados.Values)
+            {
+                try
+                {
+                    // Controlamos con un bloque Try Catch el envío de mensajes, por si el callback ya no responde y debe ser removido del listado
+                    callback.Mensaje(new Mensaje() { Contenido = sMessage });
+                }
+                catch (Exception)
+                {
+                    // Si hay una excepción, es posible que el cliente ya no este activo, por lo que se progrmaa para que el mismo sea eliminado posteriormente
+                    lstOperatorToRemove.Add(callback);
+                }                
+            }
+            cleanOperatorsWithFails();
         }
+
 
         /// <summary>
         /// Valida si es el administrador de consola
@@ -282,30 +299,7 @@ namespace Servicio_Principal
             }
             return false;
         }
+        #endregion
 
-        /// <summary>
-        /// Por cliente de consola, se envian comandos a los clientes conectados
-        /// </summary>
-        /// <param name="oper"></param>
-        /// <param name="sCmd"></param>
-        public void EjecutarComando(Operador oper, string strCommand)
-        {   
-            try
-            {
-                // Se rechaza la ejecución del comando si la solicitud no priviene de un adminstrador de consola
-                if (!isConsoleAdmin(oper)) throw new Exception(string.Format(Error.CONSOLE_COMMAND_CALLED_BY_STANDARD_USER, oper.UserName));
-                // Construimos el comando a partir de la cadena de caractéres
-                Command commandBuild = Command.Get(strCommand);                
-                // Ejecutamos la accion si es que la misma es encontrada
-                CommandExecution.Execution.getRelatedAction(commandBuild).Call(this);
-                // Avisamos por consola que el comando ha sido ejecutado correctamente
-                Console.WriteLine(commandBuild.Name + " has been executed succefully.");
-            }
-            catch (Exception ex)
-            {
-                // Al procesarse una exception se informa por consola el resultado                
-                Console.WriteLine(ex.Message);
-            }     
-        }
     }
 }

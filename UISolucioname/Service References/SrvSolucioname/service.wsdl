@@ -29,6 +29,9 @@
   <wsdl:message name="IServicio_EjecutarComando_InputMessage">
     <wsdl:part name="parameters" element="tns:EjecutarComando" />
   </wsdl:message>
+  <wsdl:message name="IServicio_AsuntoReceiptCompleted_InputMessage">
+    <wsdl:part name="parameters" element="tns:AsuntoReceiptCompleted" />
+  </wsdl:message>
   <wsdl:message name="IServicio_Mensaje_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:Mensaje" />
   </wsdl:message>
@@ -42,6 +45,9 @@
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="EjecutarComando">
       <wsdl:input wsaw:Action="http://tempuri.org/IServicio/EjecutarComando" message="tns:IServicio_EjecutarComando_InputMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="AsuntoReceiptCompleted">
+      <wsdl:input wsaw:Action="http://tempuri.org/IServicio/AsuntoReceiptCompleted" message="tns:IServicio_AsuntoReceiptCompleted_InputMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="Mensaje">
       <wsdl:output wsaw:Action="http://tempuri.org/IServicio/Mensaje" message="tns:IServicio_Mensaje_OutputCallbackMessage" />
@@ -64,6 +70,12 @@
     </wsdl:operation>
     <wsdl:operation name="EjecutarComando">
       <soap12:operation soapAction="http://tempuri.org/IServicio/EjecutarComando" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="AsuntoReceiptCompleted">
+      <soap12:operation soapAction="http://tempuri.org/IServicio/AsuntoReceiptCompleted" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

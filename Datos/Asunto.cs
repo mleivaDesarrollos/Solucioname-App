@@ -39,8 +39,13 @@ namespace Datos
                         // Ejecutamos el Query
                         cmdIngresarAsunto.ExecuteNonQuery();
                     }
-                    // Agregamos los estados que traiga el asunto en cuestión
-                    EstadoAsunto.AgregarEstadoPorAsunto(pEntAsunto, c, t);
+                    if (pEntAsunto.Estados != null)
+                    {
+                        // Agregamos los estados que traiga el asunto en cuestión
+                        EstadoAsunto.AgregarEstadoPorAsunto(pEntAsunto, c, t);
+                    }
+                    
+                    
                     // Agregamos la o las actuaciones
                     if (pEntAsunto.Actuacion != null)
                     {

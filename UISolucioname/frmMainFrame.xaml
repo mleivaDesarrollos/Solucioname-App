@@ -132,9 +132,9 @@
                             </Grid>
                         </Border>
                         <StackPanel Grid.Row="1" Grid.ColumnSpan="2">
-                            <StatusBar Height="33" Background="{StaticResource AppContentColor}">
+                            <StatusBar Height="33" Background="{StaticResource AppContentColor}">                                
                                 <TextBlock FontWeight="Bold" Margin="3" FontSize="16" Foreground="White">Listo</TextBlock>
-
+                                <TextBlock Name="lblMessage" Visibility="Hidden" FontSize="16" Foreground="{StaticResource AppContentTextColor}">Se ha recibido un nuevo asunto.</TextBlock>
                             </StatusBar>
 
                         </StackPanel>

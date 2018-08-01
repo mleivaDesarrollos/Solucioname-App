@@ -11,10 +11,8 @@ namespace Servicio_Principal.CommandExecution
     {
         public void Call(Servicio currentServiceInstance)
         {
-            // Obtenemos el Callback desde el cliente
-            IServicioCallback callbackCliente = currentServiceInstance.getOperatorCallback(Asunto.Oper);            
-            // Se envía el asunto utilizando los métodos de callback del cliente para enviar la solicutd
-            callbackCliente.EnviarAsunto(Asunto);
+            // Agregamos el asunto al listado de entrega de asuntos del servicio
+            currentServiceInstance.lstAsuntosToDeliver.Add(Asunto);
         }
 
         /// <summary>

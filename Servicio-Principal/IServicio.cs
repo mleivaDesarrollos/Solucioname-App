@@ -16,5 +16,8 @@ namespace Servicio_Principal
 
         [OperationContract(IsOneWay = true)]
         void EjecutarComando(Operador oper, string strCommand);
+
+        [OperationContract(IsOneWay = true)]
+        void AsuntoReceiptCompleted(Entidades.Asunto asuntoToConfirm);
     }
 }

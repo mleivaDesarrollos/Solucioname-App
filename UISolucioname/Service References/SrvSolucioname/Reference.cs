@@ -89,6 +89,12 @@ namespace UISolucioname.SrvSolucioname {
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/EjecutarComando")]
         System.Threading.Tasks.Task EjecutarComandoAsync(Entidades.Operador oper, string strCommand);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/AsuntoReceiptCompleted")]
+        void AsuntoReceiptCompleted(Entidades.Asunto asuntoToConfirm);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/AsuntoReceiptCompleted")]
+        System.Threading.Tasks.Task AsuntoReceiptCompletedAsync(Entidades.Asunto asuntoToConfirm);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -143,6 +149,14 @@ namespace UISolucioname.SrvSolucioname {
         
         public System.Threading.Tasks.Task EjecutarComandoAsync(Entidades.Operador oper, string strCommand) {
             return base.Channel.EjecutarComandoAsync(oper, strCommand);
+        }
+        
+        public void AsuntoReceiptCompleted(Entidades.Asunto asuntoToConfirm) {
+            base.Channel.AsuntoReceiptCompleted(asuntoToConfirm);
+        }
+        
+        public System.Threading.Tasks.Task AsuntoReceiptCompletedAsync(Entidades.Asunto asuntoToConfirm) {
+            return base.Channel.AsuntoReceiptCompletedAsync(asuntoToConfirm);
         }
     }
 }

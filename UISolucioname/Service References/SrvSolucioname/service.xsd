@@ -24,17 +24,24 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="AsuntoReceiptCompleted">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/Entidades" minOccurs="0" name="asuntoToConfirm" nillable="true" type="q3:Asunto" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="Mensaje">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/Servicio_Principal" minOccurs="0" name="m" nillable="true" type="q3:Mensaje" />
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/Servicio_Principal" minOccurs="0" name="m" nillable="true" type="q4:Mensaje" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="EnviarAsunto">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/Entidades" minOccurs="0" name="a" nillable="true" type="q4:Asunto" />
+        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/Entidades" minOccurs="0" name="a" nillable="true" type="q5:Asunto" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

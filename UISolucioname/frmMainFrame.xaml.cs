@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
@@ -16,6 +17,8 @@ namespace UISolucioname
         public PaginaActuacion pgActuacion = null;
 
         private ServiceOperation.OperatorService _serviceInterface = null;
+
+        BackgroundWorker bgwShowMessage = null;
 
         public PaginaAsunto pagAsunto
         {
@@ -262,6 +265,40 @@ namespace UISolucioname
             {
                 Util.MsgBox.Error("Has recibido un nuevo asunto: " + pAsuntoRecibido.Numero);
             }));
+        }
+
+        /// <summary>
+        /// Muestra en la barra de estado un mensaje 
+        /// </summary>
+        /// <param name="messageToShow">Mensaje a mostrar por pantalla</param>
+        /// <param name="iCantSegs">Cantidad de segundos que se quiere mostrar el mensaje en pantalla</param>
+        public void ShowMessageOnStatusBar(string messageToShow, int iCantSegs)
+        {
+            if (bgwShowMessage == null)
+            {
+                // Generamos un Background Worker para mantener el mensaje activo por unos momentos y luego ocultar
+                bgwShowMessage = new BackgroundWorker();
+                bgwShowMessage.DoWork += (sender, e) => BgwShowMessage_DoWork(sender, e, iCantSegs);
+                bgwShowMessage.RunWorkerCompleted += BgwShowMessage_RunWorkerCompleted;
+                // Cargamos el mensaje y lo hacemos visible
+                lblMessage.Text = messageToShow;
+                lblMessage.Visibility = Visibility.Visible;
+                // Ejecutamos el worker asincronico            
+                bgwShowMessage.RunWorkerAsync();
+            }         
+        }
+
+        private void BgwShowMessage_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            lblMessage.Visibility = Visibility.Hidden;
+            lblMessage.Text = "";
+            bgwShowMessage = null;          
+        }
+
+        private void BgwShowMessage_DoWork(object sender, DoWorkEventArgs e, int iCantSegs)
+        {
+            // Pausamos la ejecución teniendo en cuenta la cantidad de segundos solicitados
+            System.Threading.Thread.Sleep(iCantSegs * 1000);
         }
     }
 }
