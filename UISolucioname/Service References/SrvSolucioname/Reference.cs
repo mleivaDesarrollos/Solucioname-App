@@ -111,6 +111,9 @@ namespace UISolucioname.SrvSolucioname {
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/EnviarAsunto")]
         void EnviarAsunto(Entidades.Asunto a);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/ForceDisconnect")]
+        void ForceDisconnect();
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]

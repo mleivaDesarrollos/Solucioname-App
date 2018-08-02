@@ -104,6 +104,10 @@ namespace ConsoleHostTesting
                     break;
             }
         }
-        
+
+        public void ForceDisconnect()
+        {
+            
+        }
     }
 }

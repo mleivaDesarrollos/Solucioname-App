@@ -336,6 +336,18 @@ namespace Servicio_Principal
         }
 
         /// <summary>
+        /// Procesa una desconexión forzada del servicio de un cliente especifico
+        /// </summary>
+        /// <param name="operToDisconnect"></param>
+        public void ForceToDisconnectFromService(Entidades.Operador operToDisconnect)
+        {
+            // Forzamos la desconexión del cliente mandando una operación de Callback
+            getOperatorCallback(operToDisconnect).ForceDisconnect();
+            // Removemos el operador del listado de operadores conectados
+            removeOperator(operToDisconnect);
+        }
+
+        /// <summary>
         /// Valida si es el administrador de consola
         /// </summary>
         /// <param name="oper"></param>

@@ -84,11 +84,23 @@ namespace ConsoleHostTesting.ServicioSolucioname {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/Conectar", ReplyAction="http://tempuri.org/IServicio/ConectarResponse")]
         System.Threading.Tasks.Task<bool> ConectarAsync(Entidades.Operador oper);
         
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsTerminating=true, Action="http://tempuri.org/IServicio/Disconnect")]
+        void Disconnect(Entidades.Operador oper);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsTerminating=true, Action="http://tempuri.org/IServicio/Disconnect")]
+        System.Threading.Tasks.Task DisconnectAsync(Entidades.Operador oper);
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/EjecutarComando")]
         void EjecutarComando(Entidades.Operador oper, string strCommand);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/EjecutarComando")]
         System.Threading.Tasks.Task EjecutarComandoAsync(Entidades.Operador oper, string strCommand);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/AsuntoReceiptCompleted")]
+        void AsuntoReceiptCompleted(Entidades.Asunto asuntoToConfirm);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/AsuntoReceiptCompleted")]
+        System.Threading.Tasks.Task AsuntoReceiptCompletedAsync(Entidades.Asunto asuntoToConfirm);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -99,6 +111,9 @@ namespace ConsoleHostTesting.ServicioSolucioname {
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/EnviarAsunto")]
         void EnviarAsunto(Entidades.Asunto a);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/ForceDisconnect")]
+        void ForceDisconnect();
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -137,12 +152,28 @@ namespace ConsoleHostTesting.ServicioSolucioname {
             return base.Channel.ConectarAsync(oper);
         }
         
+        public void Disconnect(Entidades.Operador oper) {
+            base.Channel.Disconnect(oper);
+        }
+        
+        public System.Threading.Tasks.Task DisconnectAsync(Entidades.Operador oper) {
+            return base.Channel.DisconnectAsync(oper);
+        }
+        
         public void EjecutarComando(Entidades.Operador oper, string strCommand) {
             base.Channel.EjecutarComando(oper, strCommand);
         }
         
         public System.Threading.Tasks.Task EjecutarComandoAsync(Entidades.Operador oper, string strCommand) {
             return base.Channel.EjecutarComandoAsync(oper, strCommand);
+        }
+        
+        public void AsuntoReceiptCompleted(Entidades.Asunto asuntoToConfirm) {
+            base.Channel.AsuntoReceiptCompleted(asuntoToConfirm);
+        }
+        
+        public System.Threading.Tasks.Task AsuntoReceiptCompletedAsync(Entidades.Asunto asuntoToConfirm) {
+            return base.Channel.AsuntoReceiptCompletedAsync(asuntoToConfirm);
         }
     }
 }

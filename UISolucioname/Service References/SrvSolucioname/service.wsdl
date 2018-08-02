@@ -41,6 +41,9 @@
   <wsdl:message name="IServicio_EnviarAsunto_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:EnviarAsunto" />
   </wsdl:message>
+  <wsdl:message name="IServicio_ForceDisconnect_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:ForceDisconnect" />
+  </wsdl:message>
   <wsdl:portType msc:usingSession="true" name="IServicio">
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="Conectar">
       <wsdl:input wsaw:Action="http://tempuri.org/IServicio/Conectar" message="tns:IServicio_Conectar_InputMessage" />
@@ -60,6 +63,9 @@
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="EnviarAsunto">
       <wsdl:output wsaw:Action="http://tempuri.org/IServicio/EnviarAsunto" message="tns:IServicio_EnviarAsunto_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="ForceDisconnect">
+      <wsdl:output wsaw:Action="http://tempuri.org/IServicio/ForceDisconnect" message="tns:IServicio_ForceDisconnect_OutputCallbackMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="DualTCPBinding" type="tns:IServicio">
@@ -100,6 +106,12 @@
     </wsdl:operation>
     <wsdl:operation name="EnviarAsunto">
       <soap12:operation soapAction="http://tempuri.org/IServicio/EnviarAsunto" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ForceDisconnect">
+      <soap12:operation soapAction="http://tempuri.org/IServicio/ForceDisconnect" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>

@@ -163,5 +163,10 @@ namespace UISolucioname.ServiceOperation
         {
             return proxy.State;
         }
+
+        public void ForceDisconnect()
+        {
+            DisconnectService();
+        }
     }
 }

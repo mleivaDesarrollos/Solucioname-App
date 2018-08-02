@@ -26,8 +26,14 @@
   <wsdl:message name="IServicio_Conectar_OutputMessage">
     <wsdl:part name="parameters" element="tns:ConectarResponse" />
   </wsdl:message>
+  <wsdl:message name="IServicio_Disconnect_InputMessage">
+    <wsdl:part name="parameters" element="tns:Disconnect" />
+  </wsdl:message>
   <wsdl:message name="IServicio_EjecutarComando_InputMessage">
     <wsdl:part name="parameters" element="tns:EjecutarComando" />
+  </wsdl:message>
+  <wsdl:message name="IServicio_AsuntoReceiptCompleted_InputMessage">
+    <wsdl:part name="parameters" element="tns:AsuntoReceiptCompleted" />
   </wsdl:message>
   <wsdl:message name="IServicio_Mensaje_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:Mensaje" />
@@ -35,19 +41,31 @@
   <wsdl:message name="IServicio_EnviarAsunto_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:EnviarAsunto" />
   </wsdl:message>
+  <wsdl:message name="IServicio_ForceDisconnect_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:ForceDisconnect" />
+  </wsdl:message>
   <wsdl:portType msc:usingSession="true" name="IServicio">
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="Conectar">
       <wsdl:input wsaw:Action="http://tempuri.org/IServicio/Conectar" message="tns:IServicio_Conectar_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IServicio/ConectarResponse" message="tns:IServicio_Conectar_OutputMessage" />
     </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="true" name="Disconnect">
+      <wsdl:input wsaw:Action="http://tempuri.org/IServicio/Disconnect" message="tns:IServicio_Disconnect_InputMessage" />
+    </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="EjecutarComando">
       <wsdl:input wsaw:Action="http://tempuri.org/IServicio/EjecutarComando" message="tns:IServicio_EjecutarComando_InputMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="AsuntoReceiptCompleted">
+      <wsdl:input wsaw:Action="http://tempuri.org/IServicio/AsuntoReceiptCompleted" message="tns:IServicio_AsuntoReceiptCompleted_InputMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="Mensaje">
       <wsdl:output wsaw:Action="http://tempuri.org/IServicio/Mensaje" message="tns:IServicio_Mensaje_OutputCallbackMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="EnviarAsunto">
       <wsdl:output wsaw:Action="http://tempuri.org/IServicio/EnviarAsunto" message="tns:IServicio_EnviarAsunto_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="ForceDisconnect">
+      <wsdl:output wsaw:Action="http://tempuri.org/IServicio/ForceDisconnect" message="tns:IServicio_ForceDisconnect_OutputCallbackMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="DualTCPBinding" type="tns:IServicio">
@@ -62,8 +80,20 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="Disconnect">
+      <soap12:operation soapAction="http://tempuri.org/IServicio/Disconnect" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
     <wsdl:operation name="EjecutarComando">
       <soap12:operation soapAction="http://tempuri.org/IServicio/EjecutarComando" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="AsuntoReceiptCompleted">
+      <soap12:operation soapAction="http://tempuri.org/IServicio/AsuntoReceiptCompleted" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -76,6 +106,12 @@
     </wsdl:operation>
     <wsdl:operation name="EnviarAsunto">
       <soap12:operation soapAction="http://tempuri.org/IServicio/EnviarAsunto" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ForceDisconnect">
+      <soap12:operation soapAction="http://tempuri.org/IServicio/ForceDisconnect" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>
