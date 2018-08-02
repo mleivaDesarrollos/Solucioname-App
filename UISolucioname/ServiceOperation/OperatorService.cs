@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using UISolucioname.SrvSolucioname;
 using System.ServiceModel;
 using Entidades;
+using System.Windows.Threading;
 
 namespace UISolucioname.ServiceOperation
 {
@@ -84,10 +85,7 @@ namespace UISolucioname.ServiceOperation
                 a.Estados = null;
                 proxy.AsuntoReceiptCompleted(a);
                 // Actualizamos la capa de presentación y los casos diarios
-                _frmOperatorWindow.CargarAsuntosDiarios();
-                _frmOperatorWindow.pagListadogeneral.ActualizarListado();
-                // Mostramos un mensaje en la barra de estado
-                _frmOperatorWindow.ShowMessageOnStatusBar("Has recibido un nuevo asunto.", 10);
+                _frmOperatorWindow.NuevoAsuntoDesdeServicio(a);
             }
             catch (Exception ex)
             {
@@ -98,18 +96,19 @@ namespace UISolucioname.ServiceOperation
 
         public void Mensaje(Mensaje m)
         {
-            Util.MsgBox.Error("El servicio ha enviado el siguiente mensaje: " + m.Contenido);
+            // Utilizamos la interfaz que nos brinda la capa de presentación para recibir mensajes
+            _frmOperatorWindow.NewMessageFromService(m.Contenido);
         }
 
         /// <summary>
         /// Realiza la apertura de conexión del proxy haciendo las comprobaciones correspondientes
         /// </summary>
-        private void HandleProxy()
+        async private Task HandleProxy()
         {
             switch (proxy.State)
             {
                 case CommunicationState.Created:
-                    proxy.Open();
+                    await Task.Run(() =>{ try { proxy.Open(); } catch (Exception){ }});
                     break;
                 case CommunicationState.Opening:
                 case CommunicationState.Opened:
@@ -118,52 +117,72 @@ namespace UISolucioname.ServiceOperation
                 case CommunicationState.Closed:
                     proxy = null;
                     break;
-                case CommunicationState.Faulted:                    
+                case CommunicationState.Faulted:
+                    proxy = null;            
                     break;
                 default:
                     break;
             }
-            _frmOperatorWindow.setConnectionStatus(proxy.State);
         }
 
         /// <summary>
         /// Gestiona las conexiones de servicio correspondientes
         /// </summary>
-        public void ConnectService()
+        async public void ConnectService()
         {
-            // Abrimos la conexión
-            HandleProxy();
-            // Ejecutamos la solicitud de conexion pasando los parametros requeridos por el servicio SOAP
-            if (proxy.Conectar(App.Current.Properties["user"] as Entidades.Operador))
-            {                
-                _frmOperatorWindow.setConnectionStatus(CommunicationState.Opened);
-            }
-            else
+            try
             {
-                Util.MsgBox.Error("Conexion Rechazada. Claves de usuario no reconocidas.");
-                _frmOperatorWindow.setConnectionStatus(CommunicationState.Faulted);
+                // Abrimos la conexión
+                await HandleProxy();
+                // Comprobamos si la conexión se encuentra abierta
+                if (proxy.State == CommunicationState.Opened)
+                {
+                    // Ejecutamos la solicitud de conexion pasando los parametros requeridos por el servicio SOAP
+                    if (proxy.Conectar(App.Current.Properties["user"] as Entidades.Operador))
+                    {
+                        _frmOperatorWindow.setConnectionStatus(CommunicationState.Opened);
+                    }
+                    else
+                    {
+                        Util.MsgBox.Error("Conexion Rechazada. Claves de usuario no reconocidas.");
+                        _frmOperatorWindow.setConnectionStatus(CommunicationState.Faulted);
+                    }
+                }
+                else
+                {
+                    // Configuramos el proxy como nulo antes de proceder
+                    _proxy = null;
+                    // Comunicamos la falla en la capa de presentación
+                    _frmOperatorWindow.setConnectionStatus(CommunicationState.Faulted);
+                }
+            }
+            catch (Exception ex)
+            {
+                Util.MsgBox.Error(ex.Message);
             }
         }
 
         /// <summary>
         /// Desconecta el proxy
         /// </summary>
-        public void DisconnectService()
+        public async void DisconnectService()
         {
-            proxy.Disconnect(App.Current.Properties["user"] as Operador);    
-            proxy.Close();
-            _frmOperatorWindow.setConnectionStatus(CommunicationState.Closed);
+            await Task.Run(() =>
+            {
+                try
+                {
+                    if (proxy.State == CommunicationState.Opened)
+                    {
+                        proxy.Disconnect(App.Current.Properties["user"] as Operador);
+                        proxy.Close();
+                        proxy = null;
+                    }                    
+                }
+                catch (Exception){ }
+            });
+            _frmOperatorWindow.setConnectionStatus(CommunicationState.Closed); 
         }
-
-        /// <summary>
-        /// Devuelve a la capa de presentación el estado de la conexión
-        /// </summary>
-        /// <returns></returns>
-        public CommunicationState getConnectionState()
-        {
-            return proxy.State;
-        }
-
+        
         public void ForceDisconnect()
         {
             DisconnectService();

@@ -248,7 +248,24 @@ namespace UISolucioname
             // Se dispone de una accion asincronica para modificar la UI
             Dispatcher.BeginInvoke((Action)(() => 
             {
+                // Actualizamos el listado de asuntos y los asuntos diarios
+                CargarAsuntosDiarios();
+                pagListadogeneral.ActualizarListado();
+                // Mostramos un mensaje en la barra de estado
                 Util.MsgBox.Error("Has recibido un nuevo asunto: " + pAsuntoRecibido.Numero);
+            }));
+        }
+
+        /// <summary>
+        /// Interfaz disponible para que el servicio pueda comunicarse con la capa de presentación
+        /// </summary>
+        /// <param name="strMessage"></param>
+        public void NewMessageFromService(string strMessage)
+        {
+            // Procesamos la solicitud de mensaje utilizando metodologías asincrónicas
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                Util.MsgBox.Error("El servicio ha enviado el siguiente mensaje : " + strMessage);
             }));
         }
 
@@ -288,24 +305,31 @@ namespace UISolucioname
 
         private void cboConnect_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (optConnected.IsSelected)
+            try
             {
-                // Controlamos si la variable de interface es nula
-                if (_serviceInterface == null)
+                if (optConnected.IsSelected)
                 {
-                    // Inicializamos una nueva instancia del proxy
-                    _serviceInterface = new ServiceOperation.OperatorService(this);                    
+                    // Controlamos si la variable de interface es nula
+                    if (_serviceInterface == null)
+                    {
+                        // Inicializamos una nueva instancia del proxy
+                        _serviceInterface = new ServiceOperation.OperatorService(this);
+                    }
+                    // Intentamos conexion con interface
+                    _serviceInterface.ConnectService();
                 }
-                // Intentamos conexion con interface
-                _serviceInterface.ConnectService();
+                else if (optNotConnected.IsSelected)
+                {
+                    if (_serviceInterface != null)
+                    {
+                        _serviceInterface.DisconnectService();
+                    }
+                }
             }
-            else if (optNotConnected.IsSelected)
+            catch (Exception ex)
             {
-                if (_serviceInterface != null)
-                {
-                    _serviceInterface.DisconnectService();                    
-                }
-            }
+                Util.MsgBox.Error(ex.Message);                   
+            }            
         }
 
         /// <summary>
@@ -329,6 +353,7 @@ namespace UISolucioname
                     imgConnectStatus.Source = new BitmapImage(new Uri(@"/Images/idlestatus.png", UriKind.Relative));
                     break;
                 case CommunicationState.Faulted:
+                    optNotConnected.IsSelected = true;
                     imgConnectStatus.Source = new BitmapImage(new Uri(@"/Images/redstatus.png", UriKind.Relative));
                     break;
                 default:

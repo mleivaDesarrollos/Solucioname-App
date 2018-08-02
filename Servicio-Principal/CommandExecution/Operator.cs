@@ -17,7 +17,7 @@ namespace Servicio_Principal.CommandExecution
                 currentServiceInstance.retreiveListOfConnectedOperators();
             else
                 // De momento solamente tenemos programada la desconexión forzada
-                currentServiceInstance.EjecutarComando();
+                currentServiceInstance.ForceToDisconnectFromService(Related);
         }
 
         public IExecution Convert(Command commSource)

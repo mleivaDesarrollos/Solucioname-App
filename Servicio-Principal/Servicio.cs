@@ -9,6 +9,7 @@ using Entidades.Service;
 using System.Configuration;
 using System.Timers;
 using System.Collections.ObjectModel;
+using System.ServiceModel.Channels;
 
 namespace Servicio_Principal
 {
@@ -60,11 +61,17 @@ namespace Servicio_Principal
             }
         }
 
+        // Método que obtiene el número de IP del cliente conectado
         public string GetCallbackHostname
         {
             get
             {
-;                return OperationContext.Current.RequestContext.RequestMessage.Headers.To.Host;
+                // Extraemos el contexto
+                var context = OperationContext.Current;
+                // Obtenemos la propiedad que tiene almacenada esta información
+                RemoteEndpointMessageProperty property = (RemoteEndpointMessageProperty)context.IncomingMessageProperties[RemoteEndpointMessageProperty.Name];
+                // Devolvemos el valor de la IP
+                return property.Address;
             }
         }
 
@@ -343,8 +350,6 @@ namespace Servicio_Principal
         {
             // Forzamos la desconexión del cliente mandando una operación de Callback
             getOperatorCallback(operToDisconnect).ForceDisconnect();
-            // Removemos el operador del listado de operadores conectados
-            removeOperator(operToDisconnect);
         }
 
         /// <summary>

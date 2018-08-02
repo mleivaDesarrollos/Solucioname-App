@@ -97,7 +97,7 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="WindowsFormsIntegration" />
     <Reference Include="Xceed.Wpf.Toolkit">
-      <HintPath>..\..\..\Librerias\Extended WPF\Xceed.Wpf.Toolkit.dll</HintPath>
+      <HintPath>..\..\..\Xceed.Wpf.Toolkit.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -202,9 +202,6 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
-    <EmbeddedResource Include="Solucioname.db">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
     <None Include="Service References\SrvSolucioname\Entidades.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -217,6 +214,9 @@
     </None>
     <None Include="Service References\SrvSolucioname\Servicio_Principal.xsd">
       <SubType>Designer</SubType>
+    </None>
+    <None Include="Solucioname.db">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Resource Include="santander.ico" />
   </ItemGroup>
