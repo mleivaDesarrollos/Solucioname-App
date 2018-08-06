@@ -38,7 +38,48 @@ namespace Servicio_Principal.SQL
                     }
                 }
             }
-            
+
         }
+
+
+        /// <summary>
+        /// Valida si el operador informado cuenta con permisos de backoffice
+        /// </summary>
+        /// <param name="pOperator"></param>
+        /// <returns>Operador con datos completos, nulo si no es encontrado o no tiene permisos</returns>
+        public Entidades.Operador ValidateBackofficeOperator(Entidades.Operador pOperator)
+        {
+            // El operador de backoffice es inicializado como nulo
+            Entidades.Operador backofficeOperator = null;
+            using (SQLiteConnection c = new SQLiteConnection(Conexion.Cadena))
+            {
+                c.Open();
+                string strFillBackofficUserData = "SELECT nombre, apellido, dni from operadores where username=@Username and password=@Password and backoffice=1";
+                using (SQLiteCommand cmdFillBackofficeUserData = new SQLiteCommand(strFillBackofficUserData, c))
+                {
+                    // Agregamos el parametro de usuario y contraseña
+                    cmdFillBackofficeUserData.Parameters.Agregar("@Username", pOperator.UserName);
+                    cmdFillBackofficeUserData.Parameters.Agregar("@Password", pOperator.Password);
+                    using (SQLiteDataReader rdrBackofficeData = cmdFillBackofficeUserData.ExecuteReader())
+                    {
+                        // Read the possible results of query
+                        if (rdrBackofficeData.Read())
+                        {
+                            // Load all properties related to operator
+                            backofficeOperator = new Entidades.Operador()
+                            {
+                                UserName = pOperator.UserName,
+                                Password = pOperator.Password,
+                                Nombre = rdrBackofficeData["nombre"].ToString(),
+                                Apellido = rdrBackofficeData["apellido"].ToString(),
+                                DNI = rdrBackofficeData["dni"].ToString()
+                            };
+                        }
+                    }
+                }
+            }
+            // Return the operator value
+            return backofficeOperator;
+        }        
     }
 }

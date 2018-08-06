@@ -180,6 +180,49 @@ namespace Servicio_Principal
             }
         }
 
+        /// <summary>
+        /// Operacion que gestiona un acceso en backoffice
+        /// </summary>
+        /// <param name="oper"></param>
+        /// <returns>Nulo si el operador de backoffice no fue encontrado</returns>
+        public Operador ConnectBackoffice(Operador oper)
+        {
+            try
+            {
+                // Generate a new SQL Operator object
+                SQL.Operador sqlOperator = new SQL.Operador();
+                // Return the value processed on the login method
+                return sqlOperator.ValidateBackofficeOperator(oper);
+            }
+            catch (Exception ex)
+            {
+                // If the process fails, notifies on console the error.
+                Console.WriteLine(GetFullShortDateTime + " : Error trying to log a backoffice operator: " + ex.Message);
+                // Send a client a null operator
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Retrieve a operator list from the service
+        /// </summary>
+        /// <returns>List of operator</returns>
+        public List<Entidades.Operador> getOperatorList()
+        {
+            try
+            {
+                Console.WriteLine(GetFullShortDateTime + ": sending list of connected operators.");
+                // Return full list of connected operators
+                return lstOperadoresConectados.Keys.ToList();
+            }
+            catch (Exception ex)
+            {
+                // Log error on console screen
+                Console.WriteLine(GetFullShortDateTime + ": Error retreiving operator List : " + ex.Message);
+            }
+            return null;
+        }
+
         #endregion
 
         #region operator_administration
@@ -329,6 +372,12 @@ namespace Servicio_Principal
         /// <returns></returns>
         internal void retreiveListOfConnectedOperators()
         {
+            // Devolvemos el listado ya procesado
+            ConsoleAdminCallback.Mensaje(new Mensaje() { Contenido = getListConnectedOperator() });
+        }
+
+        private string getListConnectedOperator()
+        {
             // Preparamos el listado para procesar
             string lstOperatorConnected = "";
             // Agregamos un mensaje inicial
@@ -338,8 +387,7 @@ namespace Servicio_Principal
             {
                 lstOperatorConnected += operConnected.UserName + ", ";
             }
-            // Devolvemos el listado ya procesado
-            ConsoleAdminCallback.Mensaje(new Mensaje() { Contenido = lstOperatorConnected });
+            return lstOperatorConnected;
         }
 
         /// <summary>

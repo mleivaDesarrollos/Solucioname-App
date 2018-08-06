@@ -1,0 +1,67 @@
+﻿<Window x:Class="UIBackoffice.Util.MsgBox"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UIBackoffice.Util"
+        mc:Ignorable="d"
+        AllowsTransparency="True"
+        WindowStyle = "None"
+        Icon="/santander.ico"
+        Title="Mensaje de Solucioname Gestion Interna" Height="200" Width="400">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <Border Name="BarraTitulo" Background="{StaticResource AppContentColor}" BorderBrush="{StaticResource AppBorderColor}" BorderThickness="5 5 5 0">
+            <DockPanel LastChildFill="False">
+                <DockPanel.Resources>
+                    <Style TargetType="Button">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="IsTabStop" Value="False"/>
+                    </Style>
+                </DockPanel.Resources>
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Foreground="White" Margin="5 0 0 0">Mensaje</TextBlock>
+                <Button Name="btnCerrarWindow" DockPanel.Dock="Right">
+                    <Button.Content>
+                        <DockPanel>
+                            <Image Source="/Images/CloseButton.png" />
+                        </DockPanel>
+                    </Button.Content>
+                </Button>
+            </DockPanel>
+        </Border>
+        <Border Grid.Row="1" BorderBrush="{StaticResource AppBorderColor}" BorderThickness="5 2 5 5">
+            <Grid Name="grdContenedor" Margin="15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="0.4*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="0.4*"/>
+                </Grid.RowDefinitions>
+                <Grid.Resources>
+                    <Style TargetType="Button" BasedOn="{StaticResource AppButtonColor}" x:Key="ButtonBold">
+                        <Setter Property="FontWeight" Value="Bold"/>
+                    </Style>
+                </Grid.Resources>
+                <TextBlock Name="txtMensaje" Margin="2" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap">Mensaje a comunicar</TextBlock>
+                <Image Grid.Column="1" Margin="10"/>
+                <Button Name="btnOk" Grid.Column="1" Grid.Row="1" Margin="4" FontWeight="Bold" Click="btnOk_Click">OK</Button>
+                <DockPanel Name="dkpYesNo" Grid.Row="1" Grid.ColumnSpan="2" LastChildFill="False" Margin="3" IsEnabled="False" Visibility="Hidden">
+                    <DockPanel.Resources>
+                        <Style TargetType="Button" BasedOn="{StaticResource ButtonBold}">
+                            <Setter Property="Width" Value="70"/>
+                            <Setter Property="Margin" Value="3 0"/>
+                        </Style>
+                    </DockPanel.Resources>
+                    <Button Name="btnNo" DockPanel.Dock="Right" Click="btnNo_Click">No</Button>
+                    <Button Name="btnSi" DockPanel.Dock="Right" Click="btnSi_Click">Si</Button>
+                </DockPanel>
+            </Grid>
+           
+        </Border>
+    </Grid>
+</Window>

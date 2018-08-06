@@ -10,6 +10,12 @@ namespace Entidades
     [DataContract]
     public class Operador
     {
+        public enum BackofficeType
+        {
+            Operator,
+            BackofficeAndOperator,
+            OnlyBackoffice
+        }
 
         [DataMember]
         public String UserName
@@ -37,6 +43,18 @@ namespace Entidades
 
         [DataMember]
         public String DNI
+        {
+            get; set;
+        }       
+        
+        [DataMember]
+        public BackofficeType Backoffice
+        {
+            get; set;
+        }
+
+        [DataMember]
+        public AvailabiltyStatus Status
         {
             get; set;
         }

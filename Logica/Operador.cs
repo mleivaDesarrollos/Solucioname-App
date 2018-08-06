@@ -28,5 +28,39 @@ namespace Logica
                 throw ex;
             }
         }
+
+        /// <summary>
+        /// Procesa una solicitud de conexión. Si el proceso es correcto la entidad operador viene completa
+        /// </summary>
+        /// <param name="pOperator"></param>
+        /// <returns></returns>
+        public async Task<Entidades.Operador> ConnectBackoffice(Entidades.Operador pOperator)
+        {
+            try
+            {
+                return await datOper.LogOnServiceBackoffice(pOperator);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        /// <summary>
+        /// Call service methods to get a list with service logged operator
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<Entidades.Operador>> GetFullOperatorList()
+        {
+            try
+            {
+                return await datOper.GetFullOperatorList();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

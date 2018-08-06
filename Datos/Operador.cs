@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Datos.Util;
 using System.Data.SQLite;
-
+using Datos.ServiceOperation;
 namespace Datos
 {
     public class Operador
@@ -62,6 +62,36 @@ namespace Datos
             }            
             // Devolvemos el elemento procesado
             return entOper;
+        }
+
+        /// <summary>
+        /// Procesa una solicitud al servicio para poder obtener las credenciales completas
+        /// </summary>
+        /// <param name=""></param>
+        /// <returns></returns>
+        public async Task<Entidades.Operador> LogOnServiceBackoffice(Entidades.Operador operatorToLog)
+        {
+            // Generamos un operador para procesar
+            Entidades.Operador operatorProcess = await ClientBO.Instance.Connect(operatorToLog);
+            // Devolvemos el valor procesado
+            return operatorProcess;
+        }
+
+        /// <summary>
+        /// Call to service methods to obtain full data of connected operators
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<Entidades.Operador>> GetFullOperatorList()
+        {
+            try
+            {
+                // Returns processed list
+                return await ClientBO.Instance.GetFullOperatorList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al obtener el listado de operadores completos: " + ex.Message);
+            }
         }
     }
 }

@@ -84,6 +84,12 @@ namespace UISolucioname.SrvSolucioname {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/Conectar", ReplyAction="http://tempuri.org/IServicio/ConectarResponse")]
         System.Threading.Tasks.Task<bool> ConectarAsync(Entidades.Operador oper);
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/ConnectBackoffice", ReplyAction="http://tempuri.org/IServicio/ConnectBackofficeResponse")]
+        Entidades.Operador ConnectBackoffice(Entidades.Operador oper);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/ConnectBackoffice", ReplyAction="http://tempuri.org/IServicio/ConnectBackofficeResponse")]
+        System.Threading.Tasks.Task<Entidades.Operador> ConnectBackofficeAsync(Entidades.Operador oper);
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, IsTerminating=true, Action="http://tempuri.org/IServicio/Disconnect")]
         void Disconnect(Entidades.Operador oper);
         
@@ -101,6 +107,12 @@ namespace UISolucioname.SrvSolucioname {
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/AsuntoReceiptCompleted")]
         System.Threading.Tasks.Task AsuntoReceiptCompletedAsync(Entidades.Asunto asuntoToConfirm);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/getOperatorList", ReplyAction="http://tempuri.org/IServicio/getOperatorListResponse")]
+        Entidades.Operador[] getOperatorList();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/getOperatorList", ReplyAction="http://tempuri.org/IServicio/getOperatorListResponse")]
+        System.Threading.Tasks.Task<Entidades.Operador[]> getOperatorListAsync();
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -152,6 +164,14 @@ namespace UISolucioname.SrvSolucioname {
             return base.Channel.ConectarAsync(oper);
         }
         
+        public Entidades.Operador ConnectBackoffice(Entidades.Operador oper) {
+            return base.Channel.ConnectBackoffice(oper);
+        }
+        
+        public System.Threading.Tasks.Task<Entidades.Operador> ConnectBackofficeAsync(Entidades.Operador oper) {
+            return base.Channel.ConnectBackofficeAsync(oper);
+        }
+        
         public void Disconnect(Entidades.Operador oper) {
             base.Channel.Disconnect(oper);
         }
@@ -174,6 +194,14 @@ namespace UISolucioname.SrvSolucioname {
         
         public System.Threading.Tasks.Task AsuntoReceiptCompletedAsync(Entidades.Asunto asuntoToConfirm) {
             return base.Channel.AsuntoReceiptCompletedAsync(asuntoToConfirm);
+        }
+        
+        public Entidades.Operador[] getOperatorList() {
+            return base.Channel.getOperatorList();
+        }
+        
+        public System.Threading.Tasks.Task<Entidades.Operador[]> getOperatorListAsync() {
+            return base.Channel.getOperatorListAsync();
         }
     }
 }

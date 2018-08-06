@@ -14,6 +14,9 @@ namespace Servicio_Principal
         [OperationContract(IsInitiating = true)]
         bool Conectar(Operador oper);
 
+        [OperationContract(IsInitiating = true)]
+        Operador ConnectBackoffice(Operador oper);
+
         [OperationContract(IsTerminating = true, IsOneWay = true)]
         void Disconnect(Operador oper); 
 
@@ -22,5 +25,8 @@ namespace Servicio_Principal
 
         [OperationContract(IsOneWay = true)]
         void AsuntoReceiptCompleted(Entidades.Asunto asuntoToConfirm);
+
+        [OperationContract]
+        List<Entidades.Operador> getOperatorList();
     }
 }

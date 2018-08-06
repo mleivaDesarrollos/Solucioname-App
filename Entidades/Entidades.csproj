@@ -50,6 +50,7 @@
     <Compile Include="ActuacionTipo.cs" />
     <Compile Include="Asunto.cs" />
     <Compile Include="AsuntoDiario.cs" />
+    <Compile Include="AvailabiltyStatus.cs" />
     <Compile Include="Estado.cs" />
     <Compile Include="GrupoResolutor.cs" />
     <Compile Include="Service\Command.cs" />
@@ -57,6 +58,7 @@
     <Compile Include="Service\CommandType\Message.cs" />
     <Compile Include="Service\CommandType\Operator.cs" />
     <Compile Include="Service\CommandType\Test.cs" />
+    <Compile Include="Service\Interface\IBackoffice.cs" />
     <Compile Include="TipoEstado.cs" />
     <Compile Include="Gestion.cs" />
     <Compile Include="Operador.cs" />

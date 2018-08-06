@@ -42,6 +42,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\Program Files\System.Data.SQLite\2015\bin\System.Data.SQLite.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -60,6 +62,12 @@
     <Compile Include="GrupoResolutor.cs" />
     <Compile Include="Operador.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Service References\SrvSolucioname\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceOperation\ClientBO.cs" />
     <Compile Include="TipoEstado.cs" />
     <Compile Include="Util\TipoDatos.cs" />
     <Compile Include="Util\SQLite.cs" />
@@ -68,9 +76,29 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Entidades.Operador.datasource" />
+    <None Include="Service References\SrvSolucioname\Entidades.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SrvSolucioname\service.wsdl" />
+    <None Include="Service References\SrvSolucioname\service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SrvSolucioname\service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SrvSolucioname\Servicio_Principal.xsd">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="santander.ico" />
+    <None Include="Service References\SrvSolucioname\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Service References\SrvSolucioname\configuration.svcinfo" />
+    <None Include="Service References\SrvSolucioname\configuration91.svcinfo" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Entidades\Entidades.csproj">
@@ -78,6 +106,13 @@
       <Name>Entidades</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\SrvSolucioname\" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

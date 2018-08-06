@@ -197,6 +197,7 @@
     <None Include="dsReportesAsuntos.xss">
       <DependentUpon>dsReportesAsuntos.xsd</DependentUpon>
     </None>
+    <None Include="Properties\DataSources\Entidades.Operador.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
