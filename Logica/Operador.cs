@@ -34,11 +34,11 @@ namespace Logica
         /// </summary>
         /// <param name="pOperator"></param>
         /// <returns></returns>
-        public async Task<Entidades.Operador> ConnectBackoffice(Entidades.Operador pOperator)
+        public async Task<Entidades.Operador> ConnectBackoffice(Entidades.Operador pOperator, Entidades.Service.Interface.IServicioCallback paramCallback)
         {
             try
             {
-                return await datOper.LogOnServiceBackoffice(pOperator);
+                return await datOper.LogOnServiceBackoffice(pOperator, paramCallback);
             }
             catch (Exception ex)
             {
@@ -46,7 +46,42 @@ namespace Logica
             }
         }
 
+        /// <summary>
+        /// Sent a connection request to service.
+        /// </summary>
+        /// <param name="pOperator"></param>
+        /// <param name="paramCallback"></param>
+        /// <returns>true if the connection is established, false if rejected</returns>
+        public async Task<bool> ConnectOperatorToService(Entidades.Operador pOperator, Entidades.Service.Interface.IServicioCallback paramCallback)
+        {
+            try
+            {
+                // Calls Datos Project for get the results from service
+                return await datOper.ConnectOperatorToService(pOperator, paramCallback);
+            }
+            catch (Exception ex)
+            {
+                // Bubbles the exception to the next level
+                throw ex;
+            }
+        }
 
+        /// <summary>
+        /// Sent a signal for service disconnection
+        /// </summary>
+        /// <param name="pOperator">Operator to disconnect</param>
+        /// <returns></returns>
+        public async Task DisconnectFromService(Entidades.Operador pOperator)
+        {
+            try {
+                // Sent to data information of disconnected operator
+                await datOper.DisconnectFromService(pOperator);
+            }
+            catch (Exception ex) {
+                throw ex;
+            }
+        }
+        
         /// <summary>
         /// Call service methods to get a list with service logged operator
         /// </summary>

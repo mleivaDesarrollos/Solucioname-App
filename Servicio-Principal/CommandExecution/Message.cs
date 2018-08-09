@@ -16,6 +16,22 @@ namespace Servicio_Principal.CommandExecution
                 // Enviamos el mensaje a todos los operadores conectados al servicio
                 currentServiceInstance.MessageToAllOperators(Contenido);
             }
+            else if (Destinatario.UserName.ToLower() == "backoffice")
+            {
+                // Checks if a backoffice is logged in
+                if (currentServiceInstance.connectedBackoffice != null)
+                {                             
+                    // if To is a backoffice, send message to the current backoffice
+                    currentServiceInstance.connectedBackoffice.Callback.Mensaje(Contenido);
+                    // Notify on console the message sent
+                    Console.WriteLine(currentServiceInstance.GetFullShortDateTime + ": message sent to backoffice + " + currentServiceInstance.connectedBackoffice.Operator.UserName + ".");
+                }
+                else
+                {
+                    // Notifies on console the message sent
+                    Console.WriteLine(currentServiceInstance.GetFullShortDateTime + ": no logged backoffice on the service.");
+                }
+            }
         }
 
         public IExecution Convert(Command commSource)

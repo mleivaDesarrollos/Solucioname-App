@@ -17,7 +17,6 @@
       <xsd:import namespace="http://tempuri.org/" />
       <xsd:import namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
       <xsd:import namespace="http://schemas.datacontract.org/2004/07/Entidades" />
-      <xsd:import namespace="http://schemas.datacontract.org/2004/07/Servicio_Principal" />
     </xsd:schema>
   </wsdl:types>
   <wsdl:message name="IServicio_Conectar_InputMessage">
@@ -47,6 +46,12 @@
   <wsdl:message name="IServicio_getOperatorList_OutputMessage">
     <wsdl:part name="parameters" element="tns:getOperatorListResponse" />
   </wsdl:message>
+  <wsdl:message name="IServicio_SetStatus_InputMessage">
+    <wsdl:part name="parameters" element="tns:SetStatus" />
+  </wsdl:message>
+  <wsdl:message name="IServicio_SetStatus_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SetStatusResponse" />
+  </wsdl:message>
   <wsdl:message name="IServicio_Mensaje_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:Mensaje" />
   </wsdl:message>
@@ -55,6 +60,9 @@
   </wsdl:message>
   <wsdl:message name="IServicio_ForceDisconnect_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:ForceDisconnect" />
+  </wsdl:message>
+  <wsdl:message name="IServicio_ServiceChangeStatusRequest_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:ServiceChangeStatusRequest" />
   </wsdl:message>
   <wsdl:portType msc:usingSession="true" name="IServicio">
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="Conectar">
@@ -78,6 +86,10 @@
       <wsdl:input wsaw:Action="http://tempuri.org/IServicio/getOperatorList" message="tns:IServicio_getOperatorList_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IServicio/getOperatorListResponse" message="tns:IServicio_getOperatorList_OutputMessage" />
     </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="SetStatus">
+      <wsdl:input wsaw:Action="http://tempuri.org/IServicio/SetStatus" message="tns:IServicio_SetStatus_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IServicio/SetStatusResponse" message="tns:IServicio_SetStatus_OutputMessage" />
+    </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="Mensaje">
       <wsdl:output wsaw:Action="http://tempuri.org/IServicio/Mensaje" message="tns:IServicio_Mensaje_OutputCallbackMessage" />
     </wsdl:operation>
@@ -86,6 +98,9 @@
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="ForceDisconnect">
       <wsdl:output wsaw:Action="http://tempuri.org/IServicio/ForceDisconnect" message="tns:IServicio_ForceDisconnect_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="ServiceChangeStatusRequest">
+      <wsdl:output wsaw:Action="http://tempuri.org/IServicio/ServiceChangeStatusRequest" message="tns:IServicio_ServiceChangeStatusRequest_OutputCallbackMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="DualTCPBinding" type="tns:IServicio">
@@ -136,6 +151,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="SetStatus">
+      <soap12:operation soapAction="http://tempuri.org/IServicio/SetStatus" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="Mensaje">
       <soap12:operation soapAction="http://tempuri.org/IServicio/Mensaje" style="document" />
       <wsdl:output>
@@ -150,6 +174,12 @@
     </wsdl:operation>
     <wsdl:operation name="ForceDisconnect">
       <soap12:operation soapAction="http://tempuri.org/IServicio/ForceDisconnect" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ServiceChangeStatusRequest">
+      <soap12:operation soapAction="http://tempuri.org/IServicio/ServiceChangeStatusRequest" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>

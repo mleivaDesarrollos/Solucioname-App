@@ -11,13 +11,15 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Entidades;
+using Entidades.Service.Interface;
 
 namespace UIBackoffice
 {
     /// <summary>
     /// Interaction logic for frmBackoffice.xaml
     /// </summary>
-    public partial class frmBackoffice : Window
+    public partial class frmBackoffice : Window, Entidades.Service.Interface.IServicioCallback
     {
         public frmBackoffice()
         {
@@ -56,5 +58,32 @@ namespace UIBackoffice
                 Util.MsgBox.Error("Ha ocurrido un error al llenar el listado de operadores: " + ex.Message);   
             }
         }
+
+
+        #region service_callback_implementation
+        public void EnviarAsunto(Asunto a)
+        {
+            
+        }
+
+        public void ForceDisconnect()
+        {
+            
+        }
+
+        public void Mensaje(string message)
+        {
+            // Calls to show message on async thread
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                Util.MsgBox.Error("Mensaje proveniente del servicio: " + message);
+            }));            
+        }
+
+        public void ServiceChangeStatusRequest(AvailabiltyStatus paramNewStatus)
+        {
+            
+        }
+        #endregion
     }
 }

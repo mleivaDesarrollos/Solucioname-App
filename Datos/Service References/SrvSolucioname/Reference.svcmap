@@ -26,7 +26,6 @@
     <MetadataFile FileName="service.xsd" MetadataType="Schema" ID="fcf602ca-dba1-4fa1-ac21-7dc4ad12121b" SourceId="1" SourceUrl="http://localhost:8001/Servicio-Principal/mex" />
     <MetadataFile FileName="service1.xsd" MetadataType="Schema" ID="548a526a-4591-4b1d-8156-8e4cb4c4859a" SourceId="1" SourceUrl="http://localhost:8001/Servicio-Principal/mex" />
     <MetadataFile FileName="Entidades.xsd" MetadataType="Schema" ID="8136d8ff-3102-4b91-b4a6-709d6b62d3e1" SourceId="1" SourceUrl="http://localhost:8001/Servicio-Principal/mex" />
-    <MetadataFile FileName="Servicio_Principal.xsd" MetadataType="Schema" ID="3adb6de1-d152-4a83-a29d-767d26d7c65c" SourceId="1" SourceUrl="http://localhost:8001/Servicio-Principal/mex" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />

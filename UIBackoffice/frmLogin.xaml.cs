@@ -78,9 +78,8 @@ namespace UIBackoffice
                     UserName = txtUsername.Text,
                     Password = txtPassword.Password
                 };
-                // Consultamos a las capas de negocio para validar el ingreso
-                // TODO : Modificar el logueo para que se haga sobre el servicio.
-                Entidades.Operador operResponse = await logOper.ConnectBackoffice(entOper);
+                // Consultamos a las capas de negocio para validar el ingreso                
+                Entidades.Operador operResponse = await logOper.ConnectBackoffice(entOper, App.Current.MainWindow as Entidades.Service.Interface.IServicioCallback);
                 if (operResponse != null)
                 {
                     Operador = operResponse;

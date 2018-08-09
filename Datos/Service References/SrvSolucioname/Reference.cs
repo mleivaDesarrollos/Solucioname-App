@@ -9,70 +9,7 @@
 //------------------------------------------------------------------------------
 
 namespace Datos.SrvSolucioname {
-    using System.Runtime.Serialization;
-    using System;
     
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="Mensaje", Namespace="http://schemas.datacontract.org/2004/07/Servicio_Principal")]
-    [System.SerializableAttribute()]
-    public partial class Mensaje : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
-        [System.NonSerializedAttribute()]
-        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string ContenidoField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private Entidades.Operador RemitenteField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Contenido {
-            get {
-                return this.ContenidoField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.ContenidoField, value) != true)) {
-                    this.ContenidoField = value;
-                    this.RaisePropertyChanged("Contenido");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public Entidades.Operador Remitente {
-            get {
-                return this.RemitenteField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.RemitenteField, value) != true)) {
-                    this.RemitenteField = value;
-                    this.RaisePropertyChanged("Remitente");
-                }
-            }
-        }
-        
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-            }
-        }
-    }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="SrvSolucioname.IServicio", CallbackContract=typeof(Datos.SrvSolucioname.IServicioCallback), SessionMode=System.ServiceModel.SessionMode.Required)]
@@ -113,19 +50,28 @@ namespace Datos.SrvSolucioname {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/getOperatorList", ReplyAction="http://tempuri.org/IServicio/getOperatorListResponse")]
         System.Threading.Tasks.Task<Entidades.Operador[]> getOperatorListAsync();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/SetStatus", ReplyAction="http://tempuri.org/IServicio/SetStatusResponse")]
+        bool SetStatus(Entidades.AvailabiltyStatus paramNewStatus);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/SetStatus", ReplyAction="http://tempuri.org/IServicio/SetStatusResponse")]
+        System.Threading.Tasks.Task<bool> SetStatusAsync(Entidades.AvailabiltyStatus paramNewStatus);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     public interface IServicioCallback {
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/Mensaje")]
-        void Mensaje(Datos.SrvSolucioname.Mensaje m);
+        void Mensaje(string message);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/EnviarAsunto")]
         void EnviarAsunto(Entidades.Asunto a);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/ForceDisconnect")]
         void ForceDisconnect();
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/ServiceChangeStatusRequest")]
+        void ServiceChangeStatusRequest(Entidades.AvailabiltyStatus paramNewStatus);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -202,6 +148,14 @@ namespace Datos.SrvSolucioname {
         
         public System.Threading.Tasks.Task<Entidades.Operador[]> getOperatorListAsync() {
             return base.Channel.getOperatorListAsync();
+        }
+        
+        public bool SetStatus(Entidades.AvailabiltyStatus paramNewStatus) {
+            return base.Channel.SetStatus(paramNewStatus);
+        }
+        
+        public System.Threading.Tasks.Task<bool> SetStatusAsync(Entidades.AvailabiltyStatus paramNewStatus) {
+            return base.Channel.SetStatusAsync(paramNewStatus);
         }
     }
 }

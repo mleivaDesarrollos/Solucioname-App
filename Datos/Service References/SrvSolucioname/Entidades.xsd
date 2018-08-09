@@ -7,7 +7,7 @@
       <xs:element minOccurs="0" name="DNI" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Nombre" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Password" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="Status" nillable="true" type="tns:AvailabiltyStatus" />
+      <xs:element minOccurs="0" name="Status" type="tns:AvailabiltyStatus" />
       <xs:element minOccurs="0" name="UserName" nillable="true" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
@@ -20,12 +20,17 @@
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="Operador.BackofficeType" nillable="true" type="tns:Operador.BackofficeType" />
-  <xs:complexType name="AvailabiltyStatus">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="Description" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="Id" type="xs:int" />
-    </xs:sequence>
-  </xs:complexType>
+  <xs:simpleType name="AvailabiltyStatus">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Disconnected" />
+      <xs:enumeration value="Connected" />
+      <xs:enumeration value="ReadyToReceive" />
+      <xs:enumeration value="Break" />
+      <xs:enumeration value="Bath" />
+      <xs:enumeration value="SpecialTask" />
+      <xs:enumeration value="Error" />
+    </xs:restriction>
+  </xs:simpleType>
   <xs:element name="AvailabiltyStatus" nillable="true" type="tns:AvailabiltyStatus" />
   <xs:complexType name="Asunto">
     <xs:sequence>

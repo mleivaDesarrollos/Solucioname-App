@@ -69,12 +69,46 @@ namespace Datos
         /// </summary>
         /// <param name=""></param>
         /// <returns></returns>
-        public async Task<Entidades.Operador> LogOnServiceBackoffice(Entidades.Operador operatorToLog)
+        public async Task<Entidades.Operador> LogOnServiceBackoffice(Entidades.Operador operatorToLog, Entidades.Service.Interface.IServicioCallback paramCallback)
         {
             // Generamos un operador para procesar
-            Entidades.Operador operatorProcess = await ClientBO.Instance.Connect(operatorToLog);
+            Entidades.Operador operatorProcess = await Client.Instance.ConnectBackoffice(operatorToLog, paramCallback);
             // Devolvemos el valor procesado
             return operatorProcess;
+        }
+
+        /// <summary>
+        /// Sent a request to service for connection to the service
+        /// </summary>
+        /// <param name="paramOperator"></param>
+        /// <param name="paramCallback"></param>
+        /// <returns>True if the connections succeds. False when connection is rejected</returns>
+        public async Task<bool> ConnectOperatorToService(Entidades.Operador paramOperator, Entidades.Service.Interface.IServicioCallback paramCallback)
+        {
+            try
+            {
+                // Returns the getted value from service
+                return await Client.Instance.ConnectOperator(paramOperator, paramCallback);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// Sent petition for desconnection from service
+        /// </summary>
+        /// <param name="pOperator">Operator to disconnect</param>
+        public async Task DisconnectFromService(Entidades.Operador pOperator)
+        {
+            try {
+                // Calls to disconnect from the service
+                await Client.Instance.DisconnectOperator(pOperator);
+            }
+            catch (Exception ex) {
+                throw ex;
+            }
         }
 
         /// <summary>
@@ -86,7 +120,7 @@ namespace Datos
             try
             {
                 // Returns processed list
-                return await ClientBO.Instance.GetFullOperatorList();
+                return await Client.Instance.GetFullOperatorList();
             }
             catch (Exception ex)
             {

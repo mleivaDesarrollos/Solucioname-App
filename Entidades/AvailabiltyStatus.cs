@@ -6,20 +6,15 @@ using System.Threading.Tasks;
 using System.Runtime.Serialization;
 
 namespace Entidades
-{
-    [DataContract]
-    public class AvailabiltyStatus
-    {
-        [DataMember]
-        public int Id
-        {
-            get; set;
-        }
-
-        [DataMember]
-        public string Description
-        {
-            get; set;
-        }
+{    
+    public enum AvailabiltyStatus
+    {    
+        Disconnected,
+        Connected,
+        ReadyToReceive,
+        Break,
+        Bath,
+        SpecialTask,
+        Error
     }
 }

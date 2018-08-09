@@ -141,14 +141,12 @@
                                     <TextBlock FontWeight="Bold" Margin="3" FontSize="16" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center">Listo</TextBlock>
                                 </Border>
                                 <Border Grid.Column="1" BorderThickness="0 0 3 0" BorderBrush="{StaticResource AppContentTextColor}" Margin="0 4 0 6">
-                                    <TextBlock Name="lblMessage" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Hidden" FontSize="16" Foreground="{StaticResource AppContentTextColor}">Se ha recibido un nuevo asunto.</TextBlock>
+                                    <TextBlock Name="lblMessage" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Hidden" FontSize="16" Foreground="{StaticResource AppContentTextColor}">Se ha recibido un nuevo asunto.</TextBlock>                                    
                                 </Border>
                                 <StackPanel Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Right">
                                     <Image Name="imgConnectStatus" Width="20" Height="20" Margin="7" Source="Images/idlestatus.png"/>
-                                    <ComboBox Name="cboConnect" IsReadOnly="True" Margin="3 5" Width="100" SelectionChanged="cboConnect_SelectionChanged">
-                                        <ComboBoxItem Name="optConnected" Content="Conectado" />
-                                        <ComboBoxItem Name="optNotConnected" Content="No conectado" IsSelected="True" />
-                                    </ComboBox>
+                                    <ComboBox Name="cboConnect" IsReadOnly="True" Margin="3 5" Width="100" SelectedValuePath="Status" DisplayMemberPath="Description"/>
+
                                 </StackPanel>
                             </Grid>
                         </StackPanel>

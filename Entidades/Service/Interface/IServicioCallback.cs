@@ -6,19 +6,23 @@ using System.Threading.Tasks;
 using System.ServiceModel;
 using Entidades;
 
-namespace Servicio_Principal
+
+namespace Entidades.Service.Interface
 {
     [ServiceContract]
     public interface IServicioCallback
     {
         [OperationContract(IsOneWay = true)]
-        void Mensaje(Mensaje m);
+        void Mensaje(string message);
 
         [OperationContract(IsOneWay = true)]
         void EnviarAsunto(Asunto a);
 
         [OperationContract(IsOneWay = true)]
         void ForceDisconnect();
+
+        [OperationContract(IsOneWay = true)]
+        void ServiceChangeStatusRequest(AvailabiltyStatus paramNewStatus);
 
     }
 }

@@ -10,12 +10,29 @@ using System.Configuration;
 using System.Timers;
 using System.Collections.ObjectModel;
 using System.ServiceModel.Channels;
+using Entidades.Service.Interface;
 
 namespace Servicio_Principal
 {
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple, UseSynchronizationContext = false)]
     public partial class Servicio : IServicio
     {
+        /// <summary>
+        /// Client Class for different users
+        /// </summary>
+        internal class Client
+        {
+            public Operador Operator
+            {
+                get; set;
+            }
+
+            public IServicioCallback Callback
+            {
+                get; set;
+            }
+        }
+
         /// <summary>
         /// Listado de operadores conectados con sus correspondientes nombres de usuario
         /// </summary>
@@ -28,6 +45,11 @@ namespace Servicio_Principal
 
         // Almacenamos el callback del administrador de consola en una variable separada
         internal IServicioCallback ConsoleAdminCallback = null;
+
+        /// <summary>
+        /// Dispose a backoffice user for connections. By operation choice, only one backoffice can be connected
+        /// </summary>
+        internal Client connectedBackoffice = null;
 
         /// <summary>
         /// Listado de asuntos pendientes de entrega a operadores
@@ -137,8 +159,6 @@ namespace Servicio_Principal
             }                   
         }
 
-
-
         public void AsuntoReceiptCompleted(Asunto asuntoToConfirm)
         {
             // Como la tarea esta a cargo de la clase AsuntosPendingDeliverTask
@@ -191,6 +211,20 @@ namespace Servicio_Principal
             {
                 // Generate a new SQL Operator object
                 SQL.Operador sqlOperator = new SQL.Operador();
+                // if a backoffice are already connected, kicks current backoffice
+                if (connectedBackoffice != null)
+                {
+                    // Notify to the previous backoffice of the disconnect
+                    connectedBackoffice.Callback.Mensaje("El backoffice " + oper.UserName + " " + oper.Apellido + " se ha conectado. Su conexión ha finalizado.");
+                    // Force disconnect of the client
+                    connectedBackoffice.Callback.ForceDisconnect();
+                }
+                // Set a new backoffice connected on the service
+                connectedBackoffice = new Client()
+                {
+                    Callback = CurrentCallback,
+                    Operator = oper
+                };
                 // Return the value processed on the login method
                 return sqlOperator.ValidateBackofficeOperator(oper);
             }
@@ -221,6 +255,35 @@ namespace Servicio_Principal
                 Console.WriteLine(GetFullShortDateTime + ": Error retreiving operator List : " + ex.Message);
             }
             return null;
+        }
+
+        /// <summary>
+        /// Set a new status from current Callback
+        /// </summary>
+        /// <param name="paramNewStatus"></param>
+        public bool SetStatus(Entidades.AvailabiltyStatus paramNewStatus)
+        {
+            lock (syncObject)
+            {
+                // Gets the operator related to the callback
+                Entidades.Operador operatorRelated = getConnectedOperator(CurrentCallback);
+                if (operatorRelated != null)
+                {
+                    // Set the status on operator finded
+                    operatorRelated.Status = paramNewStatus;
+                    // When the change occurs correctly, return true
+                    return true;
+                }
+                else
+                {
+                    // If the callback is no related with any operator, forces disconnection
+                    CurrentCallback.Mensaje("There is an error getting operator, please contact the administrator. The service connection has been ended." );
+                    // Force the client's desconnection from de the service
+                    CurrentCallback.ForceDisconnect();
+                    // if the change is cannot be setted correctly, returns false
+                    return false;                    
+                }
+            }
         }
 
         #endregion
@@ -265,6 +328,8 @@ namespace Servicio_Principal
         {
             try
             {
+                // Establecemos el estado inicial del operador a Conectado
+                pOper.Status = AvailabiltyStatus.ReadyToReceive;
                 // Agregamos la combinacion de operador y callback al listado del servicio
                 lstOperadoresConectados.Add(pOper, CurrentCallback);
             }
@@ -340,7 +405,7 @@ namespace Servicio_Principal
             // Recorremos todos los clientes conectados y le mandamos un mensaje
             foreach (var callback in lstOperadoresConectados.Values)
             {
-                callback.Mensaje(new Mensaje() { Contenido = "Comando prueba desde consola." });
+                callback.Mensaje("Comando prueba desde consola." );
             }
         }
 
@@ -355,7 +420,7 @@ namespace Servicio_Principal
                 try
                 {
                     // Controlamos con un bloque Try Catch el envío de mensajes, por si el callback ya no responde y debe ser removido del listado
-                    callback.Mensaje(new Mensaje() { Contenido = sMessage });
+                    callback.Mensaje(sMessage);
                 }
                 catch (Exception)
                 {
@@ -373,7 +438,7 @@ namespace Servicio_Principal
         internal void retreiveListOfConnectedOperators()
         {
             // Devolvemos el listado ya procesado
-            ConsoleAdminCallback.Mensaje(new Mensaje() { Contenido = getListConnectedOperator() });
+            ConsoleAdminCallback.Mensaje(getListConnectedOperator());
         }
 
         private string getListConnectedOperator()

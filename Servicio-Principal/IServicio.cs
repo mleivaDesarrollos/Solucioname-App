@@ -5,10 +5,11 @@ using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
 using Entidades;
+using Entidades.Service.Interface;
 
 namespace Servicio_Principal
 {
-    [ServiceContract(CallbackContract = typeof(IServicioCallback), SessionMode = SessionMode.Required)]    
+    [ServiceContract(CallbackContract = typeof(IServicioCallback), SessionMode = SessionMode.Required)]
     public interface IServicio
     {
         [OperationContract(IsInitiating = true)]
@@ -18,7 +19,7 @@ namespace Servicio_Principal
         Operador ConnectBackoffice(Operador oper);
 
         [OperationContract(IsTerminating = true, IsOneWay = true)]
-        void Disconnect(Operador oper); 
+        void Disconnect(Operador oper);
 
         [OperationContract(IsOneWay = true)]
         void EjecutarComando(Operador oper, string strCommand);
@@ -28,5 +29,8 @@ namespace Servicio_Principal
 
         [OperationContract]
         List<Entidades.Operador> getOperatorList();
+
+        [OperationContract]
+        bool SetStatus(Entidades.AvailabiltyStatus paramNewStatus);
     }
 }
