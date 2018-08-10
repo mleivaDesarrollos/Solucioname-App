@@ -112,6 +112,23 @@ namespace Datos
         }
 
         /// <summary>
+        /// Sent a request to service for changing current status on the service
+        /// </summary>
+        /// <param name="pOperator"></param>
+        /// <param name="newStatus"></param>
+        /// <returns></returns>
+        public async Task ChangeCurrentStatus(Entidades.Operador pOperator, Entidades.AvailabiltyStatus newStatus)
+        {
+            try {
+                // Sent to proxy interface to change status
+                await Client.Instance.ChangeCurrentStatus(pOperator, newStatus);
+            }
+            catch (Exception ex) {
+                throw ex;
+            }
+        }
+
+        /// <summary>
         /// Call to service methods to obtain full data of connected operators
         /// </summary>
         /// <returns></returns>

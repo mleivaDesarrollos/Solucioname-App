@@ -409,6 +409,10 @@ namespace UISolucioname
         /// <param name="proxyStatus"></param>
         public void runActionStatus(AvailabiltyStatus availStatus)
         {
+            // If the new status is the same of current status
+            if (availStatus == currentStatus) {
+                return;
+            }
             switch (availStatus) {
                 case AvailabiltyStatus.Disconnected:
                     // if the current status is related to connected status
@@ -424,12 +428,10 @@ namespace UISolucioname
                     connectService();                    
                     break;
                 case AvailabiltyStatus.ReadyToReceive:
-                    break;
                 case AvailabiltyStatus.Break:
-                    break;
                 case AvailabiltyStatus.Bath:
-                    break;
                 case AvailabiltyStatus.SpecialTask:
+                    sentChangeStatusRequest(availStatus);
                     break;
                 case AvailabiltyStatus.Error:
                     break;
@@ -470,6 +472,9 @@ namespace UISolucioname
             }
         }
 
+        /// <summary>
+        /// Sent a request to service for desconnection
+        /// </summary>
         private async void disconnectService() {
             try {
                 // Generates a new logic operator object
@@ -483,12 +488,35 @@ namespace UISolucioname
                 Util.MsgBox.Error("Ha ocurrido un error al procesar la desconexión: " + ex.Message);
             }
         }
+
+        /// <summary>
+        /// Sent a request to service for change current status
+        /// </summary>
+        /// <param name="newStatus">the new status for setup in service</param>
+        private async void sentChangeStatusRequest(AvailabiltyStatus newStatus)
+        {
+            try {
+                // Create a new Logic Operator object for operation
+                Logica.Operador logicOperator = new Logica.Operador();
+                // Encapsulate operator to a variable for method
+                Operador operatorLogged = App.Current.Properties["user"] as Operador;
+                // Call method request launch
+                await logicOperator.ChangeCurrentStatus(operatorLogged, newStatus);
+            }
+            catch (Exception ex) {
+                Util.MsgBox.Error("Error al procesar el cambio de etsado : " + ex.Message);
+            }
+        }
         #endregion
 
         #region service_implementation_methods
         public void Mensaje(string message)
         {
-            
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                // Shows Message on UI
+                Util.MsgBox.Error(message);
+            }));
         }
 
         public void EnviarAsunto(Entidades.Asunto a)
@@ -501,9 +529,16 @@ namespace UISolucioname
             
         }
 
+        /// <summary>
+        /// On service request, the status of UI is modified by petition
+        /// </summary>
+        /// <param name="paramNewStatus"></param>
         public void ServiceChangeStatusRequest(AvailabiltyStatus paramNewStatus)
         {
-            
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                currentStatus = paramNewStatus;
+            }));
         }
         #endregion
 

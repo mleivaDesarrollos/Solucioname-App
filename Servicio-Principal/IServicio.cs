@@ -30,7 +30,10 @@ namespace Servicio_Principal
         [OperationContract]
         List<Entidades.Operador> getOperatorList();
 
+        [OperationContract(IsOneWay = true)]
+        void SetStatus(Operador oper, Entidades.AvailabiltyStatus paramNewStatus);
+
         [OperationContract]
-        bool SetStatus(Entidades.AvailabiltyStatus paramNewStatus);
+        bool IsServiceActive();
     }
 }

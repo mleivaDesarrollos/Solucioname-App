@@ -81,7 +81,24 @@ namespace Logica
                 throw ex;
             }
         }
-        
+
+        /// <summary>
+        /// Sent a request to service for changing current status on the service
+        /// </summary>
+        /// <param name="pOperator"></param>
+        /// <param name="newStatus"></param>
+        /// <returns></returns>
+        public async Task ChangeCurrentStatus(Entidades.Operador pOperator, Entidades.AvailabiltyStatus newStatus)
+        {
+            try {
+                // Sents to data the request to change status
+                await datOper.ChangeCurrentStatus(pOperator, newStatus);
+            }
+            catch (Exception ex) {
+                throw ex;
+            }
+        }
+
         /// <summary>
         /// Call service methods to get a list with service logged operator
         /// </summary>

@@ -258,10 +258,10 @@ namespace Servicio_Principal
         }
 
         /// <summary>
-        /// Set a new status from current Callback
+        /// Set a new status from current Callback. On successfull change, service sent a signal to the client
         /// </summary>
         /// <param name="paramNewStatus"></param>
-        public bool SetStatus(Entidades.AvailabiltyStatus paramNewStatus)
+        public void SetStatus(Operador oper, AvailabiltyStatus paramNewStatus)
         {
             lock (syncObject)
             {
@@ -271,21 +271,29 @@ namespace Servicio_Principal
                 {
                     // Set the status on operator finded
                     operatorRelated.Status = paramNewStatus;
-                    // When the change occurs correctly, return true
-                    return true;
+                    // Sent a confirmation signal to the client
+                    CurrentCallback.ServiceChangeStatusRequest(paramNewStatus);
+                    // For debug purposses, sent a console message to inform
+                    Console.WriteLine(GetFullShortDateTime + ": operator {0} has changed status to {1}.", operatorRelated.UserName, paramNewStatus.ToString());
                 }
                 else
                 {
                     // If the callback is no related with any operator, forces disconnection
                     CurrentCallback.Mensaje("There is an error getting operator, please contact the administrator. The service connection has been ended." );
                     // Force the client's desconnection from de the service
-                    CurrentCallback.ForceDisconnect();
-                    // if the change is cannot be setted correctly, returns false
-                    return false;                    
+                    CurrentCallback.ForceDisconnect();             
                 }
             }
         }
 
+        /// <summary>
+        /// Method for fast check if the service is active
+        /// </summary>
+        public bool IsServiceActive()
+        {
+            // This is like ping method, only awaits a true return
+            return true;
+        }
         #endregion
 
         #region operator_administration

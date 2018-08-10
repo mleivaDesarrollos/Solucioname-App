@@ -68,6 +68,7 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
     <Compile Include="ServiceOperation\Client.cs" />
+    <Compile Include="ServiceOperation\TaskExtension.cs" />
     <Compile Include="TipoEstado.cs" />
     <Compile Include="Util\TipoDatos.cs" />
     <Compile Include="Util\SQLite.cs" />

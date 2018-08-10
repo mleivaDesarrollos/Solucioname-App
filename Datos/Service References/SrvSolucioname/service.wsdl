@@ -49,8 +49,11 @@
   <wsdl:message name="IServicio_SetStatus_InputMessage">
     <wsdl:part name="parameters" element="tns:SetStatus" />
   </wsdl:message>
-  <wsdl:message name="IServicio_SetStatus_OutputMessage">
-    <wsdl:part name="parameters" element="tns:SetStatusResponse" />
+  <wsdl:message name="IServicio_IsServiceActive_InputMessage">
+    <wsdl:part name="parameters" element="tns:IsServiceActive" />
+  </wsdl:message>
+  <wsdl:message name="IServicio_IsServiceActive_OutputMessage">
+    <wsdl:part name="parameters" element="tns:IsServiceActiveResponse" />
   </wsdl:message>
   <wsdl:message name="IServicio_Mensaje_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:Mensaje" />
@@ -88,7 +91,10 @@
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="SetStatus">
       <wsdl:input wsaw:Action="http://tempuri.org/IServicio/SetStatus" message="tns:IServicio_SetStatus_InputMessage" />
-      <wsdl:output wsaw:Action="http://tempuri.org/IServicio/SetStatusResponse" message="tns:IServicio_SetStatus_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="IsServiceActive">
+      <wsdl:input wsaw:Action="http://tempuri.org/IServicio/IsServiceActive" message="tns:IServicio_IsServiceActive_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IServicio/IsServiceActiveResponse" message="tns:IServicio_IsServiceActive_OutputMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="Mensaje">
       <wsdl:output wsaw:Action="http://tempuri.org/IServicio/Mensaje" message="tns:IServicio_Mensaje_OutputCallbackMessage" />
@@ -153,6 +159,12 @@
     </wsdl:operation>
     <wsdl:operation name="SetStatus">
       <soap12:operation soapAction="http://tempuri.org/IServicio/SetStatus" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="IsServiceActive">
+      <soap12:operation soapAction="http://tempuri.org/IServicio/IsServiceActive" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

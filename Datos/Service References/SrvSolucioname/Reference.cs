@@ -51,11 +51,17 @@ namespace Datos.SrvSolucioname {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/getOperatorList", ReplyAction="http://tempuri.org/IServicio/getOperatorListResponse")]
         System.Threading.Tasks.Task<Entidades.Operador[]> getOperatorListAsync();
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/SetStatus", ReplyAction="http://tempuri.org/IServicio/SetStatusResponse")]
-        bool SetStatus(Entidades.AvailabiltyStatus paramNewStatus);
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/SetStatus")]
+        void SetStatus(Entidades.Operador oper, Entidades.AvailabiltyStatus paramNewStatus);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/SetStatus", ReplyAction="http://tempuri.org/IServicio/SetStatusResponse")]
-        System.Threading.Tasks.Task<bool> SetStatusAsync(Entidades.AvailabiltyStatus paramNewStatus);
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/SetStatus")]
+        System.Threading.Tasks.Task SetStatusAsync(Entidades.Operador oper, Entidades.AvailabiltyStatus paramNewStatus);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/IsServiceActive", ReplyAction="http://tempuri.org/IServicio/IsServiceActiveResponse")]
+        bool IsServiceActive();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/IsServiceActive", ReplyAction="http://tempuri.org/IServicio/IsServiceActiveResponse")]
+        System.Threading.Tasks.Task<bool> IsServiceActiveAsync();
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -150,12 +156,20 @@ namespace Datos.SrvSolucioname {
             return base.Channel.getOperatorListAsync();
         }
         
-        public bool SetStatus(Entidades.AvailabiltyStatus paramNewStatus) {
-            return base.Channel.SetStatus(paramNewStatus);
+        public void SetStatus(Entidades.Operador oper, Entidades.AvailabiltyStatus paramNewStatus) {
+            base.Channel.SetStatus(oper, paramNewStatus);
         }
         
-        public System.Threading.Tasks.Task<bool> SetStatusAsync(Entidades.AvailabiltyStatus paramNewStatus) {
-            return base.Channel.SetStatusAsync(paramNewStatus);
+        public System.Threading.Tasks.Task SetStatusAsync(Entidades.Operador oper, Entidades.AvailabiltyStatus paramNewStatus) {
+            return base.Channel.SetStatusAsync(oper, paramNewStatus);
+        }
+        
+        public bool IsServiceActive() {
+            return base.Channel.IsServiceActive();
+        }
+        
+        public System.Threading.Tasks.Task<bool> IsServiceActiveAsync() {
+            return base.Channel.IsServiceActiveAsync();
         }
     }
 }
