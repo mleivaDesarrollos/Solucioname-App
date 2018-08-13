@@ -60,6 +60,7 @@
     <Compile Include="CommandExecution\Test.cs" />
     <Compile Include="Error.cs" />
     <Compile Include="IServicio.cs" />
+    <Compile Include="Log.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Servicio.cs" />
@@ -69,6 +70,8 @@
     <Compile Include="SQL\Util\SQLite.cs" />
     <Compile Include="SQL\Util\TipoDatos.cs" />
     <Compile Include="Tasks\AsuntosPendingDeliverTask.cs" />
+    <Compile Include="Tasks\OperatorAdminTask.cs" />
+    <Compile Include="Tasks\TaskExtension.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Entidades\Entidades.csproj">

@@ -114,7 +114,7 @@ namespace Servicio_Principal
                     try
                     {
                         // Enviamos el callback al cliente
-                        getOperatorCallback(asuntoToDeliver.Oper).EnviarAsunto(asuntoToDeliver);
+                        getCallback(asuntoToDeliver.Oper).EnviarAsunto(asuntoToDeliver);
                     }
                     catch (Exception) { }
                 }
@@ -133,7 +133,7 @@ namespace Servicio_Principal
             foreach (var asuntosPending in lstAsuntosToDeliver)
             {
                 // Si el operador
-                if (lstOperadoresConectados.Keys.ToList().Exists((operConn) => operConn.UserName == asuntosPending.Oper.UserName))
+                if (lstConnectedClients.ToList().Exists((operConn) => operConn.Operator.UserName == asuntosPending.Oper.UserName))
                 {
                     lstAsuntosFilteredByConnectedOperator.Add(asuntosPending);
                 }

@@ -36,12 +36,13 @@ namespace Servicio_Principal
         /// <summary>
         /// Listado de operadores conectados con sus correspondientes nombres de usuario
         /// </summary>
-        Dictionary<Operador, IServicioCallback> lstOperadoresConectados = new Dictionary<Operador, IServicioCallback>();
+        // Dictionary<Operador, IServicioCallback> lstOperadoresConectados = new Dictionary<Operador, IServicioCallback>();
+        ObservableCollection<Client> lstConnectedClients = new ObservableCollection<Client>();
 
         /// <summary>
         /// Lista que se utilizará para procesos de limpieza de operadores que ya perdieron la conexión al servidor
         /// </summary>
-        List<IServicioCallback> lstOperatorToRemove = new List<IServicioCallback>();
+        List<Client> lstOperatorToRemove = new List<Client>();
 
         // Almacenamos el callback del administrador de consola en una variable separada
         internal IServicioCallback ConsoleAdminCallback = null;
@@ -60,6 +61,8 @@ namespace Servicio_Principal
         /// Temporizador asignado para la distribución de asuntos pendientes
         /// </summary>
         System.Timers.Timer deliverAsuntosPendingTimer;
+
+        System.Timers.Timer operatorCheckTimer;
 
         /// <summary>
         /// Objeto de sincronización, utilizado fundamentalmente para no producir deadlocks en peticiones de usuario
@@ -112,7 +115,9 @@ namespace Servicio_Principal
         {
             // Configuramos el servicio de envío de asuntos y lo activamos
             ConfigSendAsuntosPending();
-            StartSendAsuntosPending();            
+            StartSendAsuntosPending();
+            // Configure operator service check
+            configureOperatorCheckTimer();       
         }
         #endregion
 
@@ -126,36 +131,34 @@ namespace Servicio_Principal
         {
             lock (syncObject)
             {
-                if (oper.UserName != null)
-                {
-                    if (isConsoleAdmin(oper))
-                    {                        
-                        Console.WriteLine(GetFullShortDateTime + " : Console Administrator has been logged in from remote host : " + GetCallbackHostname);
-                        ConsoleAdminCallback = CurrentCallback;
-                        return true;
-                    }
-                    SQL.Operador connOperador = new SQL.Operador();
-                    // Validamos operador en bases de servicio
-                    if (connOperador.ValidarIngreso(oper))
-                    {
-                        if(isOperatorLoggedIn(oper))
-                        {
-                            removeOperator(oper);
+                try {
+                    if (oper.UserName != null) {
+                        if (isConsoleAdmin(oper)) {
+                            Log.Info("MainService", "service admin has been logged in.");
+                            ConsoleAdminCallback = CurrentCallback;
+                            return true;
                         }
-                        // Luego de las comprobaciones de agregado ejecutamos el agregado al servicio
-                        addOperator(oper);
-                        // Operador con credenciales correctas. Validamos si ya esta cargado
-                        Console.WriteLine(GetFullShortDateTime + " : user " + oper.UserName + " has been logged in. Host: " + GetCallbackHostname);
-                        return true;
+                        SQL.Operador connOperador = new SQL.Operador();
+                        // Validamos operador en bases de servicio
+                        if (connOperador.ValidarIngreso(oper)) {
+                            // Luego de las comprobaciones de agregado ejecutamos el agregado al servicio
+                            addOperator(oper, CurrentCallback);
+                            // Operador con credenciales correctas. Validamos si ya esta cargado
+                            Log.Info("MainService", string.Format("operator {0} has been logged in the system. Host: {1}", oper, GetCallbackHostname));
+                            return true;
+                        }
+                        return false;
+                    } else {
+                        // Si no cuenta con nombre de usuario se rechaza la conexión
+                        Log.Info("MainService", "the connection has been rejected because the operator objected has improperly communicated-");
+                        return false;
                     }
+
+                } catch (Exception ex) {
+                    Log.Error("MainService", ex.Message);
                     return false;
                 }
-                else
-                {
-                    // Si no cuenta con nombre de usuario se rechaza la conexión
-                    Console.WriteLine("El servidor ha rechazado la conexión debido a que no se ha comunicado el nombre de usuario. ");                   
-                    return false;
-                }
+                
             }                   
         }
 
@@ -191,12 +194,12 @@ namespace Servicio_Principal
                 // Ejecutamos la accion si es que la misma es encontrada
                 CommandExecution.Execution.getRelatedAction(commandBuild).Call(this);
                 // Avisamos por consola que el comando ha sido ejecutado correctamente
-                Console.WriteLine(commandBuild.Name + " has been executed succefully.");
+                Log.Info("Command", string.Format("{0} executed succefully.", commandBuild.Name));
             }
             catch (Exception ex)
             {
                 // Al procesarse una exception se informa por consola el resultado                
-                Console.WriteLine(ex.Message);
+                Log.Error("Command", string.Format("details : " + ex.Message));
             }
         }
 
@@ -214,6 +217,7 @@ namespace Servicio_Principal
                 // if a backoffice are already connected, kicks current backoffice
                 if (connectedBackoffice != null)
                 {
+                    
                     // Notify to the previous backoffice of the disconnect
                     connectedBackoffice.Callback.Mensaje("El backoffice " + oper.UserName + " " + oper.Apellido + " se ha conectado. Su conexión ha finalizado.");
                     // Force disconnect of the client
@@ -231,7 +235,7 @@ namespace Servicio_Principal
             catch (Exception ex)
             {
                 // If the process fails, notifies on console the error.
-                Console.WriteLine(GetFullShortDateTime + " : Error trying to log a backoffice operator: " + ex.Message);
+                Log.Error("MainService", "details : " + ex.Message);
                 // Send a client a null operator
                 return null;
             }
@@ -247,12 +251,12 @@ namespace Servicio_Principal
             {
                 Console.WriteLine(GetFullShortDateTime + ": sending list of connected operators.");
                 // Return full list of connected operators
-                return lstOperadoresConectados.Keys.ToList();
+                return lstConnectedClients.Select((operConn) => operConn.Operator).ToList();
             }
             catch (Exception ex)
             {
                 // Log error on console screen
-                Console.WriteLine(GetFullShortDateTime + ": Error retreiving operator List : " + ex.Message);
+                Log.Error("MainService", "details : " + ex.Message);
             }
             return null;
         }
@@ -263,25 +267,22 @@ namespace Servicio_Principal
         /// <param name="paramNewStatus"></param>
         public void SetStatus(Operador oper, AvailabiltyStatus paramNewStatus)
         {
-            lock (syncObject)
-            {
-                // Gets the operator related to the callback
-                Entidades.Operador operatorRelated = getConnectedOperator(CurrentCallback);
-                if (operatorRelated != null)
-                {
+            lock (syncObject) {
+                try {
+                    // Gets the operator related to the callback
+                    Entidades.Operador operatorRelated = getOperator(CurrentCallback);
                     // Set the status on operator finded
                     operatorRelated.Status = paramNewStatus;
                     // Sent a confirmation signal to the client
                     CurrentCallback.ServiceChangeStatusRequest(paramNewStatus);
                     // For debug purposses, sent a console message to inform
-                    Console.WriteLine(GetFullShortDateTime + ": operator {0} has changed status to {1}.", operatorRelated.UserName, paramNewStatus.ToString());
-                }
-                else
-                {
+                    Log.Info(_operatorClassName, string.Format("{0} has changed status to {1}.", oper, paramNewStatus));
+                } catch (Exception ex) {
+                    Log.Error("Service", "error setting status: " + ex.Message);
                     // If the callback is no related with any operator, forces disconnection
-                    CurrentCallback.Mensaje("There is an error getting operator, please contact the administrator. The service connection has been ended." );
+                    CurrentCallback.Mensaje("There is an error getting operator, please contact the administrator. The service connection has been ended.");
                     // Force the client's desconnection from de the service
-                    CurrentCallback.ForceDisconnect();             
+                    CurrentCallback.ForceDisconnect();
                 }
             }
         }
@@ -295,123 +296,12 @@ namespace Servicio_Principal
             return true;
         }
         #endregion
-
-        #region operator_administration
-        /// <summary>
-        /// Validamos si el operador ya se encuentra logueado dentro del sistema
-        /// </summary>
-        /// <param name="pOper"></param>
-        private bool isOperatorLoggedIn(Entidades.Operador pOper)
-        {
-            // Utilizando LINQ pasamos a lista los valores de las keys y averiguamos si existe el nombre de usuario
-            // Para evitar errores de tipeo pasamos a lowercase el nombre de usuario de ambos
-            return lstOperadoresConectados.Keys.ToList().Exists( oper => oper.UserName.ToLower() == pOper.UserName.ToLower());
-        }
-
-        /// <summary>
-        /// Remueve un operador del listado de callbacks actuales
-        /// </summary>
-        /// <param name="pOper"></param>
-        private void removeOperator(Entidades.Operador pOper)
-        {
-            try
-            {
-                // Se intenta remover el operador del listado
-                lstOperadoresConectados.Remove(
-                    lstOperadoresConectados.Keys.First( oper => oper.UserName == pOper.UserName)
-                    );
-                Console.WriteLine(GetFullShortDateTime + " : user " + pOper.UserName + " has been disconnected.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error al remover el operador: " + ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Agrega un operador al listado de operadores conectados al servicio
-        /// </summary>
-        /// <param name="pOper"></param>
-        private void addOperator(Entidades.Operador pOper)
-        {
-            try
-            {
-                // Establecemos el estado inicial del operador a Conectado
-                pOper.Status = AvailabiltyStatus.ReadyToReceive;
-                // Agregamos la combinacion de operador y callback al listado del servicio
-                lstOperadoresConectados.Add(pOper, CurrentCallback);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Ha ocurrido un error al agregar el operador al listado de conectados: " + ex.Message);                
-            }
-        }
-
-
-        /// <summary>
-        /// Remueve un operador del listado de conectados
-        /// </summary>
-        /// <param name="callbackToRemove"></param>
-        private void removeConnectedOperator(IServicioCallback callbackRelated)
-        {
-            // Obtenemos el operador conectado
-            Entidades.Operador connectedOperator = getConnectedOperator(callbackRelated);
-            // Removemos el operador de los operadores conectados
-            lstOperadoresConectados.Remove(connectedOperator);
-            // Informamos que el cliente fue desconectado
-            Console.WriteLine("the operator {0} has been removed from the connected operators.", connectedOperator.UserName);
-        }
-
-        /// <summary>
-        /// Procesa el listado de operadores conectados que tuvieron algún problema de conexión en el proceso
-        /// </summary>
-        private void cleanOperatorsWithFails()
-        {
-            // Recorremos el listado de operadores a eliminar
-            foreach (var callbackFromOperatorDelete in lstOperatorToRemove)
-            {
-                // Removemos el operador del listado de conectados
-                removeConnectedOperator(callbackFromOperatorDelete);
-            }
-            // Limpiamos el listado de conectados
-            lstOperatorToRemove.Clear();
-        }
-
-        /// <summary>
-        /// Devuelve un callback relacionado a un operador desde el listado de conectados
-        /// </summary>
-        /// <param name=""></param>
-        /// <returns></returns>
-        internal Entidades.Operador getConnectedOperator(IServicioCallback iscOperatorRelated)
-        {
-            return lstOperadoresConectados.First((oper) => oper.Value == iscOperatorRelated).Key;
-        }
-
-        /// <summary>
-        /// Obtiene el callback del listado de clientes conectados
-        /// </summary>
-        /// <param name="operParameter"></param>
-        /// <returns>Devuelve el callback relacionado con el operador indicado</returns>
-        internal IServicioCallback getOperatorCallback(Entidades.Operador operParameter)
-        {
-            try
-            {
-                return lstOperadoresConectados.First((opConnected) => opConnected.Key.UserName == operParameter.UserName).Value;
-            }
-            catch (Exception)
-            {
-                throw new Exception(string.Format(Error.CALLBACK_RELATED_WITH_OPERATOR_NOTFOUND, operParameter.UserName));
-            }
-
-        }
-
-        #endregion
-
+        
         #region command_helpers
         public void TestCommand()
         {
             // Recorremos todos los clientes conectados y le mandamos un mensaje
-            foreach (var callback in lstOperadoresConectados.Values)
+            foreach (var callback in lstConnectedClients.Select( (client) => client.Callback).ToList())
             {
                 callback.Mensaje("Comando prueba desde consola." );
             }
@@ -423,20 +313,18 @@ namespace Servicio_Principal
         public void MessageToAllOperators(string sMessage)
         {
             // Recorremos todos los clientes conectados
-            foreach (var callback in lstOperadoresConectados.Values)
+            foreach (var client in lstConnectedClients)
             {
                 try
                 {
                     // Controlamos con un bloque Try Catch el envío de mensajes, por si el callback ya no responde y debe ser removido del listado
-                    callback.Mensaje(sMessage);
+                    client.Callback.Mensaje(sMessage);                    
                 }
                 catch (Exception)
                 {
-                    // Si hay una excepción, es posible que el cliente ya no este activo, por lo que se progrmaa para que el mismo sea eliminado posteriormente
-                    lstOperatorToRemove.Add(callback);
+                    Log.Error("MainService", string.Format("{0} not responding to interaction.", client.Operator));
                 }                
-            }
-            cleanOperatorsWithFails();
+            }            
         }
         
         /// <summary>
@@ -456,9 +344,9 @@ namespace Servicio_Principal
             // Agregamos un mensaje inicial
             lstOperatorConnected += @"List of operators connected to service:\n";
             // Recorremos el listado de operadores conectados
-            foreach (var operConnected in lstOperadoresConectados.Keys)
+            foreach (var username in lstConnectedClients.Select((client) => client.Operator.UserName))
             {
-                lstOperatorConnected += operConnected.UserName + ", ";
+                lstOperatorConnected += username + " ";
             }
             return lstOperatorConnected;
         }
@@ -470,7 +358,7 @@ namespace Servicio_Principal
         public void ForceToDisconnectFromService(Entidades.Operador operToDisconnect)
         {
             // Forzamos la desconexión del cliente mandando una operación de Callback
-            getOperatorCallback(operToDisconnect).ForceDisconnect();
+            getCallback(operToDisconnect).ForceDisconnect();
         }
 
         /// <summary>

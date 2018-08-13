@@ -21,17 +21,42 @@ namespace UIBackoffice
     /// </summary>
     public partial class frmBackoffice : Window, Entidades.Service.Interface.IServicioCallback
     {
+        #region constructor
         public frmBackoffice()
         {
             InitializeComponent();
-            ConfigurarCustomWindow();
+            ConfigurarCustomWindow();            
         }
+        #endregion
 
+        #region event_subscription
+
+        /// <summary>
+        /// On closing window of any source, sents a confirmation dialog to front.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (ConsultarCierreApp() == true) {
+                e.Cancel = false;
+            }
+        }
         private void btnGetOperatorList_Click(object sender, RoutedEventArgs e)
         {
             PopulateOperatorList();
         }
+        #endregion
 
+        #region helper_methods
+        /// <summary>
+        /// Standarized message for closing application
+        /// </summary>
+        /// <returns>null, false or true</returns>
+        private bool? ConsultarCierreApp()
+        {
+            return Util.MsgBox.Consulta("¿Estás seguro de que deseas salir de la aplicacion?");
+        }
         /// <summary>
         /// Get and set operator information from the service
         /// </summary>
@@ -58,8 +83,8 @@ namespace UIBackoffice
                 Util.MsgBox.Error("Ha ocurrido un error al llenar el listado de operadores: " + ex.Message);   
             }
         }
-
-
+        #endregion
+        
         #region service_callback_implementation
         public void EnviarAsunto(Asunto a)
         {
@@ -84,6 +109,12 @@ namespace UIBackoffice
         {
             
         }
+
+        bool IServicioCallback.IsActive()
+        {
+            return true;
+        }
         #endregion
+
     }
 }

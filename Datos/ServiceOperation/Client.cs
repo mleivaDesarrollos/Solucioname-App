@@ -140,7 +140,9 @@ namespace Datos.ServiceOperation
                 if (backofficeOper != null)
                 {
                     // Sets callback for the client
-                    callbackInteraction = paramCallback;                    
+                    callbackInteraction = paramCallback;
+                    // Starts task to check for service activity status
+                    startCheckStatusOfConnectionWithService();                
                     // Devolvemos el operador con todos sus datos cargados
                     return backofficeOper;
                 }
@@ -308,7 +310,7 @@ namespace Datos.ServiceOperation
                 // Configure timeout for wait response
                 await runAsyncTimeoutMethod(proxy.IsServiceActiveAsync, defaultGeneralTimeout);                 
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 // Sent status message to the UI
                 UIInteraction.Mensaje("Se ha perdido conexión con el servicio. Se procede a detener la conexión.");
                 // Change the UI graphic status
@@ -365,6 +367,11 @@ namespace Datos.ServiceOperation
         void IServicioCallback.ServiceChangeStatusRequest(AvailabiltyStatus paramNewStatus)
         {
             callbackInteraction.ServiceChangeStatusRequest(paramNewStatus);
+        }
+
+        public bool IsActive()
+        {
+            return true;
         }
         #endregion
 

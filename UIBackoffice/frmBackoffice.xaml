@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:UIBackoffice"
         WindowStartupLocation="CenterScreen"
+        Closing="Window_Closing"
         mc:Ignorable="d"
         Title="Backoffice" Height="480" Width="700" MinHeight="480" MinWidth="700" Icon="santander.ico">
     <WindowChrome.WindowChrome>

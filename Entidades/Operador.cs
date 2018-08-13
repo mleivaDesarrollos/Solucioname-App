@@ -58,5 +58,10 @@ namespace Entidades
         {
             get; set;
         }
+
+        public override string ToString()
+        {
+            return UserName;
+        }
     }
 }

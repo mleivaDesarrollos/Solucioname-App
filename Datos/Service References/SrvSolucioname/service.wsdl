@@ -67,6 +67,12 @@
   <wsdl:message name="IServicio_ServiceChangeStatusRequest_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:ServiceChangeStatusRequest" />
   </wsdl:message>
+  <wsdl:message name="IServicio_IsActive_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:IsActive" />
+  </wsdl:message>
+  <wsdl:message name="IServicio_IsActive_InputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:IsActiveResponse" />
+  </wsdl:message>
   <wsdl:portType msc:usingSession="true" name="IServicio">
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="Conectar">
       <wsdl:input wsaw:Action="http://tempuri.org/IServicio/Conectar" message="tns:IServicio_Conectar_InputMessage" />
@@ -107,6 +113,10 @@
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="ServiceChangeStatusRequest">
       <wsdl:output wsaw:Action="http://tempuri.org/IServicio/ServiceChangeStatusRequest" message="tns:IServicio_ServiceChangeStatusRequest_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="IsActive">
+      <wsdl:output wsaw:Action="http://tempuri.org/IServicio/IsActive" message="tns:IServicio_IsActive_OutputCallbackMessage" />
+      <wsdl:input wsaw:Action="http://tempuri.org/IServicio/IsActiveResponse" message="tns:IServicio_IsActive_InputCallbackMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="DualTCPBinding" type="tns:IServicio">
@@ -192,6 +202,15 @@
     </wsdl:operation>
     <wsdl:operation name="ServiceChangeStatusRequest">
       <soap12:operation soapAction="http://tempuri.org/IServicio/ServiceChangeStatusRequest" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsActive">
+      <soap12:operation soapAction="http://tempuri.org/IServicio/IsActive" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>

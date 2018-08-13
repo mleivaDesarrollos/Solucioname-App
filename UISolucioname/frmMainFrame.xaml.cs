@@ -8,6 +8,7 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using Entidades;
 using System.Collections.Generic;
+using Entidades.Service.Interface;
 
 namespace UISolucioname
 {
@@ -526,7 +527,11 @@ namespace UISolucioname
 
         public void ForceDisconnect()
         {
-            
+
+        }
+        bool IServicioCallback.IsActive()
+        {
+            return true;
         }
 
         /// <summary>
