@@ -40,6 +40,11 @@ namespace Servicio_Principal
         ObservableCollection<Client> lstConnectedClients = new ObservableCollection<Client>();
 
         /// <summary>
+        /// List of operator must connected today
+        /// </summary>
+        List<Operador> lstOperatorMustConnected = new List<Operador>();
+
+        /// <summary>
         /// Lista que se utilizará para procesos de limpieza de operadores que ya perdieron la conexión al servidor
         /// </summary>
         List<Client> lstOperatorToRemove = new List<Client>();
@@ -117,7 +122,9 @@ namespace Servicio_Principal
             ConfigSendAsuntosPending();
             StartSendAsuntosPending();
             // Configure operator service check
-            configureOperatorCheckTimer();       
+            configureOperatorCheckTimer();
+            // Load operator to must be connected today
+            loadOperatorsMustWorkToday();    
         }
         #endregion
 
@@ -259,6 +266,15 @@ namespace Servicio_Principal
                 Log.Error("MainService", "details : " + ex.Message);
             }
             return null;
+        }
+
+        /// <summary>
+        /// Returns a list with total operator must working today
+        /// </summary>
+        /// <returns></returns>
+        public List<Operador> getListOfOperatorMustWorkToday()
+        {
+            return lstOperatorMustConnected;
         }
 
         /// <summary>

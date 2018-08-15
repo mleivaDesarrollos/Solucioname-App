@@ -25,7 +25,8 @@ namespace UIBackoffice
         public frmBackoffice()
         {
             InitializeComponent();
-            ConfigurarCustomWindow();            
+            ConfigurarCustomWindow();
+            SetUpDate();   
         }
         #endregion
 
@@ -83,8 +84,13 @@ namespace UIBackoffice
                 Util.MsgBox.Error("Ha ocurrido un error al llenar el listado de operadores: " + ex.Message);   
             }
         }
+
+        private void SetUpDate()
+        {
+            txtTodayDate.Text = DateTime.Now.ToShortDateString();
+        }
         #endregion
-        
+
         #region service_callback_implementation
         public void EnviarAsunto(Asunto a)
         {

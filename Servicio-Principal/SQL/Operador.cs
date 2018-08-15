@@ -80,6 +80,97 @@ namespace Servicio_Principal.SQL
             }
             // Return the operator value
             return backofficeOperator;
-        }        
+        }
+
+        /// <summary>
+        /// Retrieves a list of operators who logs on the system today
+        /// </summary>
+        /// <returns></returns>
+        public List<Entidades.Operador> getOperatorOfTheDay()
+        {
+            try {
+                // Create a list to return at the end of the process
+                List<Entidades.Operador> lstTodayOperators = new List<Entidades.Operador>();
+                using (SQLiteConnection c = new SQLiteConnection(Conexion.Cadena)) {
+                    c.Open();
+                    string strCurrentDayOperator = "select * from view_operator_current_day_activity";
+                    using (SQLiteCommand cmdQueryOperatorOfTheDay = new SQLiteCommand(strCurrentDayOperator, c)) {
+                        using (SQLiteDataReader rdrQueryOperatorOfTheDay = cmdQueryOperatorOfTheDay.ExecuteReader()) {
+                            while (rdrQueryOperatorOfTheDay.Read()) {
+                                lstTodayOperators.Add(new Entidades.Operador()
+                                {
+                                    UserName = rdrQueryOperatorOfTheDay["username"].ToString(),
+                                    Nombre = rdrQueryOperatorOfTheDay["surname"].ToString(),
+                                    Apellido = rdrQueryOperatorOfTheDay["lastname"].ToString(),
+                                    StartTime = Convert.ToDateTime(rdrQueryOperatorOfTheDay["working_start"]),
+                                    EndTime = Convert.ToDateTime(rdrQueryOperatorOfTheDay["working_end"]),
+                                    Breaks = getBreakList(rdrQueryOperatorOfTheDay)
+                                });
+                            }
+                        }
+                    }
+                }
+                // Returns the processed list
+                return lstTodayOperators;
+            }
+            catch (Exception ex) {
+                throw ex;
+            }
+        }
+        
+        /// <summary>
+        /// Calculates the starting hour and adds minutes to this date
+        /// </summary>
+        /// <param name="paramStart"></param>
+        /// <param name="iMinutes"></param>
+        /// <returns></returns>
+        private DateTime getEndBreak(string paramStart, int paramMinutes)
+        {
+            return Convert.ToDateTime(paramStart).AddMinutes(paramMinutes);
+        }
+
+        /// <summary>
+        /// Get a break processed list by a DataReader
+        /// </summary>
+        /// <param name="rdrWithBreakData"></param>
+        /// <returns></returns>
+        private List<Entidades.Operador.Break> getBreakList(SQLiteDataReader rdrWithBreakData)
+        {
+            // Creates a new list of breaks
+            List<Entidades.Operador.Break> lstBreaks = new List<Entidades.Operador.Break>();
+            // Iterates over the reader to get all related breaks, dispose a flag to control
+            bool hasNextBreak = true;
+            // Value of current iteration
+            int intBreakNumber = 1;
+            // Concatenation items
+            string strBreak = "break_";
+            string strDuration = "duration_";
+            while (hasNextBreak) {
+                // Concatenates current iteration with common column name
+                string breakIteration = strBreak + intBreakNumber;
+                string durationIteration = strDuration + intBreakNumber;
+                try {
+                    // Checks if the current iteration has values. If the column value exceeds maximum of range reader object
+                    if (rdrWithBreakData[breakIteration] != System.DBNull.Value && rdrWithBreakData[durationIteration] != System.DBNull.Value) {
+                        lstBreaks.Add(new Entidades.Operador.Break()
+                        {
+                            Start = Convert.ToDateTime(rdrWithBreakData[breakIteration]),
+                            End = getEndBreak(rdrWithBreakData[breakIteration].ToString(), Convert.ToInt32(rdrWithBreakData[durationIteration]))
+                        });
+                        // Plus a iteration
+                        intBreakNumber++;
+                    }
+                    else {
+                        hasNextBreak = false;
+                    }
+                }
+                catch (IndexOutOfRangeException) {
+                    hasNextBreak = false;
+                }
+                
+            }            
+            // Return the processed list
+            return lstBreaks;
+        }
     }
 }

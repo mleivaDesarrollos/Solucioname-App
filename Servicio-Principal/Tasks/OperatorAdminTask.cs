@@ -295,10 +295,28 @@ namespace Servicio_Principal
                 // Removes client from the connected list
                 removeClient(client);                
             }
-        } 
+        }
         #endregion
 
         #region helper_methods
+        /// <summary>
+        /// Loads all operator corresponding to work on current week day
+        /// </summary>
+        private void loadOperatorsMustWorkToday()
+        {
+            try {
+                // New instance from operator object
+                SQL.Operador sqlOperator = new SQL.Operador();
+                // Try to fill the list of operator connecteds
+                lstOperatorMustConnected = sqlOperator.getOperatorOfTheDay();
+                // Logs the result of load
+                Log.Info(_operatorClassName, "list of operators for work today has been loaded.");
+            }
+            catch (Exception ex) {
+                Log.Error(_operatorClassName, "error loading operators who works today : " + ex.Message);
+            }
+        }
+
         /// <summary>
         /// Checks if one callback is active
         /// </summary>

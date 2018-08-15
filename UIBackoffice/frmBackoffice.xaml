@@ -130,13 +130,7 @@
                         <Border Grid.Column="1" BorderThickness="0 0 3 0" BorderBrush="{StaticResource AppContentTextColor}" Margin="0 4 0 6">
                             <TextBlock Name="lblMessage" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Hidden" FontSize="16" Foreground="{StaticResource AppContentTextColor}">Se ha recibido un nuevo asunto.</TextBlock>
                         </Border>
-                        <StackPanel Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Right">
-                            <Image Name="imgConnectStatus" Width="20" Height="20" Margin="7" Source="Images/idlestatus.png"/>
-                            <ComboBox Name="cboConnect" IsReadOnly="True" Margin="3 5" Width="100" >
-                                <ComboBoxItem Name="optConnected" Content="Conectado" />
-                                <ComboBoxItem Name="optNotConnected" Content="No conectado" IsSelected="True" />
-                            </ComboBox>
-                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Right"/>
                     </Grid>
                 </StackPanel>
             </Grid>

@@ -51,6 +51,12 @@ namespace Datos.SrvSolucioname {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/getOperatorList", ReplyAction="http://tempuri.org/IServicio/getOperatorListResponse")]
         System.Threading.Tasks.Task<Entidades.Operador[]> getOperatorListAsync();
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/getListOfOperatorMustWorkToday", ReplyAction="http://tempuri.org/IServicio/getListOfOperatorMustWorkTodayResponse")]
+        Entidades.Operador[] getListOfOperatorMustWorkToday();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/getListOfOperatorMustWorkToday", ReplyAction="http://tempuri.org/IServicio/getListOfOperatorMustWorkTodayResponse")]
+        System.Threading.Tasks.Task<Entidades.Operador[]> getListOfOperatorMustWorkTodayAsync();
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/SetStatus")]
         void SetStatus(Entidades.Operador oper, Entidades.AvailabiltyStatus paramNewStatus);
         
@@ -157,6 +163,14 @@ namespace Datos.SrvSolucioname {
         
         public System.Threading.Tasks.Task<Entidades.Operador[]> getOperatorListAsync() {
             return base.Channel.getOperatorListAsync();
+        }
+        
+        public Entidades.Operador[] getListOfOperatorMustWorkToday() {
+            return base.Channel.getListOfOperatorMustWorkToday();
+        }
+        
+        public System.Threading.Tasks.Task<Entidades.Operador[]> getListOfOperatorMustWorkTodayAsync() {
+            return base.Channel.getListOfOperatorMustWorkTodayAsync();
         }
         
         public void SetStatus(Entidades.Operador oper, Entidades.AvailabiltyStatus paramNewStatus) {

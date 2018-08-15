@@ -16,25 +16,25 @@ namespace Servicio_Principal
         static void Main(string[] args)
         {
             // Mostramos un mensaje donde se evidencie el inicio del aplicativo
-            Console.WriteLine("Iniciando servicios de Solucioname-Gestion... Espere...");
+            Log.Info("MainService", "Starting service operation...");
             // Controlamos el funcionamiento del aplicativo con un bloque try Catch
             try
             {                
                 // Inicializamos una nueva instancia del servicio
                 ServiceHost hosting = new ServiceHost(typeof(Servicio));
                 // Abrimos la conexión
-                hosting.Open();                
+                hosting.Open();
                 // Informamos que la conexión está abierta y mantenemos en ejecución consola hasta que se presione una tecla
-                Console.WriteLine("El servicio se encuentra operando y está activo.");   
-                Console.WriteLine("Presione cualquier tecla para detenerlo...");
+                Log.Info("MainService", "Service started normally.");
+                Console.WriteLine("Press any key to stop service.");
                 Console.ReadKey();
                 // Cerramos la conexión luego de recibir la confirmación de finalización
                 hosting.Close();
-                Console.WriteLine("Conexión cerrada exitosamente. El servicio ha finalizado de manera esperada.");
+                Log.Info("MainService", "Service stopped normally.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Ha ocurrido un error en la operción del servidor: " + ex.Message);                
+                Log.Error("MainService", "details: " + ex.Message);
             }
             // Pausa para poder leer el mensaje que brinda el sistema
             Console.ReadKey();

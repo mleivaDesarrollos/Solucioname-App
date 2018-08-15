@@ -10,6 +10,15 @@ namespace Entidades
     [DataContract]
     public class Operador
     {
+        [DataContract]
+        public class Break
+        {
+            [DataMember]
+            public DateTime Start { get; set; }
+            [DataMember]
+            public DateTime End { get; set; }
+        }
+
         public enum BackofficeType
         {
             Operator,
@@ -58,6 +67,13 @@ namespace Entidades
         {
             get; set;
         }
+
+        [DataMember]
+        public DateTime StartTime { get; set; }
+
+        public DateTime EndTime { get; set; }
+
+        public List<Break> Breaks { get; set; }
 
         public override string ToString()
         {

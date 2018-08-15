@@ -63,11 +63,23 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="getListOfOperatorMustWorkToday">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="getListOfOperatorMustWorkTodayResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/Entidades" minOccurs="0" name="getListOfOperatorMustWorkTodayResult" nillable="true" type="q8:ArrayOfOperador" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="SetStatus">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/Entidades" minOccurs="0" name="oper" nillable="true" type="q8:Operador" />
-        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/Entidades" minOccurs="0" name="paramNewStatus" type="q9:AvailabiltyStatus" />
+        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/Entidades" minOccurs="0" name="oper" nillable="true" type="q9:Operador" />
+        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/Entidades" minOccurs="0" name="paramNewStatus" type="q10:AvailabiltyStatus" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -93,7 +105,7 @@
   <xs:element name="EnviarAsunto">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/Entidades" minOccurs="0" name="a" nillable="true" type="q10:Asunto" />
+        <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/Entidades" minOccurs="0" name="a" nillable="true" type="q11:Asunto" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -105,7 +117,7 @@
   <xs:element name="ServiceChangeStatusRequest">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/Entidades" minOccurs="0" name="paramNewStatus" type="q11:AvailabiltyStatus" />
+        <xs:element xmlns:q12="http://schemas.datacontract.org/2004/07/Entidades" minOccurs="0" name="paramNewStatus" type="q12:AvailabiltyStatus" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
