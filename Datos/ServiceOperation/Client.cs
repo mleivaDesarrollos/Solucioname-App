@@ -93,12 +93,12 @@ namespace Datos.ServiceOperation
             }
         }
 
-        private async Task<bool> isProxyReady()
+        private async Task prepareProxy()
         {
             // Checks and set current status of proxy method
             await HandleProxy();
             // if the proxy is opened, the proxy is ready to use
-            return proxy.State == CommunicationState.Opened ? true : false;
+            if (!(proxy.State == CommunicationState.Opened)) throw new Exception("el servicio no está disponible.");
         }
         #endregion
 
@@ -132,27 +132,24 @@ namespace Datos.ServiceOperation
         /// </summary>
         /// <returns></returns>
         public async Task<Entidades.Operador> ConnectBackoffice(Entidades.Operador pOperator, Entidades.Service.Interface.IServicioCallback paramCallback)
-        {            
-            if (await isProxyReady())
+        {
+            // Aguardamos que el proxy este disponible
+            await prepareProxy();
+            // Almacenamos la respuesta del servicio en una variable que deberia venir completa
+            Entidades.Operador backofficeOper = proxy.ConnectBackoffice(pOperator);
+            if (backofficeOper != null)
             {
-                // Almacenamos la respuesta del servicio en una variable que deberia venir completa
-                Entidades.Operador backofficeOper = proxy.ConnectBackoffice(pOperator);
-                if (backofficeOper != null)
-                {
-                    // Sets callback for the client
-                    callbackInteraction = paramCallback;
-                    // Starts task to check for service activity status
-                    startCheckStatusOfConnectionWithService();                
-                    // Devolvemos el operador con todos sus datos cargados
-                    return backofficeOper;
-                }
-                else
-                {
-                    throw new Exception("El usuario o contraseña no son validos, o no se disponen de permisos de backoffice.");
-                }
-
+                // Sets callback for the client
+                callbackInteraction = paramCallback;
+                // Starts task to check for service activity status
+                startCheckStatusOfConnectionWithService();                
+                // Devolvemos el operador con todos sus datos cargados
+                return backofficeOper;
             }
-            throw new Exception("Error conectando al servicio");
+            else
+            {
+                throw new Exception("El usuario o contraseña no son validos, o no se disponen de permisos de backoffice.");
+            }                
         }
 
         /// <summary>
@@ -164,20 +161,16 @@ namespace Datos.ServiceOperation
         public async Task<bool> ConnectOperator(Entidades.Operador paramOperator, Entidades.Service.Interface.IServicioCallback paramCallback)
         {
             try {
-                if (await isProxyReady()) {
-                    // When connection is established we need check if the operator credentials are valid
-                    if (proxy.Conectar(paramOperator)) {
-                        // when connection has been acepted, the callback is saved to memory
-                        callbackInteraction = paramCallback;
-                        // Starts service checking activity
-                        startCheckStatusOfConnectionWithService();
-                        return true;
-                    }
-                    throw new Exception("Las credenciales locales no se condicen con las credenciales de servicio. Consulte al administrador.");
+                await prepareProxy();
+                // When connection is established we need check if the operator credentials are valid
+                if (proxy.Conectar(paramOperator)) {
+                    // when connection has been acepted, the callback is saved to memory
+                    callbackInteraction = paramCallback;
+                    // Starts service checking activity
+                    startCheckStatusOfConnectionWithService();
+                    return true;
                 }
-                else {
-                    throw new Exception("Ha ocurrido un error en la conexión con el servicio");
-                }
+                throw new Exception("Las credenciales locales no se condicen con las credenciales de servicio. Consulte al administrador.");
             }
             catch (TimeoutException) {
                 throw new Exception("El servicio no responde. Se ha agotado el tiempo de espera para la conexión. Contacte al administrador.");
@@ -194,10 +187,10 @@ namespace Datos.ServiceOperation
         public async Task DisconnectOperator(Entidades.Operador paramOperatorToDisconnect)
         {
             try {
-                if (await isProxyReady()) {
-                    // Run disconnection on the service
-                    proxy.Disconnect(paramOperatorToDisconnect);
-                }
+                await prepareProxy();
+                // Run disconnection on the service
+                proxy.Disconnect(paramOperatorToDisconnect);
+                
             }
             catch (Exception ex) {
                 throw ex;
@@ -218,13 +211,9 @@ namespace Datos.ServiceOperation
         {
             try {
                 // Checks if the proxy is ready
-                if(await isProxyReady()) {
-                    // Sent to the service petition to change te current status
-                    proxy.SetStatus(pOperator, newStatus);
-                }
-                else {
-                    throw new Exception("Error en la conexión con el servicio. La comunicación no está abierta.");
-                }
+                await prepareProxy();
+                // Sent to the service petition to change te current status
+                proxy.SetStatus(pOperator, newStatus);
                 
             }
             catch (Exception ex) {
@@ -240,17 +229,30 @@ namespace Datos.ServiceOperation
         {
             try
             {
-                if (await isProxyReady())
-                {
-                    return proxy.getOperatorList().ToList();
-                }
-                else
-                {
-                    throw new Exception("Error on proxy status.");
-                }
+                // Prepare proxy for operation
+                await prepareProxy();
+                // Return the list to the interface
+                return proxy.getOperatorList().ToList();
             }
             catch (Exception ex)
             {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// Get a complete list from service of current working operator of the day
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<Entidades.Operador>> GetOperatorWorkingToday()
+        {
+            try {
+                // Prepares proxy for operation
+                await prepareProxy();
+                // Return list of operator must be connected today
+                return proxy.getListOfOperatorMustWorkToday().ToList();
+            }
+            catch (Exception ex) {
                 throw ex;
             }
         }

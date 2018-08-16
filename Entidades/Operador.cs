@@ -71,8 +71,10 @@ namespace Entidades
         [DataMember]
         public DateTime StartTime { get; set; }
 
+        [DataMember]
         public DateTime EndTime { get; set; }
 
+        [DataMember]
         public List<Break> Breaks { get; set; }
 
         public override string ToString()

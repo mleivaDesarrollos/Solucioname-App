@@ -144,5 +144,19 @@ namespace Datos
                 throw new Exception("Error al obtener el listado de operadores completos: " + ex.Message);
             }
         }
+
+        /// <summary>
+        /// Sent to service layer a petition for retrieve all operator list of today
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<Entidades.Operador>> GetOperatorWorkingToday()
+        {
+            try {
+                return await Client.Instance.GetOperatorWorkingToday();
+            }
+            catch (Exception ex) {
+                throw ex;
+            }
+        }
     }
 }

@@ -114,5 +114,19 @@ namespace Logica
                 throw ex;
             }
         }
+
+        /// <summary>
+        /// Sent to data layer a petition for a complete list of operator who works today
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<Entidades.Operador>> GetOperatorWorkingToday()
+        {
+            try {
+                return await datOper.GetOperatorWorkingToday();
+            }
+            catch (Exception ex) {
+                throw ex;
+            }
+        }
     }
 }

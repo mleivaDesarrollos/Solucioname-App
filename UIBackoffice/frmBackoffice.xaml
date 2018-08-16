@@ -11,6 +11,9 @@
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="1" CornerRadius="0" ResizeBorderThickness="4" GlassFrameThickness="0"/>
     </WindowChrome.WindowChrome>
+    <Window.Resources>
+        <local:TimeLeftConverter x:Key="TimeLeftConverter"/>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
@@ -105,11 +108,28 @@
                                 <TextBlock Grid.Row="1"> Operadores de la jornada</TextBlock>
                                 <DataGrid Grid.Row="2" Name="dgConnectedUser" IsReadOnly="True" AutoGenerateColumns="False" HeadersVisibility="Column">
                                     <DataGrid.Columns>
-                                        <DataGridTextColumn Header="Operador"/>
-                                        <DataGridTextColumn Header="Estado"/>
-                                        <DataGridTextColumn Header="P. Evento"/>
-                                        <DataGridTextColumn Header="T. Restante"/>
+                                        <DataGridTextColumn Header="Operador" Binding="{Binding FullName}"/>
+                                        <DataGridTextColumn Header="Estado" Binding="{Binding Status}"/>
+                                        <DataGridTextColumn Header="P. Evento" Binding="{Binding NextEvent, StringFormat={}{0:HH:mm}, UpdateSourceTrigger=Explicit}"/>
+                                        <DataGridTextColumn Header="T. Restante" Binding="{Binding TimeLeftToNextEvent, Converter={StaticResource TimeLeftConverter}}" />
                                     </DataGrid.Columns>
+                                    <DataGrid.RowDetailsTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Margin="3" Orientation="Horizontal">
+                                                <StackPanel.Resources>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Margin" Value="2"/>
+                                                    </Style>
+                                                </StackPanel.Resources>
+                                                <TextBlock Text="Usuario:"/>
+                                                <TextBlock Text="{Binding UserName}"/>
+                                                <TextBlock Text="Inicio:"/>
+                                                <TextBlock Text="{Binding StartTime, StringFormat={}{0:HH:mm}}"/>
+                                                <TextBlock Text="Finalizacion:"/>
+                                                <TextBlock Text="{Binding EndTime, StringFormat={}{0:HH:mm}}"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGrid.RowDetailsTemplate>
                                 </DataGrid>
                                 <Button Grid.Row="3" Name="btnGetOperatorList" Click="btnGetOperatorList_Click">Get operator List</Button>
                             </Grid>

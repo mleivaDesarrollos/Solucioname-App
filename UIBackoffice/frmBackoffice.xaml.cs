@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Entidades;
 using Entidades.Service.Interface;
+using System.Collections.ObjectModel;
 
 namespace UIBackoffice
 {
@@ -20,14 +21,24 @@ namespace UIBackoffice
     /// Interaction logic for frmBackoffice.xaml
     /// </summary>
     public partial class frmBackoffice : Window, Entidades.Service.Interface.IServicioCallback
-    {
+    {       
         #region constructor
         public frmBackoffice()
         {
             InitializeComponent();
             ConfigurarCustomWindow();
-            SetUpDate();   
+            SetUpDate();
+            configureTimeToNextEvent();
         }
+        #endregion
+
+        #region local_properties
+        /// <summary>
+        /// List of operator working today
+        /// </summary>
+        ObservableCollection<OperBackoffice> lstOperatorWorkingToday = new ObservableCollection<OperBackoffice>();
+
+        System.Timers.Timer tmrCheckTimeForNextEvent;
         #endregion
 
         #region event_subscription
@@ -68,15 +79,15 @@ namespace UIBackoffice
                 // Generate a new Operator Logic object
                 Logica.Operador logOper = new Logica.Operador();
                 // Create a new list and save all operators on them
-                List<Entidades.Operador> lstOperators = await logOper.GetFullOperatorList();
-                // Get connected operators
-                string strConnectedOperators = "";
-                // Fetchs all operators and add short info to test results
-                foreach (var operConnected in lstOperators)
-                {
-                    strConnectedOperators += operConnected.UserName + ", " + operConnected.Nombre + ", " + operConnected.Apellido + ".";
-                }                // Generate a messagebox with short description of the user logged in
-                Util.MsgBox.Error("Connected operators: " + strConnectedOperators);
+                List<Entidades.Operador> lstOperators = await logOper.GetOperatorWorkingToday();
+                // Convert to observable collection
+                convertOperatorToOperatorBackoffice(lstOperators);
+                // Puts the observable collection on itemsource
+                dgConnectedUser.ItemsSource = lstOperatorWorkingToday;
+                // Update next event time left
+                updateNextEventTimeLeft();
+                // Start timer to check periodically
+                startTimeToNextEvent();                
             }
             catch (Exception ex)
             {
@@ -85,9 +96,88 @@ namespace UIBackoffice
             }
         }
 
+        /// <summary>
+        /// Configure timer to be ready on requirement
+        /// </summary>
+        private void configureTimeToNextEvent()
+        {
+            tmrCheckTimeForNextEvent = new System.Timers.Timer();
+            tmrCheckTimeForNextEvent.Interval = 10000;
+            tmrCheckTimeForNextEvent.Elapsed += TmrCheckTimeForNextEvent_Elapsed;
+        }
+
+        /// <summary>
+        /// Start time to check and update next event
+        /// </summary>
+        private void startTimeToNextEvent()
+        {
+            if(tmrCheckTimeForNextEvent != null) {
+                if (!tmrCheckTimeForNextEvent.Enabled) {
+                    tmrCheckTimeForNextEvent.Enabled = true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Stop timer to check and update next event
+        /// </summary>
+        private void stopTimeToNextEvent()
+        {
+            if(tmrCheckTimeForNextEvent != null) {
+                if (tmrCheckTimeForNextEvent.Enabled) {
+                    tmrCheckTimeForNextEvent.Enabled = false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Event to launch when time is elapsed
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TmrCheckTimeForNextEvent_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            updateNextEventTimeLeft();
+        }
+
+        /// <summary>
+        /// Update time left for next event on operator
+        /// </summary>
+        private void updateNextEventTimeLeft()
+        {
+            if (lstOperatorWorkingToday != null) {
+                foreach (var operBackoffice in lstOperatorWorkingToday) {
+                    TimeSpan difference = operBackoffice.NextEvent - DateTime.Now;
+                    operBackoffice.TimeLeftToNextEvent = Convert.ToInt32(difference.TotalMinutes);
+                }
+            }
+        }
+
         private void SetUpDate()
         {
             txtTodayDate.Text = DateTime.Now.ToShortDateString();
+        }
+
+        /// <summary>
+        /// Convert list of operators to backoffice operators
+        /// </summary>
+        private void convertOperatorToOperatorBackoffice(List<Entidades.Operador> paramOperatorList)
+        {
+            // Clean all data on the list
+            lstOperatorWorkingToday.Clear();
+            foreach (var oper in paramOperatorList) {
+                // Adds a operator to the list
+                lstOperatorWorkingToday.Add(new OperBackoffice(oper));
+            }
+        }
+
+        private async void disconnectWaitingTime()
+        {
+            await Task.Run(() => { System.Threading.Thread.Sleep(10000); });
+            await Dispatcher.BeginInvoke((Action)(() =>
+            {
+                App.Current.Shutdown();
+            }));
         }
         #endregion
 
@@ -99,7 +189,7 @@ namespace UIBackoffice
 
         public void ForceDisconnect()
         {
-            
+            disconnectWaitingTime();
         }
 
         public void Mensaje(string message)

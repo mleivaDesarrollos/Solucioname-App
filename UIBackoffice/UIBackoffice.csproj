@@ -68,6 +68,8 @@
       <DependentUpon>frmBackoffice.xaml</DependentUpon>
     </Compile>
     <Compile Include="frmCustomWindow.cs" />
+    <Compile Include="OperBackoffice.cs" />
+    <Compile Include="TimeLeftConverter.cs" />
     <Compile Include="Util\ComboFecha.cs" />
     <Compile Include="Util\Mes.cs" />
     <Compile Include="Util\MetodoExtension.cs" />

@@ -222,14 +222,7 @@ namespace Servicio_Principal
                 // Generate a new SQL Operator object
                 SQL.Operador sqlOperator = new SQL.Operador();
                 // if a backoffice are already connected, kicks current backoffice
-                if (connectedBackoffice != null)
-                {
-                    
-                    // Notify to the previous backoffice of the disconnect
-                    connectedBackoffice.Callback.Mensaje("El backoffice " + oper.UserName + " " + oper.Apellido + " se ha conectado. Su conexión ha finalizado.");
-                    // Force disconnect of the client
-                    connectedBackoffice.Callback.ForceDisconnect();
-                }
+                if (connectedBackoffice != null) sentDisconnectToCurrentBackoffice(connectedBackoffice, oper);
                 // Set a new backoffice connected on the service
                 connectedBackoffice = new Client()
                 {
@@ -312,7 +305,21 @@ namespace Servicio_Principal
             return true;
         }
         #endregion
-        
+
+        #region helper_methods
+        private async Task sentDisconnectToCurrentBackoffice(Client prevClient, Entidades.Operador paramNewBackoffice)
+        {
+            Log.Info("MainService", string.Format("backoffice {0} has been forcedly disconnected by {1}", connectedBackoffice.Operator, paramNewBackoffice.UserName));
+            await Task.Run(() =>
+            {
+                // Sent to previous backoffice a message and force disconnection
+                prevClient.Callback.Mensaje(string.Format("the operator {0} has been connected to the service. Your connection has been forcedly terminated.", paramNewBackoffice.UserName));
+                prevClient.Callback.ForceDisconnect();
+            }).TimeoutAfter(5000);
+            
+        }
+        #endregion
+
         #region command_helpers
         public void TestCommand()
         {

@@ -4,7 +4,9 @@
     <xs:sequence>
       <xs:element minOccurs="0" name="Apellido" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Backoffice" type="tns:Operador.BackofficeType" />
+      <xs:element minOccurs="0" name="Breaks" nillable="true" type="tns:ArrayOfOperador.Break" />
       <xs:element minOccurs="0" name="DNI" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="EndTime" type="xs:dateTime" />
       <xs:element minOccurs="0" name="Nombre" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Password" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="StartTime" type="xs:dateTime" />
@@ -21,6 +23,19 @@
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="Operador.BackofficeType" nillable="true" type="tns:Operador.BackofficeType" />
+  <xs:complexType name="ArrayOfOperador.Break">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Operador.Break" nillable="true" type="tns:Operador.Break" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfOperador.Break" nillable="true" type="tns:ArrayOfOperador.Break" />
+  <xs:complexType name="Operador.Break">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="End" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="Start" type="xs:dateTime" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Operador.Break" nillable="true" type="tns:Operador.Break" />
   <xs:simpleType name="AvailabiltyStatus">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Disconnected" />
