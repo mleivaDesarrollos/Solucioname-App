@@ -8,7 +8,7 @@ using System.Windows.Data;
 
 namespace UIBackoffice
 {
-    public class TimeLeftConverter : IValueConverter
+    public class TimeLeftConverter : IMultiValueConverter
     {
         // string add for hour time
         static string strHr = " hr.";
@@ -16,18 +16,24 @@ namespace UIBackoffice
         // string add for minute time
         static string strMin = " min.";
 
+        static string strBrk = "Br. ";
+
         static string strEndWorkingDay = "Finalizado";
 
-
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            int intValue = System.Convert.ToInt16(value);
+            int timeLeft = System.Convert.ToInt16(values[0]);
+            int stoppedTimeLeft = System.Convert.ToInt16(values[1]);
+            // Checks if status stopped
+            if (stoppedTimeLeft != 0) {
+                return strBrk + stoppedTimeLeft + strMin;
+            }
             // To divide total hour and minutes, if the value is over an hour splits
-            if (intValue >= 60) {
+            if (timeLeft >= 60) {
                 // Sets a hour total
-                int iHours = TimeSpan.FromMinutes(intValue).Hours;
+                int iHours = TimeSpan.FromMinutes(timeLeft).Hours;
                 // Sets a minutes
-                int iMinutes = intValue - (iHours * 60);
+                int iMinutes = timeLeft - (iHours * 60);
                 // If minutes is 0, is an exact hour
                 if (iMinutes <= 0) {
                     return iHours + strHr;
@@ -38,31 +44,32 @@ namespace UIBackoffice
                     return resultValue;
                 }
             }
-            else if (intValue < 0) {
+            else if (timeLeft < 0) {
                 return strEndWorkingDay;
             }
-            else{
-                return intValue + strMin;
+            else {
+                return timeLeft + strMin;
             }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {/*
             string strValue = value.ToString();
             if (strValue.Contains(strHr)) {
                 int iTotalMinutes = 0;
-                string[] hourMinutes = strValue.Split(new[]{ strHr, strMin , " "}, StringSplitOptions.RemoveEmptyEntries);
+                string[] hourMinutes = strValue.Split(new[] { strHr, strMin, " " }, StringSplitOptions.RemoveEmptyEntries);
                 iTotalMinutes = System.Convert.ToInt16(hourMinutes[0]) * 60;
                 if (hourMinutes.Length > 2) {
                     iTotalMinutes = iTotalMinutes + System.Convert.ToInt16(hourMinutes[1]);
                 }
                 return iTotalMinutes;
             }
-            else if (strValue.Contains(strMin)){
+            else if (strValue.Contains(strMin)) {
                 int intMin = System.Convert.ToInt16(strValue.Replace(strMin, ""));
                 return intMin;
             }
-            return null;            
+            return null;*/
+            throw new NotSupportedException();
         }
     }
 }

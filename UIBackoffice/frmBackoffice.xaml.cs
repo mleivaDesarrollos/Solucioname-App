@@ -54,6 +54,12 @@ namespace UIBackoffice
                 e.Cancel = false;
             }
         }
+        
+        private void dgConnectedUser_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            unselectOperatorList();
+        }
+
         private void btnGetOperatorList_Click(object sender, RoutedEventArgs e)
         {
             PopulateOperatorList();
@@ -139,7 +145,7 @@ namespace UIBackoffice
         {
             updateNextEventTimeLeft();
         }
-
+        
         /// <summary>
         /// Update time left for next event on operator
         /// </summary>
@@ -149,8 +155,31 @@ namespace UIBackoffice
                 foreach (var operBackoffice in lstOperatorWorkingToday) {
                     TimeSpan difference = operBackoffice.NextEvent - DateTime.Now;
                     operBackoffice.TimeLeftToNextEvent = Convert.ToInt32(difference.TotalMinutes);
+                    // Checks all breaks
+                    foreach (var breakTime in operBackoffice.Breaks) {
+                        // if now is between break range
+                        if(DateTime.Now >= breakTime.Start && DateTime.Now <= breakTime.End) {
+                            // Sets timespan
+                            TimeSpan diffOnBreak = breakTime.End - DateTime.Now;
+                            // Save minutes difference on variable
+                            operBackoffice.StoppedTimeLeft = diffOnBreak.Minutes;
+                            break;
+                        }
+                    }
                 }
             }
+        }
+
+        private async void unselectOperatorList()
+        {
+            await Task.Run(() =>
+            {
+                System.Threading.Thread.Sleep(10000);
+                Dispatcher.BeginInvoke((Action)(() =>
+                {
+                    dgConnectedUser.UnselectAll();
+                }));
+            });
         }
 
         private void SetUpDate()
@@ -211,6 +240,5 @@ namespace UIBackoffice
             return true;
         }
         #endregion
-
     }
 }

@@ -29,6 +29,20 @@ namespace UIBackoffice
             }
         }
 
+        private int stoppedTimeLeft { get; set; }
+
+        public int StoppedTimeLeft {
+            get {
+                return stoppedTimeLeft;
+                }
+            set {
+                if(stoppedTimeLeft != value) {
+                    stoppedTimeLeft = value;
+                    NotifyPropertyChanged("StoppedTimeLeft");
+                }
+            }
+        }
+
         private int timeLeftToNextEvent;
 
         public event PropertyChangedEventHandler PropertyChanged;

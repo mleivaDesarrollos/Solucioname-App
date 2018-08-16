@@ -69,6 +69,7 @@
     </Compile>
     <Compile Include="frmCustomWindow.cs" />
     <Compile Include="OperBackoffice.cs" />
+    <Compile Include="TimeLeftBrushConverter.cs" />
     <Compile Include="TimeLeftConverter.cs" />
     <Compile Include="Util\ComboFecha.cs" />
     <Compile Include="Util\Mes.cs" />

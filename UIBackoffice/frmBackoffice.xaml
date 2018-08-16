@@ -13,6 +13,7 @@
     </WindowChrome.WindowChrome>
     <Window.Resources>
         <local:TimeLeftConverter x:Key="TimeLeftConverter"/>
+        <local:TimeLeftBrushConverter x:Key="TimeLeftBrushConverter"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -106,12 +107,31 @@
                                 </Grid.RowDefinitions>
                                 <TextBlock Name="txtTodayDate"> (date)</TextBlock>
                                 <TextBlock Grid.Row="1"> Operadores de la jornada</TextBlock>
-                                <DataGrid Grid.Row="2" Name="dgConnectedUser" IsReadOnly="True" AutoGenerateColumns="False" HeadersVisibility="Column">
+                                <DataGrid Grid.Row="2" Name="dgConnectedUser" IsReadOnly="True" AutoGenerateColumns="False" HeadersVisibility="Column" SelectionChanged="dgConnectedUser_SelectionChanged">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Operador" Binding="{Binding FullName}"/>
                                         <DataGridTextColumn Header="Estado" Binding="{Binding Status}"/>
                                         <DataGridTextColumn Header="P. Evento" Binding="{Binding NextEvent, StringFormat={}{0:HH:mm}, UpdateSourceTrigger=Explicit}"/>
-                                        <DataGridTextColumn Header="T. Restante" Binding="{Binding TimeLeftToNextEvent, Converter={StaticResource TimeLeftConverter}}" />
+                                        <DataGridTextColumn Header="T. Restante" >
+                                            <DataGridTextColumn.Binding>
+                                                <MultiBinding Converter="{StaticResource TimeLeftConverter}">
+                                                    <Binding Path="TimeLeftToNextEvent"/>
+                                                    <Binding Path="StoppedTimeLeft"/>
+                                                </MultiBinding>
+                                            </DataGridTextColumn.Binding>
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Background" >
+                                                        <Setter.Value>
+                                                            <MultiBinding Converter="{StaticResource TimeLeftBrushConverter}">
+                                                                <Binding Path="TimeLeftToNextEvent"/>
+                                                                <Binding Path="StoppedTimeLeft"/>
+                                                            </MultiBinding>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
                                     </DataGrid.Columns>
                                     <DataGrid.RowDetailsTemplate>
                                         <DataTemplate>
@@ -131,7 +151,7 @@
                                         </DataTemplate>
                                     </DataGrid.RowDetailsTemplate>
                                 </DataGrid>
-                                <Button Grid.Row="3" Name="btnGetOperatorList" Click="btnGetOperatorList_Click">Get operator List</Button>
+                                <Button Grid.Row="3" Name="btnGetOperatorList" Click="btnGetOperatorList_Click" >Get operator List</Button>
                             </Grid>
                         </Border>
                     </Grid>
