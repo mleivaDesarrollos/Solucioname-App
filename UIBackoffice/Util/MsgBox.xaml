@@ -50,6 +50,7 @@
                 <TextBlock Name="txtMensaje" Margin="2" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap">Mensaje a comunicar</TextBlock>
                 <Image Grid.Column="1" Margin="10"/>
                 <Button Name="btnOk" Grid.Column="1" Grid.Row="1" Margin="4" FontWeight="Bold" Click="btnOk_Click">OK</Button>
+                <Button Name="btnOkClose" Grid.Column="1" Grid.Row="1" Margin="4" FontWeight="Bold" Click="btnOkClose_Click" Visibility="Hidden">OK</Button>
                 <DockPanel Name="dkpYesNo" Grid.Row="1" Grid.ColumnSpan="2" LastChildFill="False" Margin="3" IsEnabled="False" Visibility="Hidden">
                     <DockPanel.Resources>
                         <Style TargetType="Button" BasedOn="{StaticResource ButtonBold}">

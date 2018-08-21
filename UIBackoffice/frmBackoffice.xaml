@@ -151,7 +151,9 @@
                                         </DataTemplate>
                                     </DataGrid.RowDetailsTemplate>
                                 </DataGrid>
-                                <Button Grid.Row="3" Name="btnGetOperatorList" Click="btnGetOperatorList_Click" >Get operator List</Button>
+                                <DockPanel Grid.Row="3">
+                                    <Button Name="btnGetOperatorList" Click="btnGetOperatorList_Click" >Get operator List</Button>                                    
+                                </DockPanel>                                
                             </Grid>
                         </Border>
                     </Grid>

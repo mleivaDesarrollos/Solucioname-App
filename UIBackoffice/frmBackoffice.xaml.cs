@@ -14,13 +14,14 @@ using System.Windows.Shapes;
 using Entidades;
 using Entidades.Service.Interface;
 using System.Collections.ObjectModel;
+using Errors;
 
 namespace UIBackoffice
 {
     /// <summary>
     /// Interaction logic for frmBackoffice.xaml
     /// </summary>
-    public partial class frmBackoffice : Window, Entidades.Service.Interface.IServicioCallback
+    public partial class frmBackoffice : Window, Entidades.Service.Interface.IServicioCallback, Errors.IAssertion, Errors.IException
     {       
         #region constructor
         public frmBackoffice()
@@ -29,6 +30,7 @@ namespace UIBackoffice
             ConfigurarCustomWindow();
             SetUpDate();
             configureTimeToNextEvent();
+            configureErrorService();
         }
         #endregion
 
@@ -67,6 +69,17 @@ namespace UIBackoffice
         #endregion
 
         #region helper_methods
+        /// <summary>
+        /// Set up error service adding to the interface the current instance
+        /// </summary>
+        private void configureErrorService()
+        {
+            // Set up Exception Interface
+            Except.LoadInterface(this);
+            // Set up Assertion Interface
+            Assert.LoadInterface(this);
+
+        }
         /// <summary>
         /// Standarized message for closing application
         /// </summary>
@@ -153,22 +166,11 @@ namespace UIBackoffice
         {
             if (lstOperatorWorkingToday != null) {
                 foreach (var operBackoffice in lstOperatorWorkingToday) {
-                    TimeSpan difference = operBackoffice.NextEvent - DateTime.Now;
-                    operBackoffice.TimeLeftToNextEvent = Convert.ToInt32(difference.TotalMinutes);
-                    // Checks all breaks
-                    foreach (var breakTime in operBackoffice.Breaks) {
-                        // if now is between break range
-                        if(DateTime.Now >= breakTime.Start && DateTime.Now <= breakTime.End) {
-                            // Sets timespan
-                            TimeSpan diffOnBreak = breakTime.End - DateTime.Now;
-                            // Save minutes difference on variable
-                            operBackoffice.StoppedTimeLeft = diffOnBreak.Minutes;
-                            break;
-                        }
-                    }
+                    operBackoffice.CalculateTimeLeft();                    
                 }
             }
         }
+     
 
         private async void unselectOperatorList()
         {
@@ -201,7 +203,7 @@ namespace UIBackoffice
         }
 
         private async void disconnectWaitingTime()
-        {
+        {            
             await Task.Run(() => { System.Threading.Thread.Sleep(10000); });
             await Dispatcher.BeginInvoke((Action)(() =>
             {
@@ -238,6 +240,31 @@ namespace UIBackoffice
         bool IServicioCallback.IsActive()
         {
             return true;
+        }
+
+        void IException.Notify(string Message)
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                Util.MsgBox.Error(Message);
+            }));
+        }
+
+        void IAssertion.NotifyAndClose(string prmMessage)
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                Util.MsgBox.ErrorAndClose(prmMessage);
+            }));            
+        }
+        
+        void IAssertion.Notify(string prmMessage)
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                Util.MsgBox.Error(prmMessage);
+            }));
+            
         }
         #endregion
     }

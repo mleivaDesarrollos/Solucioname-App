@@ -50,6 +50,23 @@ namespace UIBackoffice.Util
             MsgBox.Show();
         }
 
+
+        /// <summary>
+        /// Process a error message and close app when window is closed
+        /// </summary>
+        /// <param name="pConsulta"></param>
+        public static void ErrorAndClose(String pConsulta)
+        {
+            // Setup a window for show error
+            MsgBox MsgBox = new MsgBox();
+            MsgBox.txtMensaje.Text = pConsulta;
+            MsgBox.btnOk.Visibility = Visibility.Hidden;
+            MsgBox.btnOkClose.Visibility = Visibility.Visible;                        
+            // Add a closing app completly event
+            // Show window on front          
+            MsgBox.Show();
+        }
+
         private void btnNo_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = false;
@@ -63,6 +80,11 @@ namespace UIBackoffice.Util
         private void btnOk_Click(object sender, RoutedEventArgs e)
         {
             Close();
+        }
+
+        private void btnOkClose_Click(object sender, RoutedEventArgs e)
+        {
+            App.Current.Shutdown();
         }
     }
 }

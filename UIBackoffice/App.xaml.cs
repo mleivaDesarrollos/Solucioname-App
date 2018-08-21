@@ -12,7 +12,7 @@ namespace UIBackoffice
     /// Interaction logic for App.xaml
     /// </summary>
     public partial class App : Application
-    {
+    {                
         private void Application_Startup(object sender, StartupEventArgs e)
         {
             // Configuramos el modo de cierre del aplicativo, asi es posible mantenerlo activo hasta que la ventana principal se cierre
