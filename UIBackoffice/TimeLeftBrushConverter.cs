@@ -15,6 +15,12 @@ namespace UIBackoffice
         {
             int timeleft = System.Convert.ToInt16(values[0]);
             int stoppedTimeLeft = System.Convert.ToInt16(values[1]);
+            DateTime startTime = System.Convert.ToDateTime(values[2]);
+
+            // if the journey is not started
+            if(DateTime.Now <= startTime) {
+                return Brushes.PaleVioletRed;
+            }
 
             if (stoppedTimeLeft != 0) {
                 return Brushes.CornflowerBlue;

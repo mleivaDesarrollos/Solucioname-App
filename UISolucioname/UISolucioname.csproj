@@ -310,6 +310,10 @@
       <Project>{878f7654-6fa4-483e-af7c-329e2dd7a0bc}</Project>
       <Name>Entidades</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Errors\Errors.csproj">
+      <Project>{68c6dbaa-a721-4a26-aa36-284cc38624b5}</Project>
+      <Name>Errors</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Logica\Logica.csproj">
       <Project>{57dd643c-6bc6-4d4d-9a6e-ae869a7ad72f}</Project>
       <Name>Logica</Name>

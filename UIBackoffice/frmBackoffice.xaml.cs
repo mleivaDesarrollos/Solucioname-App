@@ -21,7 +21,7 @@ namespace UIBackoffice
     /// <summary>
     /// Interaction logic for frmBackoffice.xaml
     /// </summary>
-    public partial class frmBackoffice : Window, Entidades.Service.Interface.IServicioCallback, Errors.IAssertion, Errors.IException
+    public partial class frmBackoffice : Window, Entidades.Service.Interface.IServicioCallback, IAssertion, IException
     {       
         #region constructor
         public frmBackoffice()
@@ -38,7 +38,8 @@ namespace UIBackoffice
         /// <summary>
         /// List of operator working today
         /// </summary>
-        ObservableCollection<OperBackoffice> lstOperatorWorkingToday = new ObservableCollection<OperBackoffice>();
+        OperBackofficeList lstDetailedOperators = new OperBackofficeList();
+
 
         System.Timers.Timer tmrCheckTimeForNextEvent;
         #endregion
@@ -100,9 +101,9 @@ namespace UIBackoffice
                 // Create a new list and save all operators on them
                 List<Entidades.Operador> lstOperators = await logOper.GetOperatorWorkingToday();
                 // Convert to observable collection
-                convertOperatorToOperatorBackoffice(lstOperators);
+                lstDetailedOperators.ClearListAndConvertFromOperator(lstOperators);
                 // Puts the observable collection on itemsource
-                dgConnectedUser.ItemsSource = lstOperatorWorkingToday;
+                dgConnectedUser.ItemsSource = lstDetailedOperators;
                 // Update next event time left
                 updateNextEventTimeLeft();
                 // Start timer to check periodically
@@ -164,11 +165,8 @@ namespace UIBackoffice
         /// </summary>
         private void updateNextEventTimeLeft()
         {
-            if (lstOperatorWorkingToday != null) {
-                foreach (var operBackoffice in lstOperatorWorkingToday) {
-                    operBackoffice.CalculateTimeLeft();                    
-                }
-            }
+            // Execute method for update all operator on the list
+            lstDetailedOperators.UpdateTimeLeftOnOperators();
         }
      
 
@@ -188,20 +186,7 @@ namespace UIBackoffice
         {
             txtTodayDate.Text = DateTime.Now.ToShortDateString();
         }
-
-        /// <summary>
-        /// Convert list of operators to backoffice operators
-        /// </summary>
-        private void convertOperatorToOperatorBackoffice(List<Entidades.Operador> paramOperatorList)
-        {
-            // Clean all data on the list
-            lstOperatorWorkingToday.Clear();
-            foreach (var oper in paramOperatorList) {
-                // Adds a operator to the list
-                lstOperatorWorkingToday.Add(new OperBackoffice(oper));
-            }
-        }
-
+        
         private async void disconnectWaitingTime()
         {            
             await Task.Run(() => { System.Threading.Thread.Sleep(10000); });

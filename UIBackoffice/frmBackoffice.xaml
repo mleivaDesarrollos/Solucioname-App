@@ -116,7 +116,7 @@
                                             <DataGridTextColumn.Binding>
                                                 <MultiBinding Converter="{StaticResource TimeLeftConverter}">
                                                     <Binding Path="TimeLeftToNextEvent"/>
-                                                    <Binding Path="StoppedTimeLeft"/>
+                                                    <Binding Path="StoppedTimeLeft"/>                                                    
                                                 </MultiBinding>
                                             </DataGridTextColumn.Binding>
                                             <DataGridTextColumn.ElementStyle>
@@ -126,6 +126,7 @@
                                                             <MultiBinding Converter="{StaticResource TimeLeftBrushConverter}">
                                                                 <Binding Path="TimeLeftToNextEvent"/>
                                                                 <Binding Path="StoppedTimeLeft"/>
+                                                                <Binding Path="StartTime"/>
                                                             </MultiBinding>
                                                         </Setter.Value>
                                                     </Setter>

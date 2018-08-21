@@ -82,7 +82,7 @@ namespace UIBackoffice
                 if (currentTime <= StartTime) {
                     return WorkingDayStatus.PreviousToStart;
                 }
-                else if (currentTime >= StartTime) {
+                else if (currentTime >= EndTime) {
                     return WorkingDayStatus.Ended;
                 }
                 else {
@@ -119,7 +119,7 @@ namespace UIBackoffice
                     NextEvent = StartTime;
                     break;
                 case WorkingDayStatus.Started:
-                    calculateNextEventOnBreak();
+                    NextEvent = calculateNextEventOnBreak();
                     break;
                 case WorkingDayStatus.Ended:
                     NextEvent = EndTime;

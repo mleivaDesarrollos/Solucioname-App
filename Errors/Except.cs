@@ -34,6 +34,18 @@ namespace Errors
             // Load parameter in static value            
             Interface = prmInterfaceException;
         }
+
+        /// <summary>
+        /// Throws a exception using Interface provided
+        /// </summary>
+        /// <param name="prmExcept"></param>
+        public static void Throw(Exception prmExcept)
+        {
+            // check if the parameter is valid
+            if (prmExcept == null) throw new Exception("Fatal Error : the exception has not been passed correctly. null value");
+            // on this implementation, only throws a message on client. (can be logged in a file)
+            Interface.Notify(prmExcept.Message);
+        }
         #endregion
     }
 }
