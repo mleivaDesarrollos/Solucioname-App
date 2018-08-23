@@ -34,7 +34,7 @@ namespace Servicio_Principal
         List<Operador> getListOfOperatorMustWorkToday();
 
         [OperationContract(IsOneWay = true)]
-        void SetStatus(Operador oper, Entidades.AvailabiltyStatus paramNewStatus);
+        void SetStatus(Operador operatorToChange, AvailabiltyStatus paramNewStatus);
 
         [OperationContract]
         bool IsServiceActive();

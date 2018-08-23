@@ -499,7 +499,7 @@ namespace UISolucioname
             try {
                 // Create a new Logic Operator object for operation
                 Logica.Operador logicOperator = new Logica.Operador();
-                // Encapsulate operator to a variable for method
+                // Gets operator from app properties
                 Operador operatorLogged = App.Current.Properties["user"] as Operador;
                 // Call method request launch
                 await logicOperator.ChangeCurrentStatus(operatorLogged, newStatus);

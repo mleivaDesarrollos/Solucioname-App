@@ -88,11 +88,11 @@ namespace Logica
         /// <param name="pOperator"></param>
         /// <param name="newStatus"></param>
         /// <returns></returns>
-        public async Task ChangeCurrentStatus(Entidades.Operador pOperator, Entidades.AvailabiltyStatus newStatus)
+        public async Task ChangeCurrentStatus(Entidades.Operador prmOper, Entidades.AvailabiltyStatus newStatus)
         {
             try {
                 // Sents to data the request to change status
-                await datOper.ChangeCurrentStatus(pOperator, newStatus);
+                await datOper.ChangeCurrentStatus(prmOper, newStatus);
             }
             catch (Exception ex) {
                 throw ex;

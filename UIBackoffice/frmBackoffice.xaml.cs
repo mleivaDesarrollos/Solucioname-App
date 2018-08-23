@@ -40,7 +40,6 @@ namespace UIBackoffice
         /// </summary>
         OperBackofficeList lstDetailedOperators = new OperBackofficeList();
 
-
         System.Timers.Timer tmrCheckTimeForNextEvent;
         #endregion
 

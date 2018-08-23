@@ -14,6 +14,8 @@
     <Window.Resources>
         <local:TimeLeftConverter x:Key="TimeLeftConverter"/>
         <local:TimeLeftBrushConverter x:Key="TimeLeftBrushConverter"/>
+        <local:StatusConverter x:Key="StatusConverter"/>
+        <local:StatusBrushConverter x:Key="StatusBrushConverter"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -110,7 +112,13 @@
                                 <DataGrid Grid.Row="2" Name="dgConnectedUser" IsReadOnly="True" AutoGenerateColumns="False" HeadersVisibility="Column" SelectionChanged="dgConnectedUser_SelectionChanged">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Operador" Binding="{Binding FullName}"/>
-                                        <DataGridTextColumn Header="Estado" Binding="{Binding Status}"/>
+                                        <DataGridTextColumn Header="Estado" Binding="{Binding Status, Converter={StaticResource StatusConverter}}">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Background" Value="{Binding Status, Converter={StaticResource StatusBrushConverter}}"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
                                         <DataGridTextColumn Header="P. Evento" Binding="{Binding NextEvent, StringFormat={}{0:HH:mm}, UpdateSourceTrigger=Explicit}"/>
                                         <DataGridTextColumn Header="T. Restante" >
                                             <DataGridTextColumn.Binding>

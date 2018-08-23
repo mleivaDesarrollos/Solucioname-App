@@ -98,7 +98,10 @@ namespace Datos.ServiceOperation
             // Checks and set current status of proxy method
             await HandleProxy();
             // if the proxy is opened, the proxy is ready to use
-            if (!(proxy.State == CommunicationState.Opened)) throw new Exception("el servicio no está disponible.");
+            if (!(proxy.State == CommunicationState.Opened)) {
+                throw new Exception("el servicio no está disponible.");
+            }
+
         }
         #endregion
 
@@ -186,6 +189,8 @@ namespace Datos.ServiceOperation
         /// <param name="paramOperatorToDisconnect">Operator to disconnect</param>
         public async Task DisconnectOperator(Entidades.Operador paramOperatorToDisconnect)
         {
+            // Stop checking service
+            stopCheckStatusOfConnectionWithService();
             try {
                 await prepareProxy();
                 // Run disconnection on the service
@@ -195,10 +200,6 @@ namespace Datos.ServiceOperation
             catch (Exception ex) {
                 throw ex;
             }
-            finally {
-                // Whatever is the result of method, the service activity checking may be stopped
-                stopCheckStatusOfConnectionWithService();
-            }
         }
 
         /// <summary>
@@ -207,14 +208,13 @@ namespace Datos.ServiceOperation
         /// <param name="pOperator"></param>
         /// <param name="newStatus"></param>
         /// <returns></returns>
-        public async Task ChangeCurrentStatus(Entidades.Operador pOperator, Entidades.AvailabiltyStatus newStatus)
+        public async Task ChangeCurrentStatus(Entidades.Operador prmOper, AvailabiltyStatus newStatus)
         {
             try {
                 // Checks if the proxy is ready
                 await prepareProxy();
                 // Sent to the service petition to change te current status
-                proxy.SetStatus(pOperator, newStatus);
-                
+                proxy.SetStatus(prmOper, newStatus);                
             }
             catch (Exception ex) {
                 throw ex;

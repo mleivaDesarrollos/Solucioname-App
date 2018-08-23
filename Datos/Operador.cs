@@ -117,11 +117,11 @@ namespace Datos
         /// <param name="pOperator"></param>
         /// <param name="newStatus"></param>
         /// <returns></returns>
-        public async Task ChangeCurrentStatus(Entidades.Operador pOperator, Entidades.AvailabiltyStatus newStatus)
+        public async Task ChangeCurrentStatus(Entidades.Operador prmOper, Entidades.AvailabiltyStatus newStatus)
         {
             try {
                 // Sent to proxy interface to change status
-                await Client.Instance.ChangeCurrentStatus(pOperator, newStatus);
+                await Client.Instance.ChangeCurrentStatus(prmOper, newStatus);
             }
             catch (Exception ex) {
                 throw ex;

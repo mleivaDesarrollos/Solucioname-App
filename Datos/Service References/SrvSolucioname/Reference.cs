@@ -58,10 +58,10 @@ namespace Datos.SrvSolucioname {
         System.Threading.Tasks.Task<Entidades.Operador[]> getListOfOperatorMustWorkTodayAsync();
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/SetStatus")]
-        void SetStatus(Entidades.Operador oper, Entidades.AvailabiltyStatus paramNewStatus);
+        void SetStatus(Entidades.Operador operatorToChange, Entidades.AvailabiltyStatus paramNewStatus);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/SetStatus")]
-        System.Threading.Tasks.Task SetStatusAsync(Entidades.Operador oper, Entidades.AvailabiltyStatus paramNewStatus);
+        System.Threading.Tasks.Task SetStatusAsync(Entidades.Operador operatorToChange, Entidades.AvailabiltyStatus paramNewStatus);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/IsServiceActive", ReplyAction="http://tempuri.org/IServicio/IsServiceActiveResponse")]
         bool IsServiceActive();
@@ -173,12 +173,12 @@ namespace Datos.SrvSolucioname {
             return base.Channel.getListOfOperatorMustWorkTodayAsync();
         }
         
-        public void SetStatus(Entidades.Operador oper, Entidades.AvailabiltyStatus paramNewStatus) {
-            base.Channel.SetStatus(oper, paramNewStatus);
+        public void SetStatus(Entidades.Operador operatorToChange, Entidades.AvailabiltyStatus paramNewStatus) {
+            base.Channel.SetStatus(operatorToChange, paramNewStatus);
         }
         
-        public System.Threading.Tasks.Task SetStatusAsync(Entidades.Operador oper, Entidades.AvailabiltyStatus paramNewStatus) {
-            return base.Channel.SetStatusAsync(oper, paramNewStatus);
+        public System.Threading.Tasks.Task SetStatusAsync(Entidades.Operador operatorToChange, Entidades.AvailabiltyStatus paramNewStatus) {
+            return base.Channel.SetStatusAsync(operatorToChange, paramNewStatus);
         }
         
         public bool IsServiceActive() {

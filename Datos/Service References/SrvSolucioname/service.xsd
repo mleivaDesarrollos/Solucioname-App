@@ -78,7 +78,7 @@
   <xs:element name="SetStatus">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/Entidades" minOccurs="0" name="oper" nillable="true" type="q9:Operador" />
+        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/Entidades" minOccurs="0" name="operatorToChange" nillable="true" type="q9:Operador" />
         <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/Entidades" minOccurs="0" name="paramNewStatus" type="q10:AvailabiltyStatus" />
       </xs:sequence>
     </xs:complexType>

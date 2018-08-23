@@ -17,32 +17,17 @@ namespace Servicio_Principal
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple, UseSynchronizationContext = false)]
     public partial class Servicio : IServicio
     {
-        /// <summary>
-        /// Client Class for different users
-        /// </summary>
-        internal class Client
-        {
-            public Operador Operator
-            {
-                get; set;
-            }
-
-            public IServicioCallback Callback
-            {
-                get; set;
-            }
-        }
 
         /// <summary>
         /// Listado de operadores conectados con sus correspondientes nombres de usuario
         /// </summary>
         // Dictionary<Operador, IServicioCallback> lstOperadoresConectados = new Dictionary<Operador, IServicioCallback>();
-        ObservableCollection<Client> lstConnectedClients = new ObservableCollection<Client>();
+        // ObservableCollection<Client> lstConnectedClients = new ObservableCollection<Client>();
 
         /// <summary>
         /// List of operator must connected today
         /// </summary>
-        List<Operador> lstOperatorMustConnected = new List<Operador>();
+        ObservableCollection<Client> lstOperatorMustConnected = new ObservableCollection<Client>();
 
         /// <summary>
         /// Lista que se utilizará para procesos de limpieza de operadores que ya perdieron la conexión al servidor
@@ -129,44 +114,49 @@ namespace Servicio_Principal
         #endregion
 
         #region contract_implementation
+        
         /// <summary>
-        /// Procesa una solicitud de conexión al servicio
+        /// Process a connection request to the service
         /// </summary>
         /// <param name="oper"></param>
         /// <returns></returns>
         public bool Conectar(Operador oper)
         {
-            lock (syncObject)
-            {
-                try {
-                    if (oper.UserName != null) {
-                        if (isConsoleAdmin(oper)) {
-                            Log.Info("MainService", "service admin has been logged in.");
-                            ConsoleAdminCallback = CurrentCallback;
-                            return true;
-                        }
-                        SQL.Operador connOperador = new SQL.Operador();
-                        // Validamos operador en bases de servicio
-                        if (connOperador.ValidarIngreso(oper)) {
-                            // Luego de las comprobaciones de agregado ejecutamos el agregado al servicio
-                            addOperator(oper, CurrentCallback);
-                            // Operador con credenciales correctas. Validamos si ya esta cargado
-                            Log.Info("MainService", string.Format("operator {0} has been logged in the system. Host: {1}", oper, GetCallbackHostname));
-                            return true;
-                        }
-                        return false;
-                    } else {
-                        // Si no cuenta con nombre de usuario se rechaza la conexión
-                        Log.Info("MainService", "the connection has been rejected because the operator objected has improperly communicated-");
-                        return false;
-                    }
-
-                } catch (Exception ex) {
-                    Log.Error("MainService", ex.Message);
-                    return false;
+            // guarantees exclusive petition
+            lock (syncObject) {
+                // Checks if the operator is correct
+                if (oper == null) return false;
+                if (isConsoleAdmin(oper)) {
+                    // If is a console admin the connection has suceess and saves console admin callback
+                    ConsoleAdminCallback = CurrentCallback;
+                    return true;
                 }
-                
-            }                   
+                // Checks if the operator credentials are valid
+                SQL.Operador connOperator = new SQL.Operador();
+                // if the connection is valid
+                if (connOperator.ValidarIngreso(oper)) {
+                    // search on list of working operators for username
+                    Client operatorClient = lstOperatorMustConnected.First((operConn) => operConn.Operator.UserName == oper.UserName);
+                    // if the username is on the list 
+                    if(operatorClient != null) {
+                        // save current callback with this value
+                        operatorClient.Callback = CurrentCallback;
+                    }
+                    // if the username is not on list, this means the operator is not programmed to log in today. 
+                    else {                        
+                        // Creates new client
+                        operatorClient = new Client() { Callback = CurrentCallback, Operator = oper };                        
+                        // Add new operator to the list.                       
+                        addClient(operatorClient);
+                    }
+                    // Set status for new client connected to readytoreceive.
+                    operatorClient.Operator.Status = AvailabiltyStatus.ReadyToReceive;
+                    // validate successfull the login
+                    return true;
+                }
+                // if the operators credentials are invalid return false
+                return false;
+            }
         }
 
         public void AsuntoReceiptCompleted(Asunto asuntoToConfirm)
@@ -177,12 +167,15 @@ namespace Servicio_Principal
         }
 
         /// <summary>
-        /// Solicitud de desconexión de usuario
+        /// Process a request for disconnect from the service
         /// </summary>
         /// <param name="oper"></param>
         public void Disconnect(Operador oper)
         {
-            removeOperator(oper);
+            // Validates input
+            if (oper == null || !isOperatorLogged(oper)) return;
+            // Process request of desconnectio
+            disconnectOperator(oper);
         }
 
         /// <summary>
@@ -251,7 +244,7 @@ namespace Servicio_Principal
             {
                 Console.WriteLine(GetFullShortDateTime + ": sending list of connected operators.");
                 // Return full list of connected operators
-                return lstConnectedClients.Select((operConn) => operConn.Operator).ToList();
+                return lstOperatorMustConnected.Select((operConn) => operConn.Operator).ToList();
             }
             catch (Exception ex)
             {
@@ -267,25 +260,27 @@ namespace Servicio_Principal
         /// <returns></returns>
         public List<Operador> getListOfOperatorMustWorkToday()
         {
-            return lstOperatorMustConnected;
+            return lstOperatorMustConnected.Select((operators) => operators.Operator).ToList();
         }
 
         /// <summary>
         /// Set a new status from current Callback. On successfull change, service sent a signal to the client
         /// </summary>
         /// <param name="paramNewStatus"></param>
-        public void SetStatus(Operador oper, AvailabiltyStatus paramNewStatus)
+        public void SetStatus(Operador operatorToChange, AvailabiltyStatus paramNewStatus)
         {
             lock (syncObject) {
                 try {
-                    // Gets the operator related to the callback
-                    Entidades.Operador operatorRelated = getOperator(CurrentCallback);
+                    // gets client from the service
+                    Client clientToChange = getClientByOperator(operatorToChange);                    
                     // Set the status on operator finded
-                    operatorRelated.Status = paramNewStatus;
+                    clientToChange.Operator.Status = paramNewStatus;
                     // Sent a confirmation signal to the client
                     CurrentCallback.ServiceChangeStatusRequest(paramNewStatus);
+                    // if the callback related to operator has change, update client
+                    CheckAndUpdateCallback(clientToChange, CurrentCallback);
                     // For debug purposses, sent a console message to inform
-                    Log.Info(_operatorClassName, string.Format("{0} has changed status to {1}.", oper, paramNewStatus));
+                    Log.Info(_operatorClassName, string.Format("{0} has changed status to {1}.", operatorToChange, paramNewStatus));
                 } catch (Exception ex) {
                     Log.Error("Service", "error setting status: " + ex.Message);
                     // If the callback is no related with any operator, forces disconnection
@@ -324,7 +319,7 @@ namespace Servicio_Principal
         public void TestCommand()
         {
             // Recorremos todos los clientes conectados y le mandamos un mensaje
-            foreach (var callback in lstConnectedClients.Select( (client) => client.Callback).ToList())
+            foreach (var callback in lstOperatorMustConnected.Select( (client) => client.Callback).ToList())
             {
                 callback.Mensaje("Comando prueba desde consola." );
             }
@@ -336,7 +331,7 @@ namespace Servicio_Principal
         public void MessageToAllOperators(string sMessage)
         {
             // Recorremos todos los clientes conectados
-            foreach (var client in lstConnectedClients)
+            foreach (var client in lstOperatorMustConnected)
             {
                 try
                 {
@@ -367,7 +362,7 @@ namespace Servicio_Principal
             // Agregamos un mensaje inicial
             lstOperatorConnected += @"List of operators connected to service:\n";
             // Recorremos el listado de operadores conectados
-            foreach (var username in lstConnectedClients.Select((client) => client.Operator.UserName))
+            foreach (var username in lstOperatorMustConnected.Select((client) => client.Operator.UserName))
             {
                 lstOperatorConnected += username + " ";
             }

@@ -15,13 +15,14 @@ namespace Servicio_Principal
     /// </summary>
     public partial class Servicio : IServicio
     {
+        private string _asuntosPendingClassName = "AsuntosPendingDeliverTask";
+
         /// <summary>
         /// Configuración del timer de envío de asuntos pendientes
         /// </summary>
         private void ConfigSendAsuntosPending()
         {
-            try
-            {
+            try { 
                 // Cargamos los asuntos encolados en memoria
                 lstAsuntosToDeliver = new ObservableCollection<Entidades.Asunto>(SQL.Asunto.getQueue());
                 // Configuramos la colección para que opere en base a las modificaciones
@@ -65,7 +66,7 @@ namespace Servicio_Principal
                 {
                     // Detenemos el timer
                     StopSendAsuntosPending();
-                    Console.WriteLine("AsuntoPendingDeliverTask : The deliver service has been stopped because all asuntos are delivered.");
+                    Log.Info(_asuntosPendingClassName, "the service has been stopped correctly because all asuntos has been delivered.");
                 }
             }
         }
@@ -80,7 +81,7 @@ namespace Servicio_Principal
             {
                 // Habilitamos el servicio
                 deliverAsuntosPendingTimer.Enabled = true;
-                Console.WriteLine("AsuntosPendingDeliverTask : Service started...");
+                Log.Info(_asuntosPendingClassName, "service started normally.");
             }
         }
 
@@ -101,24 +102,22 @@ namespace Servicio_Principal
         /// </summary>
         /// <param name="o"></param>
         /// <param name="e"></param>        
-        private void DeliverPendingAsuntos(object o, ElapsedEventArgs e)
+        private async void DeliverPendingAsuntos(object o, ElapsedEventArgs e)
         { 
-            // Utilizamos el objeto de sincronización para bloquear los threads hasta que procese el pedido
-            lock (syncObject)
+            // Convertimos el objeto pasado por parametro a timer
+            System.Timers.Timer pendingDeliverAsuntosTimer = o as System.Timers.Timer;
+            // Recorremos el listado de asuntos pasado por parametro
+            foreach (var asuntoToDeliver in getAsuntosToDeliverCheckingConnectedOperators())
             {
-                // Convertimos el objeto pasado por parametro a timer
-                System.Timers.Timer pendingDeliverAsuntosTimer = o as System.Timers.Timer;
-                // Recorremos el listado de asuntos pasado por parametro
-                foreach (var asuntoToDeliver in getAsuntosToDeliverCheckingConnectedOperators())
-                {
-                    try
-                    {
-                        // Enviamos el callback al cliente
-                        getCallback(asuntoToDeliver.Oper).EnviarAsunto(asuntoToDeliver);
-                    }
-                    catch (Exception) { }
+                try
+                {                        
+                    await Task.Run(() => { getCallback(asuntoToDeliver.Oper).EnviarAsunto(asuntoToDeliver); }).TimeoutAfter(400);
                 }
-            }            
+                catch (TimeoutException) { }
+                catch (Exception ex) {
+                    Log.Error(_asuntosPendingClassName, ex.Message);
+                }
+            }       
         }
 
         /// <summary>
@@ -133,7 +132,7 @@ namespace Servicio_Principal
             foreach (var asuntosPending in lstAsuntosToDeliver)
             {
                 // Si el operador
-                if (lstConnectedClients.ToList().Exists((operConn) => operConn.Operator.UserName == asuntosPending.Oper.UserName))
+                if (lstOperatorMustConnected.ToList().Exists((operConn) => operConn.Operator.UserName == asuntosPending.Oper.UserName && operConn.Callback != null ))
                 {
                     lstAsuntosFilteredByConnectedOperator.Add(asuntosPending);
                 }
@@ -160,7 +159,7 @@ namespace Servicio_Principal
             }
             catch (Exception)
             {
-                Console.WriteLine("AsuntosPendingdeliverTask : Error confirming the reception of the asunto : " + asuntoToConfirm.Numero);
+                Log.Error(_asuntosPendingClassName, string.Format("error delivering asunto number {0} to {1}.", asuntoToConfirm.Numero, asuntoToConfirm.Oper));
             }
         }
     }

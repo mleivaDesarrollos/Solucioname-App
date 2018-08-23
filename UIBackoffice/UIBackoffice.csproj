@@ -70,6 +70,8 @@
     <Compile Include="frmCustomWindow.cs" />
     <Compile Include="OperBackoffice.cs" />
     <Compile Include="OperBackofficeList.cs" />
+    <Compile Include="StatusBrushConverter.cs" />
+    <Compile Include="StatusConverter.cs" />
     <Compile Include="TimeLeftBrushConverter.cs" />
     <Compile Include="TimeLeftConverter.cs" />
     <Compile Include="Util\ComboFecha.cs" />

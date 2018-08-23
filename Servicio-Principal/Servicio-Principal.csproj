@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Client.cs" />
     <Compile Include="CommandExecution\Execution.cs" />
     <Compile Include="CommandExecution\Gestion.cs" />
     <Compile Include="CommandExecution\IExecution.cs" />

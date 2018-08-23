@@ -43,7 +43,7 @@ namespace Servicio_Principal
                 operatorCheckTimer.Elapsed += OperatorCheckTimer_Elapsed;
                 operatorCheckTimer.Interval = _dblOperatorCheckInterval;
                 // Link a event to list for starting and stop timer
-                lstConnectedClients.CollectionChanged += LstConnectedClients_CollectionChanged;
+                lstOperatorMustConnected.CollectionChanged += LstConnectedClients_CollectionChanged;
             } catch (Exception ex) {
                 Log.Error(_operatorClassName, ex.Message);
             }
@@ -55,7 +55,7 @@ namespace Servicio_Principal
         private void startOperatorCheckTimer(bool log = true)
         {
             // if the timer isn't configured, throw error
-            if (operatorCheckTimer != null && lstConnectedClients.Count != 0) {
+            if (operatorCheckTimer != null && lstOperatorMustConnected.Count != 0) {
                 if (!operatorCheckTimer.Enabled) {
                     operatorCheckTimer.Enabled = true;
                     if (log) Log.Info(_operatorClassName, "started normally.");
@@ -90,7 +90,8 @@ namespace Servicio_Principal
             try {
                 stopOperatorCheckTimer(false);
                 // Iterates over al connected client list
-                foreach (var client in lstConnectedClients) {
+                foreach (var client in lstOperatorMustConnected.Where((clientFind) => clientFind.Callback != null)) 
+                    {
                     // if operator activity is false
                     if (!(await checkOperatorActivity(client.Operator))) {
                         // Remove client
@@ -125,7 +126,7 @@ namespace Servicio_Principal
             }
             else if(e.Action == NotifyCollectionChangedAction.Remove) {
                 // if no more client connected
-                if(lstConnectedClients.Count  == 0) {
+                if(lstOperatorMustConnected.Count  == 0) {
                     // if timer is started
                     if (operatorCheckTimer.Enabled) {
                         // Stop the timer
@@ -169,7 +170,7 @@ namespace Servicio_Principal
             // Check if the operator have data
             if (paramOperator != null) {
                 // Gets a save on variable the callback
-                IServicioCallback callbackOfOperator = lstConnectedClients.First((client) => client.Operator.UserName == paramOperator.UserName).Callback;
+                IServicioCallback callbackOfOperator = lstOperatorMustConnected.First((client) => client.Operator.UserName == paramOperator.UserName).Callback;
                 // Finds in the client connect list a operator related with a callback
                 if (callbackOfOperator != null) {
                     return callbackOfOperator;
@@ -189,18 +190,33 @@ namespace Servicio_Principal
         {
             try {
                 // Instance a new operator object
-                Operador newOper = lstConnectedClients.First((clientToFind) => clientToFind.Callback == paramCallback).Operator;
+                Operador newOper = lstOperatorMustConnected.First((clientToFind) => clientToFind.Callback == paramCallback).Operator;
                 // Checks if the operator is null
                 if (newOper != null) {
                     return newOper;
                 } else {
-                    throw new Exception("operator not found. probably is not logged correctly.");
+                    return null;
                 }
             } catch (Exception ex) {
                 throw ex;
             }
         }
-        
+
+        /// <summary>
+        /// Gets client instance by operator passed on parameter
+        /// </summary>
+        /// <param name="prmOperator"></param>
+        /// <returns>client from operator list</returns>
+        private Client getClientByOperator(Operador prmOperator)
+        {
+            try {
+                return lstOperatorMustConnected.First((clientToFind) => clientToFind.Operator.UserName == prmOperator.UserName);
+            }
+            catch (Exception ex) {
+                throw ex;
+            }
+        }
+
         /// <summary>
         /// Checks if operator is logged
         /// </summary>
@@ -208,7 +224,7 @@ namespace Servicio_Principal
         /// <returns>true if logged, false if not</returns>
         private bool isOperatorLogged(Operador paramOperator)
         {
-            return lstConnectedClients.ToList().Exists((client) => client.Operator.UserName == paramOperator.UserName);
+            return lstOperatorMustConnected.ToList().Exists((client) => client.Operator.UserName == paramOperator.UserName);
         }
         /// <summary>
         /// Add operator to list of connected clients
@@ -221,12 +237,12 @@ namespace Servicio_Principal
                 // If operator to log is already logged in
                 if (isOperatorLogged(paramOperator)) {
                     // Remove from client connected
-                    removeOperator(paramOperator);
+                    disconnectOperator(paramOperator);
                 }
                 // Implement a new client object
                 Client newClient = new Client() { Operator = paramOperator, Callback = paramCallback };
                 // Add client to list of connected clients
-                lstConnectedClients.Add(newClient);
+                lstOperatorMustConnected.Add(newClient);
             } catch (Exception ex) {
                 throw ex;
             }
@@ -236,15 +252,13 @@ namespace Servicio_Principal
         /// Removes operator from client connected list
         /// </summary>
         /// <param name="paramOperator"></param>
-        private void removeOperator(Operador paramOperator)
+        private void disconnectOperator(Operador paramOperator)
         {
             try {
                 // Gets client to remove
-                Client clientToRemove = lstConnectedClients.First((client) => client.Operator.UserName == paramOperator.UserName);
-                if(clientToRemove != null) {
-                    // Remove client from the list
-                    removeClient(clientToRemove);
-                }
+                Client clientToRemove = lstOperatorMustConnected.First((client) => client.Operator.UserName == paramOperator.UserName);
+                // Remove client from the list
+                disconnectClient(clientToRemove);
 
             } catch (Exception ex) {
                 Log.Error(_operatorClassName, string.Format("error removing operator {0} : {1}", paramOperator, ex.Message));
@@ -259,10 +273,10 @@ namespace Servicio_Principal
         {
             try {
                 // Get connected client
-                Client clientToRemove = lstConnectedClients.First( (client) => client.Callback == paramCallback);
+                Client clientToRemove = lstOperatorMustConnected.First( (client) => client.Callback == paramCallback);
                 if (clientToRemove != null) {
                     // Remove client from the list
-                    removeClient(clientToRemove);
+                    disconnectClient(clientToRemove);
                 }
             } catch (Exception ex) {
                 Log.Error(_operatorClassName, string.Format("error removing operator from caLLback : {1}", paramCallback, ex.Message));
@@ -270,16 +284,30 @@ namespace Servicio_Principal
         }
 
         /// <summary>
+        /// Adds a new client to list of connected
+        /// </summary>
+        /// <param name="prmClientToAdd"></param>
+        private void addClient(Client prmClientToAdd)
+        {
+            // because is a private method, don't need to check if the client is already added to the list
+            // TODO : Adds a new entry to today connected operators persistence
+            // Add operator to the list of active
+            lstOperatorMustConnected.Add(prmClientToAdd);
+        }
+
+        /// <summary>
         /// Removes a client from the service
         /// </summary>
         /// <param name="paramClientToRemove">Client to remove</param>
-        private void removeClient(Client paramClientToRemove)
+        private void disconnectClient(Client paramClientToRemove)
         {
             // Locks for the singleton instance
             lock (syncObject) {
                 try {
-                    // Remove client from the service
-                    lstConnectedClients.Remove(paramClientToRemove);
+                    // Nullifies callback of client
+                    paramClientToRemove.Callback = null;
+                    // Sets status of operator to disconnected
+                    paramClientToRemove.Operator.Status = AvailabiltyStatus.Disconnected;
                 } catch (Exception ex) {
                     Log.Error(_operatorClassName, string.Format("error removing client {0} : {1}", paramClientToRemove.Operator, ex.Message));
                 }
@@ -293,7 +321,7 @@ namespace Servicio_Principal
         {
             foreach (var client in lstOperatorToRemove) {
                 // Removes client from the connected list
-                removeClient(client);                
+                disconnectClient(client);                
             }
         }
         #endregion
@@ -308,13 +336,25 @@ namespace Servicio_Principal
                 // New instance from operator object
                 SQL.Operador sqlOperator = new SQL.Operador();
                 // Try to fill the list of operator connecteds
-                lstOperatorMustConnected = sqlOperator.getOperatorOfTheDay();
+                foreach (var operatorToday in sqlOperator.getOperatorOfTheDay()) {
+                    lstOperatorMustConnected.Add(new Client() { Operator = operatorToday });
+                }                
                 // Logs the result of load
                 Log.Info(_operatorClassName, "list of operators for work today has been loaded.");
             }
             catch (Exception ex) {
                 Log.Error(_operatorClassName, "error loading operators who works today : " + ex.Message);
             }
+        }
+
+        /// <summary>
+        /// Checks a client callback 
+        /// </summary>
+        /// <param name="prmClientToCheck"></param>
+        private void CheckAndUpdateCallback(Client prmClientToCheck, IServicioCallback prmLastCallback)
+        {
+            // if the callback is not the same on saved in service, update them
+            if (prmClientToCheck.Callback != prmLastCallback) prmClientToCheck.Callback = prmLastCallback;
         }
 
         /// <summary>

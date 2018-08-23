@@ -16,7 +16,7 @@ namespace UIBackoffice
         public void UpdateTimeLeftOnOperators()
         {
             // because this is a public interface, we need to check if the object is initialized
-            if (this == null) Assert.Throw(new Exception("El listado no ha sido inicializado. No sep uede actualizar tiempo restante"));
+            if (this == null) Assert.Throw(new Exception("El listado no ha sido inicializado. No se puede actualizar tiempo restante"));
             // iterates over all elements on the list
             foreach (var operBack in this) {
                 // update operator with specific methods
