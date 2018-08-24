@@ -7,14 +7,14 @@ using System.Data.SQLite;
 
 namespace Servicio_Principal.SQL
 {
-    public class Operador
+    public static class Operador
     {
         /// <summary>
         /// Valida con base de datos si el ingreso es correcto
         /// </summary>
         /// <param name="opIngresante"></param>
         /// <returns></returns>
-        public bool ValidarIngreso(Entidades.Operador opIngresante)
+        public static bool ValidarIngreso(Entidades.Operador opIngresante)
         {
             using (SQLiteConnection c = new SQLiteConnection(Conexion.Cadena))
             {
@@ -47,7 +47,7 @@ namespace Servicio_Principal.SQL
         /// </summary>
         /// <param name="pOperator"></param>
         /// <returns>Operador con datos completos, nulo si no es encontrado o no tiene permisos</returns>
-        public Entidades.Operador ValidateBackofficeOperator(Entidades.Operador pOperator)
+        public static Entidades.Operador ValidateBackofficeOperator(Entidades.Operador pOperator)
         {
             // El operador de backoffice es inicializado como nulo
             Entidades.Operador backofficeOperator = null;
@@ -83,10 +83,32 @@ namespace Servicio_Principal.SQL
         }
 
         /// <summary>
+        /// Check if the operator is loaded in database
+        /// </summary>
+        /// <param name="prmOperatorToValidate"></param>
+        /// <returns></returns>
+        public static bool Exist(Entidades.Operador prmOperatorToValidate)
+        {
+            using (SQLiteConnection c = new SQLiteConnection(Conexion.Cadena)) {
+                c.Open();
+                string sQueryOperatorExistence = "SELECT 1 from operadores where UserName=@Operator";
+                using (SQLiteCommand cmdQueryOperatorExistence = new SQLiteCommand(sQueryOperatorExistence, c)) {
+                    cmdQueryOperatorExistence.Parameters.Agregar("@Operator", prmOperatorToValidate.UserName);
+                    using (SQLiteDataReader rdrQueryOperatorExistence = cmdQueryOperatorExistence.ExecuteReader()) {
+                        if (rdrQueryOperatorExistence.Read()) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Retrieves a list of operators who logs on the system today
         /// </summary>
         /// <returns></returns>
-        public List<Entidades.Operador> getOperatorOfTheDay()
+        public static List<Entidades.Operador> getOperatorsOfTheDay()
         {
             try {
                 // Create a list to return at the end of the process
@@ -124,7 +146,7 @@ namespace Servicio_Principal.SQL
         /// <param name="paramStart"></param>
         /// <param name="iMinutes"></param>
         /// <returns></returns>
-        private DateTime getEndBreak(string paramStart, int paramMinutes)
+        private static DateTime getEndBreak(string paramStart, int paramMinutes)
         {
             return Convert.ToDateTime(paramStart).AddMinutes(paramMinutes);
         }
@@ -134,7 +156,7 @@ namespace Servicio_Principal.SQL
         /// </summary>
         /// <param name="rdrWithBreakData"></param>
         /// <returns></returns>
-        private List<Entidades.Operador.Break> getBreakList(SQLiteDataReader rdrWithBreakData)
+        private static List<Entidades.Operador.Break> getBreakList(SQLiteDataReader rdrWithBreakData)
         {
             // Creates a new list of breaks
             List<Entidades.Operador.Break> lstBreaks = new List<Entidades.Operador.Break>();

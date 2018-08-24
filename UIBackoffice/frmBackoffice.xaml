@@ -120,14 +120,14 @@
                                             </DataGridTextColumn.ElementStyle>
                                         </DataGridTextColumn>
                                         <DataGridTextColumn Header="P. Evento" Binding="{Binding NextEvent, StringFormat={}{0:HH:mm}, UpdateSourceTrigger=Explicit}"/>
-                                        <DataGridTextColumn Header="T. Restante" >
+                                        <DataGridTextColumn Header="T. Restante" > <!-- Data to show with multiple values to process --> 
                                             <DataGridTextColumn.Binding>
                                                 <MultiBinding Converter="{StaticResource TimeLeftConverter}">
                                                     <Binding Path="TimeLeftToNextEvent"/>
                                                     <Binding Path="StoppedTimeLeft"/>                                                    
                                                 </MultiBinding>
                                             </DataGridTextColumn.Binding>
-                                            <DataGridTextColumn.ElementStyle>
+                                            <DataGridTextColumn.ElementStyle><!-- Background change by multiple values -->
                                                 <Style TargetType="{x:Type TextBlock}">
                                                     <Setter Property="Background" >
                                                         <Setter.Value>
@@ -158,7 +158,21 @@
                                                 <TextBlock Text="{Binding EndTime, StringFormat={}{0:HH:mm}}"/>
                                             </StackPanel>
                                         </DataTemplate>
-                                    </DataGrid.RowDetailsTemplate>
+                                    </DataGrid.RowDetailsTemplate> <!-- Operator Submenu, show start and end of journey -->
+                                    <DataGrid.ContextMenu> <!-- Configuration of menu context, mulitple operation over operator-->
+                                        <ContextMenu>
+                                            <MenuItem Name="mnuAddAsunto" Click="mnuAddAsunto_Click" Header="Agregar Asunto"/>
+                                        </ContextMenu>
+                                    </DataGrid.ContextMenu>
+                                    <DataGrid.ColumnHeaderStyle> <!-- Hide context menu on header -->
+                                        <Style TargetType="DataGridColumnHeader">
+                                            <Setter Property="ContextMenu">
+                                                <Setter.Value>
+                                                    <ContextMenu Visibility="Collapsed"/>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </DataGrid.ColumnHeaderStyle>
                                 </DataGrid>
                                 <DockPanel Grid.Row="3">
                                     <Button Name="btnGetOperatorList" Click="btnGetOperatorList_Click" >Get operator List</Button>                                    

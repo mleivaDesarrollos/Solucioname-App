@@ -98,5 +98,29 @@ namespace Servicio_Principal.SQL
             // Se devuelve el listado procesado
             return lstAsuntosPending;            
         }
+
+
+        /// <summary>
+        /// Validates if the asunto sent exist on assigned history
+        /// </summary>
+        /// <param name="prmAsuntoToCheck"></param>
+        /// <returns></returns>
+        public static bool Validate(Entidades.Asunto prmAsuntoToCheck)
+        {
+            using (SQLiteConnection c = new SQLiteConnection(Conexion.Cadena)) {
+                c.Open();
+                string sQueryCheckAsuntoExistence = "SELECT 1 from asuntos_assigned_successful where number=@Number and operator=@Operator";
+                using (SQLiteCommand cmdQueryCheckAsuntoExistence = new SQLiteCommand(sQueryCheckAsuntoExistence, c)) {
+                    cmdQueryCheckAsuntoExistence.Parameters.Agregar("@Number", prmAsuntoToCheck.Numero);
+                    cmdQueryCheckAsuntoExistence.Parameters.Agregar("@Operator", prmAsuntoToCheck.Oper.UserName);
+                    using (SQLiteDataReader rdrQueryCheckAsunto = cmdQueryCheckAsuntoExistence.ExecuteReader()) {
+                        if (!rdrQueryCheckAsunto.Read()) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
     }
 }

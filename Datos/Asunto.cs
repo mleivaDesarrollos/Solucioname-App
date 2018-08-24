@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Datos.Util;
 using System.Data;
+using Errors;
+using Datos.ServiceOperation;
 
 namespace Datos
 {
@@ -443,7 +445,21 @@ namespace Datos
             }
             // Devolvemos la variable procesada
             return iYear;
+        }
 
+        /// <summary>
+        /// Sent a client of the service a petition to add in queue al asunto
+        /// </summary>
+        /// <param name="prmBackofficeSender"></param>
+        /// <param name="prmAsuntoToSent"></param>
+        public async Task SentAsuntoToOperator(Entidades.Operador prmBackofficeSender, Entidades.Asunto prmAsuntoToSent)
+        {
+            try {
+                await Client.Instance.SentAsuntoToOperator(prmBackofficeSender, prmAsuntoToSent);
+            }
+            catch (Exception ex) {
+                Except.Throw(ex);
+            }
         }
     }
 }

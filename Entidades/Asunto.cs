@@ -63,5 +63,21 @@ namespace Entidades
         {
             get; set;
         }
+
+        public Asunto()
+        {
+
+        }
+
+        public Asunto(Asunto duplicateAsunto)
+        {
+            Numero = duplicateAsunto.Numero;
+            Oper = duplicateAsunto.Oper;
+            Actuacion = duplicateAsunto.Actuacion;
+            Reportable = duplicateAsunto.Reportable;
+            GrupoDerivado = duplicateAsunto.GrupoDerivado;
+            DescripcionBreve = duplicateAsunto.DescripcionBreve;
+            Estados = duplicateAsunto.Estados;
+        }
     }
 }

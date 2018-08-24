@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 
 namespace UIBackoffice
 {
-    public class OperBackoffice : Entidades.Operador, INotifyPropertyChanged
+    public class OperBackoffice : INotifyPropertyChanged
     {
+        public Entidades.Operador Operator;
+
         internal enum WorkingDayStatus
         {
             PreviousToStart,
@@ -16,9 +18,33 @@ namespace UIBackoffice
             Ended
         }
 
+        public string UserName {
+            get {
+                return Operator.UserName;
+            }
+        }
+
+        public DateTime StartTime {
+            get {
+                return Operator.StartTime;
+            }
+        }
+
+        public DateTime EndTime {
+            get {
+                return Operator.EndTime;
+            }
+        }
+
+        public Entidades.AvailabiltyStatus Status {
+            get {
+                return Operator.Status;
+            }
+        }
+
         public string FullName {
             get {
-                return Apellido + ", " + Nombre;
+                return Operator.Apellido + ", " + Operator.Nombre;
             }
         }
 
@@ -79,10 +105,10 @@ namespace UIBackoffice
         private WorkingDayStatus WorkStatus {
             get {
                 DateTime currentTime = DateTime.Now;
-                if (currentTime <= StartTime) {
+                if (currentTime <= Operator.StartTime) {
                     return WorkingDayStatus.PreviousToStart;
                 }
-                else if (currentTime >= EndTime) {
+                else if (currentTime >= Operator.EndTime) {
                     return WorkingDayStatus.Ended;
                 }
                 else {
@@ -100,13 +126,7 @@ namespace UIBackoffice
 
         public OperBackoffice(Entidades.Operador paramOperator)
         {
-            UserName = paramOperator.UserName;
-            Nombre = paramOperator.Nombre;
-            Apellido = paramOperator.Apellido;
-            Status = paramOperator.Status;
-            Breaks = paramOperator.Breaks;
-            StartTime = paramOperator.StartTime;
-            EndTime = paramOperator.EndTime;
+            Operator = paramOperator;            
         }
 
         /// <summary>
@@ -116,13 +136,13 @@ namespace UIBackoffice
         {
             switch (WorkStatus) {
                 case WorkingDayStatus.PreviousToStart:
-                    NextEvent = StartTime;
+                    NextEvent = Operator.StartTime;
                     break;
                 case WorkingDayStatus.Started:
                     NextEvent = calculateNextEventOnBreak();
                     break;
                 case WorkingDayStatus.Ended:
-                    NextEvent = EndTime;
+                    NextEvent = Operator.EndTime;
                     break;
                 default:
                     break;
@@ -135,13 +155,13 @@ namespace UIBackoffice
         /// <returns></returns>
         private DateTime calculateNextEventOnBreak()
         {
-            foreach (var breakTime in Breaks) {
+            foreach (var breakTime in Operator.Breaks) {
                 if(breakTime.Start >= DateTime.Now) {
                     return breakTime.Start;
                 }
             }
             // if are not a break on the list returns end of working day
-            return EndTime;
+            return Operator.EndTime;
         }
 
         /// <summary>
@@ -161,7 +181,7 @@ namespace UIBackoffice
         private void CalculateStoppedTimeLeft()
         {
             // Checks all breaks
-            foreach (var breakTime in Breaks) {
+            foreach (var breakTime in Operator.Breaks) {
                 // if now is between break range
                 if (DateTime.Now >= breakTime.Start && DateTime.Now <= breakTime.End) {
                     // Sets timespan

@@ -40,6 +40,9 @@
   <wsdl:message name="IServicio_AsuntoReceiptCompleted_InputMessage">
     <wsdl:part name="parameters" element="tns:AsuntoReceiptCompleted" />
   </wsdl:message>
+  <wsdl:message name="IServicio_SentAsuntoToOperator_InputMessage">
+    <wsdl:part name="parameters" element="tns:SentAsuntoToOperator" />
+  </wsdl:message>
   <wsdl:message name="IServicio_getOperatorList_InputMessage">
     <wsdl:part name="parameters" element="tns:getOperatorList" />
   </wsdl:message>
@@ -96,6 +99,9 @@
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="AsuntoReceiptCompleted">
       <wsdl:input wsaw:Action="http://tempuri.org/IServicio/AsuntoReceiptCompleted" message="tns:IServicio_AsuntoReceiptCompleted_InputMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="SentAsuntoToOperator">
+      <wsdl:input wsaw:Action="http://tempuri.org/IServicio/SentAsuntoToOperator" message="tns:IServicio_SentAsuntoToOperator_InputMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="getOperatorList">
       <wsdl:input wsaw:Action="http://tempuri.org/IServicio/getOperatorList" message="tns:IServicio_getOperatorList_InputMessage" />
@@ -164,6 +170,12 @@
     </wsdl:operation>
     <wsdl:operation name="AsuntoReceiptCompleted">
       <soap12:operation soapAction="http://tempuri.org/IServicio/AsuntoReceiptCompleted" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="SentAsuntoToOperator">
+      <soap12:operation soapAction="http://tempuri.org/IServicio/SentAsuntoToOperator" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

@@ -66,6 +66,17 @@ namespace UIBackoffice
         {
             PopulateOperatorList();
         }
+
+        private void mnuAddAsunto_Click(object sender, RoutedEventArgs e)
+        {
+            // gets selected operator
+            Operador operatorToAddAsunto = (dgConnectedUser.SelectedItem as OperBackoffice).Operator;
+            // generates a new instance of the add asunto dialog
+            frmAddAsunto frmNewAsunto = new frmAddAsunto(operatorToAddAsunto);
+            // Shows the dialog
+            frmNewAsunto.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            frmNewAsunto.ShowDialog();
+        }
         #endregion
 
         #region helper_methods
@@ -106,7 +117,8 @@ namespace UIBackoffice
                 // Update next event time left
                 updateNextEventTimeLeft();
                 // Start timer to check periodically
-                startTimeToNextEvent();                
+                startTimeToNextEvent();
+                dgConnectedUser.Items.Refresh();         
             }
             catch (Exception ex)
             {
@@ -251,5 +263,6 @@ namespace UIBackoffice
             
         }
         #endregion
+
     }
 }

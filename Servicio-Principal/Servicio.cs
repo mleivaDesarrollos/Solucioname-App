@@ -107,7 +107,7 @@ namespace Servicio_Principal
             ConfigSendAsuntosPending();
             StartSendAsuntosPending();
             // Configure operator service check
-            configureOperatorCheckTimer();
+            // configureOperatorCheckTimer();
             // Load operator to must be connected today
             loadOperatorsMustWorkToday();    
         }
@@ -131,10 +131,8 @@ namespace Servicio_Principal
                     ConsoleAdminCallback = CurrentCallback;
                     return true;
                 }
-                // Checks if the operator credentials are valid
-                SQL.Operador connOperator = new SQL.Operador();
                 // if the connection is valid
-                if (connOperator.ValidarIngreso(oper)) {
+                if (SQL.Operador.ValidarIngreso(oper)) {
                     // search on list of working operators for username
                     Client operatorClient = lstOperatorMustConnected.First((operConn) => operConn.Operator.UserName == oper.UserName);
                     // if the username is on the list 
@@ -161,8 +159,9 @@ namespace Servicio_Principal
 
         public void AsuntoReceiptCompleted(Asunto asuntoToConfirm)
         {
-            // Como la tarea esta a cargo de la clase AsuntosPendingDeliverTask
-            // La ejecución y preparación del procedimiento queda a cargo de esa clase
+            // Update Callback from client
+            CheckAndUpdateCallback(getClientByOperator(asuntoToConfirm.Oper), CurrentCallback);
+            // Confirm asunto receipt
             ConfirmAsuntoReceipt(asuntoToConfirm);
         }
 
@@ -212,8 +211,6 @@ namespace Servicio_Principal
         {
             try
             {
-                // Generate a new SQL Operator object
-                SQL.Operador sqlOperator = new SQL.Operador();
                 // if a backoffice are already connected, kicks current backoffice
                 if (connectedBackoffice != null) sentDisconnectToCurrentBackoffice(connectedBackoffice, oper);
                 // Set a new backoffice connected on the service
@@ -223,7 +220,7 @@ namespace Servicio_Principal
                     Operator = oper
                 };
                 // Return the value processed on the login method
-                return sqlOperator.ValidateBackofficeOperator(oper);
+                return SQL.Operador.ValidateBackofficeOperator(oper);
             }
             catch (Exception ex)
             {
@@ -232,6 +229,33 @@ namespace Servicio_Principal
                 // Send a client a null operator
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Process a request from Backoffice and put delivery of them in a qeue
+        /// </summary>
+        /// <param name="prmAsunto"></param>
+        public void SentAsuntoToOperator(Operador prmOperatorBackoffice, Asunto prmAsunto)
+        {
+            try {
+                // Check if the operator who sents the asunto is a backoffice operator logged
+                if (!CheckCallingBackofficeIsAlreadyLogged(prmOperatorBackoffice)) {
+                    throw new Exception( "backoffice asunto sender is not logged on the service. Rejecting asunto sent request");
+                }
+                // Validates asunto if correct loaded
+                if (SQL.Asunto.Validate(prmAsunto)) {
+                    // Adds a asunto to deliver 
+                    lstAsuntosToDeliver.Add(prmAsunto);
+                }
+                else {
+                    // Sent a reject sent message
+                    CurrentCallback.Mensaje(string.Format("El asunto {0} para el operador {1} no puede ser agregada a la lista de distribución. Es posible que el operador no sea valido o probablemente el asunto ya esta cargado."));
+                }
+            }
+            catch (Exception ex) {
+                Log.Error("MainService", ex.Message);
+                
+            }            
         }
 
         /// <summary>
@@ -302,6 +326,22 @@ namespace Servicio_Principal
         #endregion
 
         #region helper_methods
+
+        /// <summary>
+        /// Check operator paseed on parameter to validate is the same of the logged on service
+        /// </summary>
+        /// <param name="prmOperToCheck"></param>
+        /// <returns></returns>
+        private bool CheckCallingBackofficeIsAlreadyLogged(Operador prmOperToCheck)
+        {
+            // validate if the backoffice client is logged
+            if (connectedBackoffice == null) return false;
+            // check if the username of both are the same
+            if (connectedBackoffice.Operator.UserName == prmOperToCheck.UserName) return true;
+            // false if not the same
+            return false;
+        }
+
         private async Task sentDisconnectToCurrentBackoffice(Client prevClient, Entidades.Operador paramNewBackoffice)
         {
             Log.Info("MainService", string.Format("backoffice {0} has been forcedly disconnected by {1}", connectedBackoffice.Operator, paramNewBackoffice.UserName));

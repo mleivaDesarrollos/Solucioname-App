@@ -333,10 +333,8 @@ namespace Servicio_Principal
         private void loadOperatorsMustWorkToday()
         {
             try {
-                // New instance from operator object
-                SQL.Operador sqlOperator = new SQL.Operador();
                 // Try to fill the list of operator connecteds
-                foreach (var operatorToday in sqlOperator.getOperatorOfTheDay()) {
+                foreach (var operatorToday in SQL.Operador.getOperatorsOfTheDay()) {
                     lstOperatorMustConnected.Add(new Client() { Operator = operatorToday });
                 }                
                 // Logs the result of load

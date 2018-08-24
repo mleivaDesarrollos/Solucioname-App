@@ -7,6 +7,7 @@ using Datos.SrvSolucioname;
 using Entidades;
 using System.ServiceModel;
 using System.Timers;
+using Errors;
 
 namespace Datos.ServiceOperation
 {
@@ -61,7 +62,7 @@ namespace Datos.ServiceOperation
             switch (proxy.State)
             {
                 case CommunicationState.Created:                    
-                    await (Task.Run(() => { OpenProxy(); })).TimeoutAfter(TimeSpan.FromMilliseconds(defaultGeneralTimeout));
+                    await (Task.Run(() => { OpenProxy(); })).TimeoutAfter(defaultGeneralTimeout);
                     break;
                 case CommunicationState.Opening:
                     break;
@@ -71,11 +72,11 @@ namespace Datos.ServiceOperation
                     break;
                 case CommunicationState.Closed:
                     proxy = null;
-                    await (Task.Run(() => { OpenProxy(); })).TimeoutAfter(TimeSpan.FromMilliseconds(defaultGeneralTimeout));
+                    await (Task.Run(() => { OpenProxy(); })).TimeoutAfter(defaultGeneralTimeout);
                     break;
                 case CommunicationState.Faulted:
                     proxy = null;
-                    await (Task.Run(() => { OpenProxy(); })).TimeoutAfter(TimeSpan.FromMilliseconds(defaultGeneralTimeout));
+                    await (Task.Run(() => { OpenProxy(); })).TimeoutAfter(defaultGeneralTimeout);
                     break;
                 default:
                     break;
@@ -95,6 +96,7 @@ namespace Datos.ServiceOperation
 
         private async Task prepareProxy()
         {
+            proxy = null;
             // Checks and set current status of proxy method
             await HandleProxy();
             // if the proxy is opened, the proxy is ready to use
@@ -194,7 +196,7 @@ namespace Datos.ServiceOperation
             try {
                 await prepareProxy();
                 // Run disconnection on the service
-                proxy.Disconnect(paramOperatorToDisconnect);
+                await Task.Run( () => { proxy.Disconnect(paramOperatorToDisconnect); }).TimeoutAfter(5000);
                 
             }
             catch (Exception ex) {
@@ -218,6 +220,23 @@ namespace Datos.ServiceOperation
             }
             catch (Exception ex) {
                 throw ex;
+            }
+        }
+
+        /// <summary>
+        /// Sent to the service an asunto to deliver
+        /// </summary>
+        /// <param name="prmBackofficeSender">Backoffice who sends asunto</param>
+        /// <param name="prmAsuntoToSent">Asunto to send</param>
+        public async Task SentAsuntoToOperator(Entidades.Operador prmBackofficeSender, Entidades.Asunto prmAsuntoToSent)
+        {
+            try {
+                // Manage status of the proxy
+                await HandleProxy();                
+                proxy.SentAsuntoToOperator(prmBackofficeSender, prmAsuntoToSent);
+            }
+            catch (Exception ex) {                
+                Except.Throw(ex);
             }
         }
 
@@ -332,8 +351,7 @@ namespace Datos.ServiceOperation
         /// <returns></returns>
         private async Task runAsyncTimeoutMethod<TResult>(Func<Task<TResult>> tskToExecute, double timeoutInMilliseconds)
         {
-            TimeSpan tsTimeoutService = TimeSpan.FromMilliseconds(timeoutInMilliseconds);
-            await tskToExecute().TimeoutAfter(tsTimeoutService);            
+            await tskToExecute().TimeoutAfter(timeoutInMilliseconds);            
         }
 
         /// <summary>
@@ -343,9 +361,8 @@ namespace Datos.ServiceOperation
         /// <param name="tskToExecute"></param>
         /// <returns></returns>
         private async Task runAsyncTimeoutMethod(Func<Task> tskToExecute, double timeoutInMilliseconds)
-        {
-            TimeSpan tsTimeoutService = TimeSpan.FromMilliseconds(timeoutInMilliseconds);
-            await tskToExecute().TimeoutAfter(tsTimeoutService);
+        {            
+            await tskToExecute().TimeoutAfter(timeoutInMilliseconds);
         }
         #endregion
 
@@ -356,9 +373,19 @@ namespace Datos.ServiceOperation
             callbackInteraction.Mensaje(message);
         }
 
-        void IServicioCallback.EnviarAsunto(Entidades.Asunto a)
+        async void IServicioCallback.EnviarAsunto(Entidades.Asunto a)
         {
-            callbackInteraction.EnviarAsunto(a);
+            try {
+                // Duplicates entity for confirmation
+                Entidades.Asunto entNewAsunto = new Entidades.Asunto(a);
+                callbackInteraction.EnviarAsunto(entNewAsunto);
+                await prepareProxy();
+                proxy.AsuntoReceiptCompleted(a);
+            }
+            catch (Exception ex) {
+                Except.Throw(ex);
+            }
+            
         }
 
         void IServicioCallback.ForceDisconnect()

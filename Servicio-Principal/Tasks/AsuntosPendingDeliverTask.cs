@@ -74,14 +74,14 @@ namespace Servicio_Principal
         /// <summary>
         /// Si todos los valores del timer para envío son correctos, se inicia el proceso de envío de asuntos
         /// </summary>
-        private void StartSendAsuntosPending()
+        private void StartSendAsuntosPending(bool reportLog = true)
         {
             // Si el timer cumple con las siguientes condiciones se inicia procedimiento
             if (deliverAsuntosPendingTimer != null && lstAsuntosToDeliver.Count > 0 )
             {
                 // Habilitamos el servicio
                 deliverAsuntosPendingTimer.Enabled = true;
-                Log.Info(_asuntosPendingClassName, "service started normally.");
+                if (reportLog) Log.Info(_asuntosPendingClassName, "service started normally.");
             }
         }
 
@@ -103,7 +103,8 @@ namespace Servicio_Principal
         /// <param name="o"></param>
         /// <param name="e"></param>        
         private async void DeliverPendingAsuntos(object o, ElapsedEventArgs e)
-        { 
+        {
+            StopSendAsuntosPending();
             // Convertimos el objeto pasado por parametro a timer
             System.Timers.Timer pendingDeliverAsuntosTimer = o as System.Timers.Timer;
             // Recorremos el listado de asuntos pasado por parametro
@@ -111,13 +112,14 @@ namespace Servicio_Principal
             {
                 try
                 {                        
-                    await Task.Run(() => { getCallback(asuntoToDeliver.Oper).EnviarAsunto(asuntoToDeliver); }).TimeoutAfter(400);
+                    await Task.Run(() => { getCallback(asuntoToDeliver.Oper).EnviarAsunto(asuntoToDeliver); }).TimeoutAfter(2000);
                 }
                 catch (TimeoutException) { }
                 catch (Exception ex) {
                     Log.Error(_asuntosPendingClassName, ex.Message);
                 }
-            }       
+            }
+            StartSendAsuntosPending(false);               
         }
 
         /// <summary>
@@ -132,7 +134,7 @@ namespace Servicio_Principal
             foreach (var asuntosPending in lstAsuntosToDeliver)
             {
                 // Si el operador
-                if (lstOperatorMustConnected.ToList().Exists((operConn) => operConn.Operator.UserName == asuntosPending.Oper.UserName && operConn.Callback != null ))
+                if (lstOperatorMustConnected.ToList().Exists( (operIterate) => operIterate.Operator.Status != Entidades.AvailabiltyStatus.Disconnected))
                 {
                     lstAsuntosFilteredByConnectedOperator.Add(asuntosPending);
                 }

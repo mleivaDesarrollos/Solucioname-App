@@ -9,13 +9,14 @@ using System.Windows.Media.Imaging;
 using Entidades;
 using System.Collections.Generic;
 using Entidades.Service.Interface;
+using Errors;
 
 namespace UISolucioname
 {
     /// <summary>
     /// Interaction logic for frmMainFrame.xaml
     /// </summary>
-    public partial class frmMainFrame : Window, Entidades.Service.Interface.IServicioCallback
+    public partial class frmMainFrame : Window, Entidades.Service.Interface.IServicioCallback, IException, IAssertion
     {
         #region property_declarations
         public PaginaAsunto pgAsunto = null;
@@ -156,10 +157,20 @@ namespace UISolucioname
             SubscribirEventosBotonesDiario();
             ConfiguraComandosVentana();
             loadConnectionStatus();
+            LoadExceptionInterface();
         }
         #endregion
 
         #region helper_methods
+
+        private void LoadExceptionInterface()
+        {
+            // Serve interface for Exception Process
+            Except.LoadInterface(this);
+            // Serve interface for Assertion Process
+            Assert.LoadInterface(this);
+        }
+
 
         public void CargarInformacionUsuario()
         {
@@ -255,6 +266,62 @@ namespace UISolucioname
                 // Ejecutamos el worker asincronico            
                 bgwShowMessage.RunWorkerAsync();
             }
+        }
+
+        /// <summary>
+        /// Process a request from the service for new asunto
+        /// </summary>
+        /// <param name="a"></param>
+        private void newAsuntoFromService(Asunto a)
+        {
+            try {
+                // Generamos un objeto de logica para procesar el agregado de los asuntos
+                Logica.Asunto logAsunto = new Logica.Asunto();
+                // Gestionamos una variable operador disponible para el método
+                Operador operLogged = App.Current.Properties["user"] as Operador;
+                // Si el operador al que era destino de este asunto no es el logueado, se lanza una excepción
+                if (a.Oper.UserName != operLogged.UserName)
+                    throw new Exception("Se ha recibido un asunto de un operador erroneo. Informar al administrador. Asunto: " + a.Numero + ". Operador: " + a.Oper.UserName);
+                // TODO : A modo de prueba inicial, el primer estado lo generamos en la capa de presentación. Esto debería ser generado en el servicio, para mantener fidelidad con el horario de entrada del asunto en bandeja
+                if (a.Estados == null)
+                    a.Estados = new List<Estado>()
+                    {
+                        new Estado()
+                        {
+                            Ord = 1,
+                            Detalle = "Nuevo asunto asignado",
+                            FechaHora = DateTime.Now,
+                            Tipo = Logica.TipoEstado.TraerEstadoAsuntoInicialNormal()
+                        }
+                    };
+                // Consultamos si el asunto en cuestion existe en la base de datos del operador
+                if (!logAsunto.ExisteAsunto(a)) {
+                    // Si no existe, se agrega a la base de datos
+                    logAsunto.Agregar(a);
+                    // Actualizamos la capa de presentación y los casos diarios
+                    NotifyUIOfNewAsunto(a);
+                }
+            }
+            catch (Exception ex) {
+                Except.Throw(ex);
+            }
+        }
+
+        /// <summary>
+        /// Notify on UI the new asunto
+        /// </summary>
+        /// <param name="prmAsunto"></param>
+        private void NotifyUIOfNewAsunto(Asunto prmNewAsunto)
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                // Actualizamos el listado de asuntos y los asuntos diarios
+                CargarAsuntosDiarios();
+                pagListadogeneral.ActualizarListado();
+                // Mostramos un mensaje en la barra de estado
+                Util.MsgBox.Error("Has recibido un nuevo asunto: " + prmNewAsunto.Numero);
+            }));
+
         }
         #endregion
 
@@ -522,7 +589,7 @@ namespace UISolucioname
 
         public void EnviarAsunto(Entidades.Asunto a)
         {
-            
+            newAsuntoFromService(a);            
         }
 
         public void ForceDisconnect()
@@ -549,6 +616,21 @@ namespace UISolucioname
 
         private void btnTestChange_Click(object sender, RoutedEventArgs e) {
             cboConnect.ItemsSource = lstConnectedStatus;
+        }
+
+        void IAssertion.Notify(string prmMessage)
+        {
+            Dispatcher.BeginInvoke((Action)(() => { Util.MsgBox.Error(prmMessage); }));
+        }
+
+        void IAssertion.NotifyAndClose(string prmMessage)
+        {
+            Dispatcher.BeginInvoke((Action)(() => { Util.MsgBox.Error(prmMessage); }));
+        }
+
+        void IException.Notify(string Message)
+        {
+            Dispatcher.BeginInvoke((Action)(() => { Util.MsgBox.Error(prmMessage); }));
         }
     }
 }

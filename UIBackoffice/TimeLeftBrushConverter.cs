@@ -18,7 +18,7 @@ namespace UIBackoffice
             DateTime startTime = System.Convert.ToDateTime(values[2]);
 
             // if the journey is not started
-            if(DateTime.Now <= startTime) {
+            if (DateTime.Now <= startTime) {
                 return Brushes.PaleVioletRed;
             }
 

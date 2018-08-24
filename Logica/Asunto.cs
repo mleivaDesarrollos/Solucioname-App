@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Errors;
 
 namespace Logica
 {
@@ -263,6 +264,21 @@ namespace Logica
         }
 
         /// <summary>
+        /// Process a request to sent asunto to the service for distribution
+        /// </summary>
+        /// <param name="prmBackofficeSender">Backoffice who calls sent</param>
+        /// <param name="prmAsuntoToSent">Asunto to sent</param>
+        public async void SentAsuntoToOperator(Entidades.Operador prmBackofficeSender, Entidades.Asunto prmAsuntoToSent)
+        {
+            try {
+                await datAsunto.SentAsuntoToOperator(prmBackofficeSender, prmAsuntoToSent);
+            }
+            catch (Exception ex) {
+                Except.Throw(ex);
+            }
+        }
+
+        /// <summary>
         /// Recibe un listado de asuntos parcialmente cargado, y lo procesa cargandoló en su totalidad
         /// </summary>
         /// <param name="pAsunto"></param>
@@ -279,6 +295,6 @@ namespace Logica
             }
             // Devolvemos el listado procesado
             return lstEstados;
-        }
+        }        
     }
 }

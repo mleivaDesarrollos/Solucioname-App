@@ -45,6 +45,12 @@ namespace Datos.SrvSolucioname {
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/AsuntoReceiptCompleted")]
         System.Threading.Tasks.Task AsuntoReceiptCompletedAsync(Entidades.Asunto asuntoToConfirm);
         
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/SentAsuntoToOperator")]
+        void SentAsuntoToOperator(Entidades.Operador prmOperatorBackoffice, Entidades.Asunto prmAsunto);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/SentAsuntoToOperator")]
+        System.Threading.Tasks.Task SentAsuntoToOperatorAsync(Entidades.Operador prmOperatorBackoffice, Entidades.Asunto prmAsunto);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/getOperatorList", ReplyAction="http://tempuri.org/IServicio/getOperatorListResponse")]
         Entidades.Operador[] getOperatorList();
         
@@ -155,6 +161,14 @@ namespace Datos.SrvSolucioname {
         
         public System.Threading.Tasks.Task AsuntoReceiptCompletedAsync(Entidades.Asunto asuntoToConfirm) {
             return base.Channel.AsuntoReceiptCompletedAsync(asuntoToConfirm);
+        }
+        
+        public void SentAsuntoToOperator(Entidades.Operador prmOperatorBackoffice, Entidades.Asunto prmAsunto) {
+            base.Channel.SentAsuntoToOperator(prmOperatorBackoffice, prmAsunto);
+        }
+        
+        public System.Threading.Tasks.Task SentAsuntoToOperatorAsync(Entidades.Operador prmOperatorBackoffice, Entidades.Asunto prmAsunto) {
+            return base.Channel.SentAsuntoToOperatorAsync(prmOperatorBackoffice, prmAsunto);
         }
         
         public Entidades.Operador[] getOperatorList() {

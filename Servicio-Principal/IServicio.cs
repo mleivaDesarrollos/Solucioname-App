@@ -27,6 +27,9 @@ namespace Servicio_Principal
         [OperationContract(IsOneWay = true)]
         void AsuntoReceiptCompleted(Entidades.Asunto asuntoToConfirm);
 
+        [OperationContract(IsOneWay = true)]
+        void SentAsuntoToOperator(Operador prmOperatorBackoffice, Asunto prmAsunto);
+
         [OperationContract]
         List<Entidades.Operador> getOperatorList();
 
