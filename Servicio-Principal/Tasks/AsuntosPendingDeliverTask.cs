@@ -112,7 +112,14 @@ namespace Servicio_Principal
             {
                 try
                 {                        
-                    await Task.Run(() => { getCallback(asuntoToDeliver.Oper).EnviarAsunto(asuntoToDeliver); }).TimeoutAfter(2000);
+                    await Task.Run(() =>
+                    {
+                        try {
+                            getCallback(asuntoToDeliver.Oper).EnviarAsunto(asuntoToDeliver);
+                        } catch (Exception) {
+                            Log.Error(_asuntosPendingClassName, string.Format("cannot send asunto {0} to {1}", asuntoToDeliver.Numero, asuntoToDeliver.Oper.UserName));
+                        }
+                    }).TimeoutAfter(2000);
                 }
                 catch (TimeoutException) { }
                 catch (Exception ex) {
@@ -134,7 +141,7 @@ namespace Servicio_Principal
             foreach (var asuntosPending in lstAsuntosToDeliver)
             {
                 // Si el operador
-                if (lstOperatorMustConnected.ToList().Exists( (operIterate) => operIterate.Operator.Status != Entidades.AvailabiltyStatus.Disconnected))
+                if (lstOperatorMustConnected.ToList().Exists( (operIterate) => operIterate.Operator.Status != Entidades.AvailabiltyStatus.Disconnected && operIterate.Operator.UserName == asuntosPending.Oper.UserName))
                 {
                     lstAsuntosFilteredByConnectedOperator.Add(asuntosPending);
                 }

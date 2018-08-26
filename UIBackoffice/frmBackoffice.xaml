@@ -105,11 +105,10 @@
                                     <RowDefinition Height="30"/>
                                     <RowDefinition Height="30"/>
                                     <RowDefinition Height="1*"/>
-                                    <RowDefinition Height="30"/>
                                 </Grid.RowDefinitions>
                                 <TextBlock Name="txtTodayDate"> (date)</TextBlock>
                                 <TextBlock Grid.Row="1"> Operadores de la jornada</TextBlock>
-                                <DataGrid Grid.Row="2" Name="dgConnectedUser" IsReadOnly="True" AutoGenerateColumns="False" HeadersVisibility="Column" SelectionChanged="dgConnectedUser_SelectionChanged">
+                                <DataGrid Grid.Row="2" Name="dgConnectedUser" IsReadOnly="True" AutoGenerateColumns="False" HeadersVisibility="Column">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Operador" Binding="{Binding FullName}"/>
                                         <DataGridTextColumn Header="Estado" Binding="{Binding Status, Converter={StaticResource StatusConverter}}">
@@ -160,7 +159,7 @@
                                         </DataTemplate>
                                     </DataGrid.RowDetailsTemplate> <!-- Operator Submenu, show start and end of journey -->
                                     <DataGrid.ContextMenu> <!-- Configuration of menu context, mulitple operation over operator-->
-                                        <ContextMenu>
+                                        <ContextMenu Name="ctoOperatorOptions">
                                             <MenuItem Name="mnuAddAsunto" Click="mnuAddAsunto_Click" Header="Agregar Asunto"/>
                                         </ContextMenu>
                                     </DataGrid.ContextMenu>
@@ -173,10 +172,7 @@
                                             </Setter>
                                         </Style>
                                     </DataGrid.ColumnHeaderStyle>
-                                </DataGrid>
-                                <DockPanel Grid.Row="3">
-                                    <Button Name="btnGetOperatorList" Click="btnGetOperatorList_Click" >Get operator List</Button>                                    
-                                </DockPanel>                                
+                                </DataGrid>                             
                             </Grid>
                         </Border>
                     </Grid>

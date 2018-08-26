@@ -31,6 +31,7 @@ namespace UIBackoffice
             SetUpDate();
             configureTimeToNextEvent();
             configureErrorService();
+            PopulateOperatorList();
         }
         #endregion
 
@@ -57,11 +58,6 @@ namespace UIBackoffice
             }
         }
         
-        private void dgConnectedUser_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            unselectOperatorList();
-        }
-
         private void btnGetOperatorList_Click(object sender, RoutedEventArgs e)
         {
             PopulateOperatorList();
@@ -69,13 +65,15 @@ namespace UIBackoffice
 
         private void mnuAddAsunto_Click(object sender, RoutedEventArgs e)
         {
-            // gets selected operator
-            Operador operatorToAddAsunto = (dgConnectedUser.SelectedItem as OperBackoffice).Operator;
-            // generates a new instance of the add asunto dialog
-            frmAddAsunto frmNewAsunto = new frmAddAsunto(operatorToAddAsunto);
-            // Shows the dialog
-            frmNewAsunto.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            frmNewAsunto.ShowDialog();
+            if(dgConnectedUser.SelectedItem != null) {
+                // gets selected operator
+                Operador operatorToAddAsunto = (dgConnectedUser.SelectedItem as OperBackoffice).Operator;
+                // generates a new instance of the add asunto dialog
+                frmAddAsunto frmNewAsunto = new frmAddAsunto(operatorToAddAsunto);
+                // Shows the dialog
+                frmNewAsunto.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                frmNewAsunto.ShowDialog();
+            }            
         }
         #endregion
 
@@ -180,19 +178,7 @@ namespace UIBackoffice
             lstDetailedOperators.UpdateTimeLeftOnOperators();
         }
      
-
-        private async void unselectOperatorList()
-        {
-            await Task.Run(() =>
-            {
-                System.Threading.Thread.Sleep(10000);
-                Dispatcher.BeginInvoke((Action)(() =>
-                {
-                    dgConnectedUser.UnselectAll();
-                }));
-            });
-        }
-
+        
         private void SetUpDate()
         {
             txtTodayDate.Text = DateTime.Now.ToShortDateString();
@@ -230,8 +216,17 @@ namespace UIBackoffice
 
         public void ServiceChangeStatusRequest(AvailabiltyStatus paramNewStatus)
         {
-            
+
         }
+
+        public void RefreshOperatorStatus()
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                PopulateOperatorList();
+            }));
+        }
+
 
         bool IServicioCallback.IsActive()
         {
@@ -262,7 +257,7 @@ namespace UIBackoffice
             }));
             
         }
-        #endregion
 
+        #endregion
     }
 }

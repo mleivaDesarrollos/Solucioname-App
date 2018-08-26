@@ -24,6 +24,9 @@ namespace Entidades.Service.Interface
         [OperationContract(IsOneWay = true)]
         void ServiceChangeStatusRequest(AvailabiltyStatus paramNewStatus);
 
+        [OperationContract(IsOneWay = true)]
+        void RefreshOperatorStatus();
+
         [OperationContract]
         bool IsActive();
     }

@@ -308,6 +308,8 @@ namespace Servicio_Principal
                     paramClientToRemove.Callback = null;
                     // Sets status of operator to disconnected
                     paramClientToRemove.Operator.Status = AvailabiltyStatus.Disconnected;
+                    // If a backoffice operator has been connected, sent a signal for refresh status
+                    if (connectedBackoffice != null) SentRefreshForConnectedBackoffice();
                 } catch (Exception ex) {
                     Log.Error(_operatorClassName, string.Format("error removing client {0} : {1}", paramClientToRemove.Operator, ex.Message));
                 }

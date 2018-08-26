@@ -59,6 +59,7 @@
     <Compile Include="CommandExecution\Message.cs" />
     <Compile Include="CommandExecution\Operator.cs" />
     <Compile Include="CommandExecution\Test.cs" />
+    <Compile Include="Config.cs" />
     <Compile Include="Error.cs" />
     <Compile Include="IServicio.cs" />
     <Compile Include="Log.cs" />

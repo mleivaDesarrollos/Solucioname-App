@@ -149,6 +149,8 @@ namespace Servicio_Principal
                     }
                     // Set status for new client connected to readytoreceive.
                     operatorClient.Operator.Status = AvailabiltyStatus.ReadyToReceive;
+                    // if backoffice is connected to the service, sent a signal to refresh list
+                    if (connectedBackoffice != null) SentRefreshForConnectedBackoffice();
                     // validate successfull the login
                     return true;
                 }
@@ -303,6 +305,8 @@ namespace Servicio_Principal
                     CurrentCallback.ServiceChangeStatusRequest(paramNewStatus);
                     // if the callback related to operator has change, update client
                     CheckAndUpdateCallback(clientToChange, CurrentCallback);
+                    // Check if the backoffice is logged in and send refresh status
+                    if (connectedBackoffice != null) SentRefreshForConnectedBackoffice();
                     // For debug purposses, sent a console message to inform
                     Log.Info(_operatorClassName, string.Format("{0} has changed status to {1}.", operatorToChange, paramNewStatus));
                 } catch (Exception ex) {
@@ -340,6 +344,28 @@ namespace Servicio_Principal
             if (connectedBackoffice.Operator.UserName == prmOperToCheck.UserName) return true;
             // false if not the same
             return false;
+        }
+
+        private async void SentRefreshForConnectedBackoffice()
+        {
+            try {
+                await Task.Run(() =>
+                {
+                    try {
+                        connectedBackoffice.Callback.RefreshOperatorStatus();
+                    } catch (Exception) {
+                        Log.Error("MainService", "error sending refresh petition to backoffice");
+                        connectedBackoffice = null;
+                    }
+                    
+                }).TimeoutAfter(5000);
+            } catch (TimeoutException) {
+                Log.Error("MainService", "timeout sending refresh for backoffice");
+                connectedBackoffice = null;
+            } catch (Exception ex) {
+                Log.Error("MainService", "error sending refresh to backoffice: " + ex.Message);
+            }
+
         }
 
         private async Task sentDisconnectToCurrentBackoffice(Client prevClient, Entidades.Operador paramNewBackoffice)

@@ -147,8 +147,8 @@ namespace Datos.ServiceOperation
                 // Sets callback for the client
                 callbackInteraction = paramCallback;
                 // Starts task to check for service activity status
-                startCheckStatusOfConnectionWithService();                
-                // Devolvemos el operador con todos sus datos cargados
+                startCheckStatusOfConnectionWithService();
+                // Devolvemos el operador con todos sus datos cargados                
                 return backofficeOper;
             }
             else
@@ -351,7 +351,7 @@ namespace Datos.ServiceOperation
         /// <returns></returns>
         private async Task runAsyncTimeoutMethod<TResult>(Func<Task<TResult>> tskToExecute, double timeoutInMilliseconds)
         {
-            await tskToExecute().TimeoutAfter(timeoutInMilliseconds);            
+            await tskToExecute().TimeoutAfter(timeoutInMilliseconds);
         }
 
         /// <summary>
@@ -398,10 +398,16 @@ namespace Datos.ServiceOperation
             callbackInteraction.ServiceChangeStatusRequest(paramNewStatus);
         }
 
-        public bool IsActive()
+        void IServicioCallback.RefreshOperatorStatus()
+        {
+            callbackInteraction.RefreshOperatorStatus();
+        }
+
+        bool IServicioCallback.IsActive()
         {
             return true;
         }
+
         #endregion
 
     }

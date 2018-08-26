@@ -612,6 +612,10 @@ namespace UISolucioname
                 currentStatus = paramNewStatus;
             }));
         }
+        public void RefreshOperatorStatus()
+        {
+            
+        }
         #endregion
 
         private void btnTestChange_Click(object sender, RoutedEventArgs e) {
@@ -630,7 +634,7 @@ namespace UISolucioname
 
         void IException.Notify(string Message)
         {
-            Dispatcher.BeginInvoke((Action)(() => { Util.MsgBox.Error(prmMessage); }));
+            Dispatcher.BeginInvoke((Action)(() => { Util.MsgBox.Error(Message); }));
         }
     }
 }

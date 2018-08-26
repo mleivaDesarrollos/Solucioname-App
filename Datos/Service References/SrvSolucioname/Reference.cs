@@ -91,6 +91,9 @@ namespace Datos.SrvSolucioname {
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/ServiceChangeStatusRequest")]
         void ServiceChangeStatusRequest(Entidades.AvailabiltyStatus paramNewStatus);
         
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/RefreshOperatorStatus")]
+        void RefreshOperatorStatus();
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/IsActive", ReplyAction="http://tempuri.org/IServicio/IsActiveResponse")]
         bool IsActive();
     }
