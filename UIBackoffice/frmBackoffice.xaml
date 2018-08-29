@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:UIBackoffice"
+        xmlns:rv="clr-namespace:Microsoft.Reporting.WinForms;assembly=Microsoft.ReportViewer.WinForms"
         WindowStartupLocation="CenterScreen"
         Closing="Window_Closing"
         mc:Ignorable="d"
@@ -80,14 +81,14 @@
                                         <Setter Property="Foreground" Value="{StaticResource AppContentTextColor}"/>
                                     </Style>
                                 </StackPanel.Resources>
-                                <TextBlock Name="txtUnlog">Desloguear</TextBlock>
+                                <TextBlock Name="txtUnlog" MouseLeftButtonDown="txtUnlog_MouseDown">Desloguear</TextBlock>
                                 <TextBlock Name="txtOper">(Operador)</TextBlock>
 
                             </StackPanel>
                             <TextBlock Grid.Column="1" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource AppContentTextColor}">Suit Backoffice</TextBlock>
                         </Grid>
                     </Border>
-                    <Grid Grid.Row="1" Grid.ColumnSpan="2">
+                    <Grid Name="grdBackofficePanel" Grid.Row="1" Grid.ColumnSpan="2" Visibility="Visible">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="0.6*"/>
                             <ColumnDefinition Width="1*"/>
@@ -106,7 +107,10 @@
                                     <RowDefinition Height="30"/>
                                     <RowDefinition Height="1*"/>
                                 </Grid.RowDefinitions>
-                                <TextBlock Name="txtTodayDate"> (date)</TextBlock>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock Name="txtTodayDate"> (date)</TextBlock>
+                                    <Button Name="btnGetBalanceOper" Click="btnGetBalanceOper_Click">Get balance of operators</Button>
+                                </StackPanel>
                                 <TextBlock Grid.Row="1"> Operadores de la jornada</TextBlock>
                                 <DataGrid Grid.Row="2" Name="dgConnectedUser" IsReadOnly="True" AutoGenerateColumns="False" HeadersVisibility="Column">
                                     <DataGrid.Columns>
@@ -175,6 +179,15 @@
                                 </DataGrid>                             
                             </Grid>
                         </Border>
+                        <WindowsFormsHost Grid.Column="1" Panel.ZIndex="25" Margin="5">
+                            <rv:ReportViewer x:Name="rptBalanceTotals"/>
+                        </WindowsFormsHost>
+                    </Grid>
+                    <Grid Name="grdReconnectionPanel" Grid.Row="1" Grid.ColumnSpan="2" Visibility="Collapsed">
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Label>Servicio desconectado</Label>
+                            <Button Name="btnReconnect" Click="btnReconnect_Click" IsEnabled="False">Reconectar</Button>
+                        </StackPanel>
                     </Grid>
 
                 </Grid>

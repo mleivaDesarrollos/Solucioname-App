@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="ActuacionTipo.cs" />
     <Compile Include="Asunto.cs" />
+    <Compile Include="Balance.cs" />
     <Compile Include="EstadoAsunto.cs" />
     <Compile Include="GrupoResolutor.cs" />
     <Compile Include="Operador.cs" />

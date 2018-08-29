@@ -329,6 +329,7 @@ namespace Servicio_Principal
         #endregion
 
         #region helper_methods
+
         /// <summary>
         /// Loads all operator corresponding to work on current week day
         /// </summary>
@@ -351,10 +352,21 @@ namespace Servicio_Principal
         /// Checks a client callback 
         /// </summary>
         /// <param name="prmClientToCheck"></param>
-        private void CheckAndUpdateCallback(Client prmClientToCheck, IServicioCallback prmLastCallback)
+        private void CheckAndUpdateCallbackOperator(Client prmClientToCheck, IServicioCallback prmLastCallback)
         {
             // if the callback is not the same on saved in service, update them
             if (prmClientToCheck.Callback != prmLastCallback) prmClientToCheck.Callback = prmLastCallback;
+        }
+
+        /// <summary>
+        /// Check backoffice logged in and validates if callback is the same
+        /// </summary>
+        /// <param name="prmOperatorBackoffice"></param>
+        /// <param name="prmCallback"></param>
+        private void CheckAndUpdateCallbackBackoffice(Operador prmOperatorBackoffice, IServicioCallback prmCallback)
+        {
+            // Checks if operator is the same and callback if different
+            if (connectedBackoffice.Operator.UserName == prmOperatorBackoffice.UserName && connectedBackoffice.Callback != prmCallback) connectedBackoffice.Callback = prmCallback;
         }
 
         /// <summary>

@@ -15,6 +15,8 @@ using Entidades;
 using Entidades.Service.Interface;
 using System.Collections.ObjectModel;
 using Errors;
+using System.Diagnostics;
+using Microsoft.Reporting.WinForms;
 
 namespace UIBackoffice
 {
@@ -28,10 +30,6 @@ namespace UIBackoffice
         {
             InitializeComponent();
             ConfigurarCustomWindow();
-            SetUpDate();
-            configureTimeToNextEvent();
-            configureErrorService();
-            PopulateOperatorList();
         }
         #endregion
 
@@ -42,6 +40,8 @@ namespace UIBackoffice
         OperBackofficeList lstDetailedOperators = new OperBackofficeList();
 
         System.Timers.Timer tmrCheckTimeForNextEvent;
+
+        ReportDataSource rptDataSourceBalanceDay;
         #endregion
 
         #region event_subscription
@@ -75,6 +75,47 @@ namespace UIBackoffice
                 frmNewAsunto.ShowDialog();
             }            
         }
+
+        /// <summary>
+        /// Dispose a relog for click on unlog
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void txtUnlog_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if(Util.MsgBox.Consulta("¿Está seguro de que desea salir y reingresar en sistema?") == true) {
+                Process.Start(Application.ResourceAssembly.Location);
+                Application.Current.Shutdown();
+            }
+        }
+
+        private void btnGetBalanceOper_Click(object sender, RoutedEventArgs e)
+        {
+            RefreshReportBalanceCurrentDay();
+        }
+        /// <summary>
+        /// Dispose a Reconnect button for connection to the service
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnReconnect_Click(object sender, RoutedEventArgs e)
+        {
+            // Disable on request for connection
+            btnReconnect.IsEnabled = false;
+            // Sent reconnect signal
+            SentReconnectSignal();
+        }
+
+        #endregion
+
+        #region public_interface
+        public void LoadConnectionInformation()
+        {
+            configureAfterSuccessConnectionValues();
+            configureTimeToNextEvent();
+            configureErrorService();
+            PopulateOperatorList();
+        }
         #endregion
 
         #region helper_methods
@@ -89,6 +130,39 @@ namespace UIBackoffice
             Assert.LoadInterface(this);
 
         }
+
+        private async void SentReconnectSignal()
+        {
+            // Generate new logic operator object
+            Logica.Operador logOperator = new Logica.Operador();
+            // Gets operator entity saved on application properties
+            Operador operatorLogged = App.Current.Properties["user"] as Operador;
+            // if connection is valid
+            if(await logOperator.ConnectBackoffice(operatorLogged, this) != null) {
+                // Loads connection information
+                LoadConnectionInformation();
+                // Change visibility of panel
+                grdBackofficePanel.Visibility = Visibility.Visible;
+                grdReconnectionPanel.Visibility = Visibility.Collapsed;
+            } else {
+                // if not reactivates the button
+                btnReconnect.IsEnabled = true;
+            }
+        }
+
+        private async void RefreshReportBalanceCurrentDay()
+        {
+            // Generate a new Report Data Source
+            if (rptDataSourceBalanceDay == null) rptDataSourceBalanceDay = new ReportDataSource();
+            BalanceCurrentDay balance = new BalanceCurrentDay();
+            await balance.RefreshBalance();
+            rptDataSourceBalanceDay.Name = "dsBalanceDay";
+            rptDataSourceBalanceDay.Value = balance.List; 
+            rptBalanceTotals.LocalReport.DataSources.Add(rptDataSourceBalanceDay);
+            rptBalanceTotals.LocalReport.ReportEmbeddedResource = "UIBackoffice.rptBalanceOfAssignedAsuntosCurrentDay.rdlc";
+            rptBalanceTotals.RefreshReport();
+        }       
+
         /// <summary>
         /// Standarized message for closing application
         /// </summary>
@@ -124,7 +198,7 @@ namespace UIBackoffice
                 Util.MsgBox.Error("Ha ocurrido un error al llenar el listado de operadores: " + ex.Message);   
             }
         }
-
+        
         /// <summary>
         /// Configure timer to be ready on requirement
         /// </summary>
@@ -179,9 +253,12 @@ namespace UIBackoffice
         }
      
         
-        private void SetUpDate()
+        private void configureAfterSuccessConnectionValues()
         {
             txtTodayDate.Text = DateTime.Now.ToShortDateString();
+            // Gets operator from application
+            Operador operLogged = App.Current.Properties["user"] as Operador;
+            txtOper.Text = operLogged.Nombre + " " + operLogged.Apellido;
         }
         
         private async void disconnectWaitingTime()
@@ -216,7 +293,17 @@ namespace UIBackoffice
 
         public void ServiceChangeStatusRequest(AvailabiltyStatus paramNewStatus)
         {
-
+            if(paramNewStatus == AvailabiltyStatus.Disconnected) {
+                Dispatcher.BeginInvoke((Action)(() =>
+                {
+                    // Deactivates backoffice panel
+                    grdBackofficePanel.Visibility = Visibility.Collapsed;
+                    // Shows reconection panel
+                    grdReconnectionPanel.Visibility = Visibility.Visible;
+                    // Activate reconnection button
+                    btnReconnect.IsEnabled = true;
+                }));
+            }
         }
 
         public void RefreshOperatorStatus()
@@ -259,5 +346,6 @@ namespace UIBackoffice
         }
 
         #endregion
+
     }
 }

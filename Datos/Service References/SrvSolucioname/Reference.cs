@@ -63,6 +63,12 @@ namespace Datos.SrvSolucioname {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/getListOfOperatorMustWorkToday", ReplyAction="http://tempuri.org/IServicio/getListOfOperatorMustWorkTodayResponse")]
         System.Threading.Tasks.Task<Entidades.Operador[]> getListOfOperatorMustWorkTodayAsync();
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/getTodayBalanceHour", ReplyAction="http://tempuri.org/IServicio/getTodayBalanceHourResponse")]
+        Entidades.BalanceHour[] getTodayBalanceHour();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/getTodayBalanceHour", ReplyAction="http://tempuri.org/IServicio/getTodayBalanceHourResponse")]
+        System.Threading.Tasks.Task<Entidades.BalanceHour[]> getTodayBalanceHourAsync();
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/SetStatus")]
         void SetStatus(Entidades.Operador operatorToChange, Entidades.AvailabiltyStatus paramNewStatus);
         
@@ -70,10 +76,10 @@ namespace Datos.SrvSolucioname {
         System.Threading.Tasks.Task SetStatusAsync(Entidades.Operador operatorToChange, Entidades.AvailabiltyStatus paramNewStatus);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/IsServiceActive", ReplyAction="http://tempuri.org/IServicio/IsServiceActiveResponse")]
-        bool IsServiceActive();
+        bool IsServiceActive(bool isBackoffice, Entidades.Operador prmOperator);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/IsServiceActive", ReplyAction="http://tempuri.org/IServicio/IsServiceActiveResponse")]
-        System.Threading.Tasks.Task<bool> IsServiceActiveAsync();
+        System.Threading.Tasks.Task<bool> IsServiceActiveAsync(bool isBackoffice, Entidades.Operador prmOperator);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -190,6 +196,14 @@ namespace Datos.SrvSolucioname {
             return base.Channel.getListOfOperatorMustWorkTodayAsync();
         }
         
+        public Entidades.BalanceHour[] getTodayBalanceHour() {
+            return base.Channel.getTodayBalanceHour();
+        }
+        
+        public System.Threading.Tasks.Task<Entidades.BalanceHour[]> getTodayBalanceHourAsync() {
+            return base.Channel.getTodayBalanceHourAsync();
+        }
+        
         public void SetStatus(Entidades.Operador operatorToChange, Entidades.AvailabiltyStatus paramNewStatus) {
             base.Channel.SetStatus(operatorToChange, paramNewStatus);
         }
@@ -198,12 +212,12 @@ namespace Datos.SrvSolucioname {
             return base.Channel.SetStatusAsync(operatorToChange, paramNewStatus);
         }
         
-        public bool IsServiceActive() {
-            return base.Channel.IsServiceActive();
+        public bool IsServiceActive(bool isBackoffice, Entidades.Operador prmOperator) {
+            return base.Channel.IsServiceActive(isBackoffice, prmOperator);
         }
         
-        public System.Threading.Tasks.Task<bool> IsServiceActiveAsync() {
-            return base.Channel.IsServiceActiveAsync();
+        public System.Threading.Tasks.Task<bool> IsServiceActiveAsync(bool isBackoffice, Entidades.Operador prmOperator) {
+            return base.Channel.IsServiceActiveAsync(isBackoffice, prmOperator);
         }
     }
 }

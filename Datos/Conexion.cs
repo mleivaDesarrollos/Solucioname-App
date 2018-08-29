@@ -10,6 +10,6 @@ namespace Datos
     internal static class Conexion
     {
         // Disponemos de la cadena de conexión para el resto del aplicativo
-        internal static String Cadena = ConfigurationManager.ConnectionStrings["CadenaNotebook"].ConnectionString;
+        internal static String Cadena = ConfigurationManager.ConnectionStrings["Cadena"].ConnectionString;
     }
 }

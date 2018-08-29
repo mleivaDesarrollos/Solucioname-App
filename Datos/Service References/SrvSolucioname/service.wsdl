@@ -55,6 +55,12 @@
   <wsdl:message name="IServicio_getListOfOperatorMustWorkToday_OutputMessage">
     <wsdl:part name="parameters" element="tns:getListOfOperatorMustWorkTodayResponse" />
   </wsdl:message>
+  <wsdl:message name="IServicio_getTodayBalanceHour_InputMessage">
+    <wsdl:part name="parameters" element="tns:getTodayBalanceHour" />
+  </wsdl:message>
+  <wsdl:message name="IServicio_getTodayBalanceHour_OutputMessage">
+    <wsdl:part name="parameters" element="tns:getTodayBalanceHourResponse" />
+  </wsdl:message>
   <wsdl:message name="IServicio_SetStatus_InputMessage">
     <wsdl:part name="parameters" element="tns:SetStatus" />
   </wsdl:message>
@@ -113,6 +119,10 @@
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="getListOfOperatorMustWorkToday">
       <wsdl:input wsaw:Action="http://tempuri.org/IServicio/getListOfOperatorMustWorkToday" message="tns:IServicio_getListOfOperatorMustWorkToday_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IServicio/getListOfOperatorMustWorkTodayResponse" message="tns:IServicio_getListOfOperatorMustWorkToday_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="getTodayBalanceHour">
+      <wsdl:input wsaw:Action="http://tempuri.org/IServicio/getTodayBalanceHour" message="tns:IServicio_getTodayBalanceHour_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IServicio/getTodayBalanceHourResponse" message="tns:IServicio_getTodayBalanceHour_OutputMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="SetStatus">
       <wsdl:input wsaw:Action="http://tempuri.org/IServicio/SetStatus" message="tns:IServicio_SetStatus_InputMessage" />
@@ -197,6 +207,15 @@
     </wsdl:operation>
     <wsdl:operation name="getListOfOperatorMustWorkToday">
       <soap12:operation soapAction="http://tempuri.org/IServicio/getListOfOperatorMustWorkToday" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getTodayBalanceHour">
+      <soap12:operation soapAction="http://tempuri.org/IServicio/getTodayBalanceHour" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

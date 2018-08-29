@@ -10,6 +10,7 @@ namespace Servicio_Principal.SQL
 {
     public static class Asunto
     {
+
         /// <summary>
         /// Agrega un asunto a la base de datos de respaldo
         /// </summary>
@@ -37,8 +38,40 @@ namespace Servicio_Principal.SQL
         /// Remueve un asunto de la base de datos de respaldo
         /// </summary>
         /// <param name="asunto"></param>
-        public static void RemoveFromQueue(Entidades.Asunto asunto)
-        {            
+        public static void RemoveFromQueueAndSaveHistoricData(Entidades.Asunto asunto)
+        {
+            using (SQLiteConnection c = new SQLiteConnection(Conexion.Cadena)) {
+                c.Open();
+                using (SQLiteTransaction t = c.BeginTransaction()) {
+                    string sDeleteFromPendientes = "DELETE FROM asuntos_pendiente_asignacion where numero=@Numero and operador=@Oper";
+                    using (SQLiteCommand cmdDeleteFromPendientes = new SQLiteCommand(sDeleteFromPendientes, c, t)) {
+                        cmdDeleteFromPendientes.Parameters.Agregar("@Numero", asunto.Numero);
+                        cmdDeleteFromPendientes.Parameters.Agregar("@Oper", asunto.Oper.UserName);
+                        cmdDeleteFromPendientes.ExecuteNonQuery();
+                    }
+                    // Get current time and save on variable. To keep integrity between different operations, use this over SQLite Date
+                    DateTime dtmCurrentTimeProcess = new DateTime(2018, 08, 29, 21, 47, 0);
+                    // On delete go to add on assigned table
+                    string sAddAssignedAsuntoToRegistry = "INSERT INTO asuntos_assigned_successful (number, operator, short_description, for_report, assignation_date) values (@Number, @Oper, @ShortDesc, @ForReport, @AssignDate)";
+
+                    using (SQLiteCommand cmdInsertAssignedAsuntos = new SQLiteCommand(sAddAssignedAsuntoToRegistry, c, t)) {
+                        cmdInsertAssignedAsuntos.Parameters.Agregar("@Number", asunto.Numero);
+                        cmdInsertAssignedAsuntos.Parameters.Agregar("@Oper", asunto.Oper.UserName);
+                        cmdInsertAssignedAsuntos.Parameters.Agregar("@ShortDesc", asunto.DescripcionBreve);
+                        cmdInsertAssignedAsuntos.Parameters.Agregar("@ForReport", asunto.Reportable);
+                        cmdInsertAssignedAsuntos.Parameters.Agregar("@AssignDate", dtmCurrentTimeProcess);
+
+                        cmdInsertAssignedAsuntos.ExecuteNonQuery();
+                    }
+                    // When the registry is saved, proceed to calculate column to save
+                    Balance.AddEntry(asunto, c, t, dtmCurrentTimeProcess);
+                    // if all operations are successful, commit changes over database
+                    t.Commit();
+                }
+            }
+            
+            
+            /*            
             using (SQLiteConnection c = new SQLiteConnection(Conexion.Cadena))
             {
                 c.Open();
@@ -52,7 +85,7 @@ namespace Servicio_Principal.SQL
                     // Ejecutamos el comando
                     cmdRemoveAsuntoFromQueue.ExecuteNonQuery();
                 }
-            }
+            }*/
         }
 
         /// <summary>

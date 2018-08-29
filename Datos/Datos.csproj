@@ -55,6 +55,7 @@
     <Compile Include="Actuacion.cs" />
     <Compile Include="ActuacionTipo.cs" />
     <Compile Include="Asunto.cs" />
+    <Compile Include="Balance.cs" />
     <Compile Include="Conexion.cs" />
     <Compile Include="EstadoActuacion.cs" />
     <Compile Include="EstadoAsunto.cs" />
@@ -77,6 +78,7 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Entidades.BalanceHour.datasource" />
     <None Include="Entidades.Operador.datasource" />
     <None Include="Service References\SrvSolucioname\Entidades.xsd">
       <SubType>Designer</SubType>

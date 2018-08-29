@@ -60,7 +60,7 @@ namespace Servicio_Principal
                 // Convertimos el asunto a tipo entidad
                 Entidades.Asunto asuntoEliminado = e.OldItems[0] as Entidades.Asunto;
                 // Removemos el asunto de la base de respaldo
-                SQL.Asunto.RemoveFromQueue(asuntoEliminado);
+                SQL.Asunto.RemoveFromQueueAndSaveHistoricData(asuntoEliminado);
                 // Si el listado queda en 0 luego de remover el asunto del listado de pendientes, se detiene la task
                 if (lstAsuntosToDeliver.Count == 0)
                 {
@@ -160,8 +160,6 @@ namespace Servicio_Principal
             {
                 lock(syncObject)
                 {
-                    // Removemos el asunto encolado de la memoria y de la base de datos
-                    SQL.Asunto.RemoveFromQueue(asuntoToConfirm);
                     lstAsuntosToDeliver.Remove(lstAsuntosToDeliver.First((asunto) => asunto.Numero == asuntoToConfirm.Numero && asunto.Oper.UserName == asuntoToConfirm.Oper.UserName));
                 }
 

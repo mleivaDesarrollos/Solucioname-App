@@ -36,10 +36,13 @@ namespace Servicio_Principal
         [OperationContract]
         List<Operador> getListOfOperatorMustWorkToday();
 
+        [OperationContract]
+        List<BalanceHour> getTodayBalanceHour();
+
         [OperationContract(IsOneWay = true)]
         void SetStatus(Operador operatorToChange, AvailabiltyStatus paramNewStatus);
 
         [OperationContract]
-        bool IsServiceActive();
+        bool IsServiceActive(bool isBackoffice, Operador prmOperator);
     }
 }

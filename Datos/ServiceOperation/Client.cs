@@ -125,6 +125,10 @@ namespace Datos.ServiceOperation
 
         Timer _tmrCheckActiveService;
 
+        Entidades.Operador operatorLogged;
+
+        bool isBackoffice = false;
+
         /// <summary>
         /// Timeout on async methods to service.
         /// </summary>
@@ -148,6 +152,9 @@ namespace Datos.ServiceOperation
                 callbackInteraction = paramCallback;
                 // Starts task to check for service activity status
                 startCheckStatusOfConnectionWithService();
+                // Set up local variables
+                operatorLogged = pOperator;
+                isBackoffice = true;
                 // Devolvemos el operador con todos sus datos cargados                
                 return backofficeOper;
             }
@@ -171,6 +178,8 @@ namespace Datos.ServiceOperation
                 if (proxy.Conectar(paramOperator)) {
                     // when connection has been acepted, the callback is saved to memory
                     callbackInteraction = paramCallback;
+                    // Setup variable for operator logged
+                    operatorLogged = paramOperator;
                     // Starts service checking activity
                     startCheckStatusOfConnectionWithService();
                     return true;
@@ -275,6 +284,19 @@ namespace Datos.ServiceOperation
                 throw ex;
             }
         }
+
+        public async Task <List<Entidades.BalanceHour>> GetBalanceOfTodayOperator()
+        {
+            try {
+                // Dispose a good status of proxy
+                await prepareProxy();
+                // Return list from proxy service
+                return proxy.getTodayBalanceHour().ToList();
+            }
+            catch (Exception ex) {
+                throw ex;
+            }
+        }
         #endregion
 
         #region private_helper_methods
@@ -288,7 +310,7 @@ namespace Datos.ServiceOperation
                 // Generates new timer instance and configure it
                 _tmrCheckActiveService = new Timer();
                 _tmrCheckActiveService.Elapsed += _tmrCheckActiveService_Elapsed;
-                _tmrCheckActiveService.Interval = 10000;                                
+                _tmrCheckActiveService.Interval = 60000;                                
             }            
         }
 
@@ -329,7 +351,7 @@ namespace Datos.ServiceOperation
             IServicioCallback UIInteraction = this;
             try {
                 // Configure timeout for wait response
-                await runAsyncTimeoutMethod(proxy.IsServiceActiveAsync, defaultGeneralTimeout);                 
+                await runAsyncTimeoutMethod(() => { return proxy.IsServiceActiveAsync(isBackoffice, operatorLogged); }, defaultGeneralTimeout);                 
             }
             catch (Exception) {
                 // Sent status message to the UI

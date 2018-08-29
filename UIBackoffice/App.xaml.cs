@@ -28,6 +28,8 @@ namespace UIBackoffice
             {
                 // Set on application properties the current user logged on system
                 App.Current.Properties["user"] = frmLogInBack.Operador;
+                // Load information of connection
+                frmMainApp.LoadConnectionInformation();
                 // Show the main app dialog on screen
                 frmMainApp.Show();
             }

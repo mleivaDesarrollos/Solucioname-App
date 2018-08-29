@@ -106,10 +106,9 @@ namespace Servicio_Principal
             // Configuramos el servicio de envío de asuntos y lo activamos
             ConfigSendAsuntosPending();
             StartSendAsuntosPending();
-            // Configure operator service check
-            // configureOperatorCheckTimer();
             // Load operator to must be connected today
-            loadOperatorsMustWorkToday();    
+            loadOperatorsMustWorkToday();
+            loadTodayBalance();
         }
         #endregion
 
@@ -162,7 +161,7 @@ namespace Servicio_Principal
         public void AsuntoReceiptCompleted(Asunto asuntoToConfirm)
         {
             // Update Callback from client
-            CheckAndUpdateCallback(getClientByOperator(asuntoToConfirm.Oper), CurrentCallback);
+            CheckAndUpdateCallbackOperator(getClientByOperator(asuntoToConfirm.Oper), CurrentCallback);
             // Confirm asunto receipt
             ConfirmAsuntoReceipt(asuntoToConfirm);
         }
@@ -281,6 +280,15 @@ namespace Servicio_Principal
         }
 
         /// <summary>
+        /// Retreive a list with balance of current day
+        /// </summary>
+        /// <returns></returns>
+        public List<BalanceHour> getTodayBalanceHour()
+        {
+            return SQL.Balance.GetAllOfToday();
+        }
+
+        /// <summary>
         /// Returns a list with total operator must working today
         /// </summary>
         /// <returns></returns>
@@ -304,7 +312,7 @@ namespace Servicio_Principal
                     // Sent a confirmation signal to the client
                     CurrentCallback.ServiceChangeStatusRequest(paramNewStatus);
                     // if the callback related to operator has change, update client
-                    CheckAndUpdateCallback(clientToChange, CurrentCallback);
+                    CheckAndUpdateCallbackOperator(clientToChange, CurrentCallback);
                     // Check if the backoffice is logged in and send refresh status
                     if (connectedBackoffice != null) SentRefreshForConnectedBackoffice();
                     // For debug purposses, sent a console message to inform
@@ -322,14 +330,26 @@ namespace Servicio_Principal
         /// <summary>
         /// Method for fast check if the service is active
         /// </summary>
-        public bool IsServiceActive()
+        public bool IsServiceActive(bool isBackoffice, Operador prmOperator)
         {
+            // if a operator is checking check and update
+            if (!isBackoffice) CheckAndUpdateCallbackOperator(getClientByOperator(prmOperator), CurrentCallback);
+            // else is a backoffice, update backoffice
+            else CheckAndUpdateCallbackBackoffice(prmOperator, CurrentCallback);            
             // This is like ping method, only awaits a true return
             return true;
         }
         #endregion
 
         #region helper_methods
+
+        /// <summary>
+        /// Proceed to load today balance for disposal to backoffice operations
+        /// </summary>
+        private void loadTodayBalance()
+        {
+            SQL.Balance.CheckAndCreateBalanceCorrespondingToday(lstOperatorMustConnected.Select((client) => client.Operator).ToList());
+        }
 
         /// <summary>
         /// Check operator paseed on parameter to validate is the same of the logged on service

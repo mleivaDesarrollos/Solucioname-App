@@ -15,6 +15,5 @@
             <Setter Property="Foreground" Value="{StaticResource AppContentTextColor}"/>
         </Style>
         <Style TargetType="Button" BasedOn="{StaticResource AppButtonColor}"/>
-
     </Application.Resources>
 </Application>

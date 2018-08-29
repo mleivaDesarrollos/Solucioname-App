@@ -143,4 +143,32 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="ArrayOfOperador" nillable="true" type="tns:ArrayOfOperador" />
+  <xs:complexType name="ArrayOfBalanceHour">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="BalanceHour" nillable="true" type="tns:BalanceHour" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfBalanceHour" nillable="true" type="tns:ArrayOfBalanceHour" />
+  <xs:complexType name="BalanceHour">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="EightHour" type="xs:int" />
+      <xs:element minOccurs="0" name="EighteenHour" type="xs:int" />
+      <xs:element minOccurs="0" name="ElevenHour" type="xs:int" />
+      <xs:element minOccurs="0" name="FifteenHour" type="xs:int" />
+      <xs:element minOccurs="0" name="FourteenHour" type="xs:int" />
+      <xs:element minOccurs="0" name="NineHour" type="xs:int" />
+      <xs:element minOccurs="0" name="NineteenHour" type="xs:int" />
+      <xs:element minOccurs="0" name="SevenHour" type="xs:int" />
+      <xs:element minOccurs="0" name="SeventeenHour" type="xs:int" />
+      <xs:element minOccurs="0" name="SixteenHour" type="xs:int" />
+      <xs:element minOccurs="0" name="TenHour" type="xs:int" />
+      <xs:element minOccurs="0" name="ThirsteenHour" type="xs:int" />
+      <xs:element minOccurs="0" name="Total" type="xs:int" />
+      <xs:element minOccurs="0" name="TwelveHour" type="xs:int" />
+      <xs:element minOccurs="0" name="TwentyHour" type="xs:int" />
+      <xs:element minOccurs="0" name="TwentyOneHour" type="xs:int" />
+      <xs:element minOccurs="0" name="UserName" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="BalanceHour" nillable="true" type="tns:BalanceHour" />
 </xs:schema>
