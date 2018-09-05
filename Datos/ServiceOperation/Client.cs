@@ -17,8 +17,8 @@ namespace Datos.ServiceOperation
     public sealed class Client : IServicioCallback
     {
         #region singleton_interface_implementation
-        public static Client Instance{ get { return lazy.Value; }}
-        
+        public static Client Instance { get { return lazy.Value; } }
+
         private static readonly Lazy<Client> lazy = new Lazy<Client>(() => new Client());
         #endregion
 
@@ -35,12 +35,9 @@ namespace Datos.ServiceOperation
         /// </summary>
         private ServicioClient _proxy = null;
 
-        private ServicioClient proxy
-        {
-            get
-            {
-                if (_proxy == null)
-                {
+        private ServicioClient proxy {
+            get {
+                if (_proxy == null) {
                     // Generamos un contexto nuevo que permitirá generar una nueva conexión
                     InstanceContext context = new InstanceContext(this);
                     // Generamos un nuevo servicio de cliente a partir de este contexto
@@ -48,20 +45,18 @@ namespace Datos.ServiceOperation
                 }
                 return _proxy;
             }
-            set
-            {
+            set {
                 _proxy = null;
             }
         }
-                
+
         /// <summary>
         /// Administración de estados del proxy
         /// </summary>
         private async Task HandleProxy()
         {
-            switch (proxy.State)
-            {
-                case CommunicationState.Created:                    
+            switch (proxy.State) {
+                case CommunicationState.Created:
                     await (Task.Run(() => { OpenProxy(); })).TimeoutAfter(defaultGeneralTimeout);
                     break;
                 case CommunicationState.Opening:
@@ -110,15 +105,12 @@ namespace Datos.ServiceOperation
         #region property_client
         private Entidades.Service.Interface.IServicioCallback _callbackInteraction;
 
-        public Entidades.Service.Interface.IServicioCallback callbackInteraction
-        {
-            get
-            {
+        public Entidades.Service.Interface.IServicioCallback callbackInteraction {
+            get {
                 if (_callbackInteraction == null) throw new Exception("Error ClientBO : The callback has not been setted.");
                 return _callbackInteraction;
             }
-            set
-            {
+            set {
                 _callbackInteraction = value;
             }
         }
@@ -146,8 +138,7 @@ namespace Datos.ServiceOperation
             await prepareProxy();
             // Almacenamos la respuesta del servicio en una variable que deberia venir completa
             Entidades.Operador backofficeOper = proxy.ConnectBackoffice(pOperator);
-            if (backofficeOper != null)
-            {
+            if (backofficeOper != null) {
                 // Sets callback for the client
                 callbackInteraction = paramCallback;
                 // Starts task to check for service activity status
@@ -158,10 +149,9 @@ namespace Datos.ServiceOperation
                 // Devolvemos el operador con todos sus datos cargados                
                 return backofficeOper;
             }
-            else
-            {
+            else {
                 throw new Exception("El usuario o contraseña no son validos, o no se disponen de permisos de backoffice.");
-            }                
+            }
         }
 
         /// <summary>
@@ -205,8 +195,8 @@ namespace Datos.ServiceOperation
             try {
                 await prepareProxy();
                 // Run disconnection on the service
-                await Task.Run( () => { proxy.Disconnect(paramOperatorToDisconnect); }).TimeoutAfter(5000);
-                
+                await Task.Run(() => { proxy.Disconnect(paramOperatorToDisconnect); }).TimeoutAfter(5000);
+
             }
             catch (Exception ex) {
                 throw ex;
@@ -225,7 +215,7 @@ namespace Datos.ServiceOperation
                 // Checks if the proxy is ready
                 await prepareProxy();
                 // Sent to the service petition to change te current status
-                proxy.SetStatus(prmOper, newStatus);                
+                proxy.SetStatus(prmOper, newStatus);
             }
             catch (Exception ex) {
                 throw ex;
@@ -241,10 +231,10 @@ namespace Datos.ServiceOperation
         {
             try {
                 // Manage status of the proxy
-                await HandleProxy();                
+                await HandleProxy();
                 proxy.SentAsuntoToOperator(prmBackofficeSender, prmAsuntoToSent);
             }
-            catch (Exception ex) {                
+            catch (Exception ex) {
                 Except.Throw(ex);
             }
         }
@@ -255,18 +245,17 @@ namespace Datos.ServiceOperation
         /// <returns></returns>
         public async Task<List<Entidades.Operador>> GetFullOperatorList()
         {
-            try
-            {
+            try {
                 // Prepare proxy for operation
                 await prepareProxy();
                 // Return the list to the interface
                 return proxy.getOperatorList().ToList();
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 throw ex;
             }
         }
+
 
         /// <summary>
         /// Get a complete list from service of current working operator of the day
@@ -284,19 +273,24 @@ namespace Datos.ServiceOperation
                 throw ex;
             }
         }
-
-        public async Task <List<Entidades.BalanceHour>> GetBalanceOfTodayOperator()
+        
+        /// <summary>
+        /// Gets from service a list of asuntos assigned today
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<Entidades.Asunto>> GetListOfAsuntosAssignedToday()
         {
             try {
-                // Dispose a good status of proxy
+                // Prepares proxy for request to service
                 await prepareProxy();
-                // Return list from proxy service
-                return proxy.getTodayBalanceHour().ToList();
+                // gets list from the service and return to the caller
+                return proxy.getAssignedAsuntosOfCurrentDay().ToList() ;
             }
             catch (Exception ex) {
                 throw ex;
             }
         }
+
         #endregion
 
         #region private_helper_methods
@@ -408,6 +402,11 @@ namespace Datos.ServiceOperation
                 Except.Throw(ex);
             }
             
+        }
+
+        void IServicioCallback.AsuntoProcessCompleted(Entidades.Asunto a)
+        {
+            callbackInteraction.AsuntoProcessCompleted(a);
         }
 
         void IServicioCallback.ForceDisconnect()

@@ -83,15 +83,15 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="getTodayBalanceHour">
+  <xs:element name="getAssignedAsuntosOfCurrentDay">
     <xs:complexType>
       <xs:sequence />
     </xs:complexType>
   </xs:element>
-  <xs:element name="getTodayBalanceHourResponse">
+  <xs:element name="getAssignedAsuntosOfCurrentDayResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/Entidades" minOccurs="0" name="getTodayBalanceHourResult" nillable="true" type="q11:ArrayOfBalanceHour" />
+        <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/Entidades" minOccurs="0" name="getAssignedAsuntosOfCurrentDayResult" nillable="true" type="q11:ArrayOfAsunto" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -132,6 +132,13 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="AsuntoProcessCompleted">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q16="http://schemas.datacontract.org/2004/07/Entidades" minOccurs="0" name="a" nillable="true" type="q16:Asunto" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="ForceDisconnect">
     <xs:complexType>
       <xs:sequence />
@@ -140,7 +147,7 @@
   <xs:element name="ServiceChangeStatusRequest">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q16="http://schemas.datacontract.org/2004/07/Entidades" minOccurs="0" name="paramNewStatus" type="q16:AvailabiltyStatus" />
+        <xs:element xmlns:q17="http://schemas.datacontract.org/2004/07/Entidades" minOccurs="0" name="paramNewStatus" type="q17:AvailabiltyStatus" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

@@ -108,8 +108,7 @@
                                     <RowDefinition Height="1*"/>
                                 </Grid.RowDefinitions>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <TextBlock Name="txtTodayDate"> (date)</TextBlock>
-                                    <Button Name="btnGetBalanceOper" Click="btnGetBalanceOper_Click">Get balance of operators</Button>
+                                    <TextBlock Name="txtTodayDate"> (date)</TextBlock>                                    
                                 </StackPanel>
                                 <TextBlock Grid.Row="1"> Operadores de la jornada</TextBlock>
                                 <DataGrid Grid.Row="2" Name="dgConnectedUser" IsReadOnly="True" AutoGenerateColumns="False" HeadersVisibility="Column">
@@ -179,9 +178,21 @@
                                 </DataGrid>                             
                             </Grid>
                         </Border>
-                        <WindowsFormsHost Grid.Column="1" Panel.ZIndex="25" Margin="5">
-                            <rv:ReportViewer x:Name="rptBalanceTotals"/>
-                        </WindowsFormsHost>
+                        <Grid Grid.Column="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="1*"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel  Orientation="Horizontal" Margin="2">
+                                <Label>Operador: </Label>
+                                <ComboBox Name="cboOperatorReportFiltering" SelectedValuePath="UserName" DisplayMemberPath="DisplayName" Width="100"/>
+                                <Label>Horas: </Label>
+                                <ComboBox Name="cboHourReportFiltering" SelectedValuePath="Value" DisplayMemberPath="Name" Width="60."/>
+                            </StackPanel>
+                            <WindowsFormsHost Grid.Row="1" Panel.ZIndex="25" Margin="5">
+                                <rv:ReportViewer x:Name="rptBalanceTotals" />
+                            </WindowsFormsHost>
+                        </Grid>
                     </Grid>
                     <Grid Name="grdReconnectionPanel" Grid.Row="1" Grid.ColumnSpan="2" Visibility="Collapsed">
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">

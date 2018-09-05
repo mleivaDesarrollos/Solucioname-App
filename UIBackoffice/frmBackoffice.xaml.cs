@@ -24,7 +24,35 @@ namespace UIBackoffice
     /// Interaction logic for frmBackoffice.xaml
     /// </summary>
     public partial class frmBackoffice : Window, Entidades.Service.Interface.IServicioCallback, IAssertion, IException
-    {       
+    {
+        private class OperatorReport
+        {
+            public string UserName { get; set; }
+
+            public string DisplayName { get; set; }
+
+            public OperatorReport(string userName, string displayName)
+            {
+                UserName = userName;
+                DisplayName = displayName;
+            }
+        }    
+        
+        private class HourReport
+        {
+            public int Value { get; set; }
+
+            public string Name { get; set; }
+
+            public string ReportSource { get; set; }
+
+            public HourReport(int hour, string visibleName, string reportOrigin)
+            {
+                Value = hour;
+                Name = visibleName;
+                ReportSource = reportOrigin;
+            }
+        }   
         #region constructor
         public frmBackoffice()
         {
@@ -42,6 +70,36 @@ namespace UIBackoffice
         System.Timers.Timer tmrCheckTimeForNextEvent;
 
         ReportDataSource rptDataSourceBalanceDay;
+
+        BalanceDay balanceOfOperators;
+
+        OperatorReport currentOperatorFilter;
+
+        HourReport currentHourFilter;
+
+        static OperatorReport oprAllOperators = new OperatorReport("all", "<Todos>");
+
+        static HourReport basicHourFilter = new HourReport(0, "<Todos>", "UIBackoffice.Reports.RptBalanceTodayWithQuarters.rdlc");
+
+        List<HourReport> lstHourFilter = new List<HourReport>()
+        {
+            basicHourFilter,
+            new HourReport(7, "07:00", "UIBackoffice.Reports.RptBalanceTodaySevenHour.rdlc"),
+            new HourReport(8, "08:00", "UIBackoffice.Reports.RptBalanceTodayEightHour.rdlc"),
+            new HourReport(9, "09:00", "UIBackoffice.Reports.RptBalanceTodayNineHour.rdlc"),
+            new HourReport(10, "10:00", "UIBackoffice.Reports.RptBalanceTodayTenHour.rdlc"),
+            new HourReport(11, "11:00", "UIBackoffice.Reports.RptBalanceTodayElevenHour.rdlc"),
+            new HourReport(12, "12:00", "UIBackoffice.Reports.RptBalanceTodayTwelveHour.rdlc"),
+            new HourReport(13, "13:00", "UIBackoffice.Reports.RptBalanceTodayThirsteenHour.rdlc"),
+            new HourReport(14, "14:00", "UIBackoffice.Reports.RptBalanceTodayFourteenHour.rdlc"),
+            new HourReport(15, "15:00", "UIBackoffice.Reports.RptBalanceTodayFifteenHour.rdlc"),
+            new HourReport(16, "16:00", "UIBackoffice.Reports.RptBalanceTodaySixteenHour.rdlc"),
+            new HourReport(17, "17:00", "UIBackoffice.Reports.RptBalanceTodaySeventeenHour.rdlc"),
+            new HourReport(18, "18:00", "UIBackoffice.Reports.RptBalanceTodayEighteenHour.rdlc"),
+            new HourReport(19, "19:00", "UIBackoffice.Reports.RptBalanceTodayNineteenHour.rdlc"),
+            new HourReport(20, "20:00", "UIBackoffice.Reports.RptBalanceTodayTwentyHour.rdlc"),
+            new HourReport(21, "21:00", "UIBackoffice.Reports.RptBalanceTodayTwentyOneHour.rdlc")
+        };
         #endregion
 
         #region event_subscription
@@ -57,12 +115,6 @@ namespace UIBackoffice
                 e.Cancel = false;
             }
         }
-        
-        private void btnGetOperatorList_Click(object sender, RoutedEventArgs e)
-        {
-            PopulateOperatorList();
-        }
-
         private void mnuAddAsunto_Click(object sender, RoutedEventArgs e)
         {
             if(dgConnectedUser.SelectedItem != null) {
@@ -89,10 +141,23 @@ namespace UIBackoffice
             }
         }
 
-        private void btnGetBalanceOper_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Controls report filtering by operators
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CboOperatorReportFiltering_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            RefreshReportBalanceCurrentDay();
+            OperatorReport selectedOperator = cboOperatorReportFiltering.SelectedItem as OperatorReport;
+            if (selectedOperator != null) SetReportFiltering(selectedOperator);
         }
+
+        private void CboHourReportFiltering_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            HourReport selectedHour = cboHourReportFiltering.SelectedItem as HourReport;
+            if (selectedHour != null) SetReportFiltering(selectedHour);
+        }
+
         /// <summary>
         /// Dispose a Reconnect button for connection to the service
         /// </summary>
@@ -105,7 +170,7 @@ namespace UIBackoffice
             // Sent reconnect signal
             SentReconnectSignal();
         }
-
+        
         #endregion
 
         #region public_interface
@@ -114,7 +179,8 @@ namespace UIBackoffice
             configureAfterSuccessConnectionValues();
             configureTimeToNextEvent();
             configureErrorService();
-            PopulateOperatorList();
+            LoadServiceVariable(true);
+            
         }
         #endregion
 
@@ -129,6 +195,96 @@ namespace UIBackoffice
             // Set up Assertion Interface
             Assert.LoadInterface(this);
 
+        }
+
+        private void SetReportFiltering(OperatorReport prmOperatorToFilter)
+        {
+            if(currentOperatorFilter != prmOperatorToFilter) {
+                // Save current operator in local Variable
+                currentOperatorFilter = prmOperatorToFilter;
+                // Load and refresh report
+                LoadReportInformation();
+            }
+        }
+
+        private void SetReportFiltering(HourReport prmHourToFilter)
+        {
+            if(currentHourFilter != prmHourToFilter) {
+                // Set origin of report
+                rptBalanceTotals.LocalReport.ReportEmbeddedResource = prmHourToFilter.ReportSource;
+                // Save current hour filter on local variable
+                currentHourFilter = prmHourToFilter;
+                // Load and refresh report
+                LoadReportInformation();
+            }
+        }
+
+        /// <summary>
+        /// Instanciate a new balance day object and loads with base information
+        /// </summary>
+        private async void StartReportBalanceDayConfiguration()
+        {
+            if (balanceOfOperators == null) {
+                currentOperatorFilter = oprAllOperators;
+                // Generate a new Report Data Source
+                if (rptDataSourceBalanceDay == null) rptDataSourceBalanceDay = new ReportDataSource();
+                rptDataSourceBalanceDay.Name = "dsBalanceToday";
+                rptBalanceTotals.LocalReport.DataSources.Add(rptDataSourceBalanceDay);
+                rptBalanceTotals.LocalReport.ReportEmbeddedResource = basicHourFilter.ReportSource;
+                rptBalanceTotals.ShowBackButton = false;
+                rptBalanceTotals.ShowDocumentMapButton = false;
+                rptBalanceTotals.ShowPageNavigationControls = false;
+                rptBalanceTotals.ShowRefreshButton = false;
+                rptBalanceTotals.ShowStopButton = false;
+                balanceOfOperators = new BalanceDay();
+                await balanceOfOperators.Generate(lstDetailedOperators.GetOperatorList());
+                // Load initial information
+                LoadReportInformation();
+            }
+        }
+        
+
+        /// <summary>
+        /// Filter report list by operator
+        /// </summary>
+        /// <param name="prmReportToFilter"></param>
+        private void LoadReportInformation()
+        {
+            rptDataSourceBalanceDay.Value = balanceOfOperators.List.FindAll((operSelect) => operSelect.UserName == currentOperatorFilter.UserName).ToList();
+            if (currentOperatorFilter == oprAllOperators) rptDataSourceBalanceDay.Value = balanceOfOperators.List;            
+            RefreshReportBalanceCurrentDay();
+        }
+
+        private void generateContentForHourReportFiltering()
+        {
+            // Unsubscribe event for selection change
+            cboHourReportFiltering.SelectionChanged -= CboHourReportFiltering_SelectionChanged;
+            // Load itemsource for combo hour filtering
+            cboHourReportFiltering.ItemsSource = lstHourFilter;
+            // Set current index for combo in start
+            cboHourReportFiltering.SelectedIndex = 0;
+            // Subscribe event for control selection changed
+            cboHourReportFiltering.SelectionChanged += CboHourReportFiltering_SelectionChanged;
+        }
+        private void generateContentAndLoadCboOperatorReportFiltering()
+        {
+            // Unsusbcribe to the event
+            cboOperatorReportFiltering.SelectionChanged -= CboOperatorReportFiltering_SelectionChanged;
+            // Create a list for save all user variables
+            List<OperatorReport> lstUserFullNames = new List<OperatorReport>();
+            // Add a generic value
+            lstUserFullNames.Add(oprAllOperators);
+            // Iterates over all operator of backoffice
+            foreach (var opBackoffice in lstDetailedOperators) {
+                // Add to the list of full users
+               lstUserFullNames.Add(new OperatorReport(opBackoffice.UserName, opBackoffice.FullName));
+            }
+            // Load itemsource of Combo
+            cboOperatorReportFiltering.ItemsSource = lstUserFullNames;
+            // Set index of combo in first position
+            cboOperatorReportFiltering.SelectedIndex = 0;
+            // Subscribe to selection changed event
+            cboOperatorReportFiltering.SelectionChanged += CboOperatorReportFiltering_SelectionChanged;    
         }
 
         private async void SentReconnectSignal()
@@ -150,16 +306,8 @@ namespace UIBackoffice
             }
         }
 
-        private async void RefreshReportBalanceCurrentDay()
-        {
-            // Generate a new Report Data Source
-            if (rptDataSourceBalanceDay == null) rptDataSourceBalanceDay = new ReportDataSource();
-            BalanceCurrentDay balance = new BalanceCurrentDay();
-            await balance.RefreshBalance();
-            rptDataSourceBalanceDay.Name = "dsBalanceDay";
-            rptDataSourceBalanceDay.Value = balance.List; 
-            rptBalanceTotals.LocalReport.DataSources.Add(rptDataSourceBalanceDay);
-            rptBalanceTotals.LocalReport.ReportEmbeddedResource = "UIBackoffice.rptBalanceOfAssignedAsuntosCurrentDay.rdlc";
+        private void RefreshReportBalanceCurrentDay()
+        { 
             rptBalanceTotals.RefreshReport();
         }       
 
@@ -174,7 +322,7 @@ namespace UIBackoffice
         /// <summary>
         /// Get and set operator information from the service
         /// </summary>
-        private async void PopulateOperatorList()
+        private async void LoadServiceVariable(bool isStartPetition = false)
         {
             try
             {
@@ -184,13 +332,17 @@ namespace UIBackoffice
                 List<Entidades.Operador> lstOperators = await logOper.GetOperatorWorkingToday();
                 // Convert to observable collection
                 lstDetailedOperators.ClearListAndConvertFromOperator(lstOperators);
-                // Puts the observable collection on itemsource
-                dgConnectedUser.ItemsSource = lstDetailedOperators;
                 // Update next event time left
                 updateNextEventTimeLeft();
                 // Start timer to check periodically
                 startTimeToNextEvent();
-                dgConnectedUser.Items.Refresh();         
+                // Puts the observable collection on itemsource
+                dgConnectedUser.ItemsSource = lstDetailedOperators;
+                // Update combobox for operator filtering and hour filtering
+                generateContentAndLoadCboOperatorReportFiltering();
+                generateContentForHourReportFiltering();
+                // If is a start petition refresh balance of the day
+                if (isStartPetition) StartReportBalanceDayConfiguration();
             }
             catch (Exception ex)
             {
@@ -277,6 +429,24 @@ namespace UIBackoffice
             
         }
 
+        /// <summary>
+        /// On asunto process completed sent a refresh to balance list
+        /// </summary>
+        /// <param name="a"></param>
+        public async void AsuntoProcessCompleted(Asunto a)
+        {   
+            try {
+                balanceOfOperators.Increment(a);
+            }
+            catch (Exception ex) {
+                Except.Throw(ex);                
+            }
+            await Dispatcher.BeginInvoke((Action)(() =>
+            {
+                LoadReportInformation();                
+            }));
+        }
+
         public void ForceDisconnect()
         {
             disconnectWaitingTime();
@@ -310,7 +480,7 @@ namespace UIBackoffice
         {
             Dispatcher.BeginInvoke((Action)(() =>
             {
-                PopulateOperatorList();
+                LoadServiceVariable();
             }));
         }
 
@@ -346,6 +516,5 @@ namespace UIBackoffice
         }
 
         #endregion
-
     }
 }

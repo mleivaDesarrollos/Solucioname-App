@@ -52,9 +52,10 @@
     <Compile Include="Asunto.cs" />
     <Compile Include="AsuntoDiario.cs" />
     <Compile Include="AvailabiltyStatus.cs" />
-    <Compile Include="BalanceHour.cs" />
+    <Compile Include="Balance.cs" />
     <Compile Include="Estado.cs" />
     <Compile Include="GrupoResolutor.cs" />
+    <Compile Include="HourCount.cs" />
     <Compile Include="Service\Command.cs" />
     <Compile Include="Service\CommandType\Gestion.cs" />
     <Compile Include="Service\CommandType\Message.cs" />

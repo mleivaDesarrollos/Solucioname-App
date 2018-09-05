@@ -117,7 +117,7 @@ namespace Servicio_Principal.SQL
                 using (SQLiteConnection c = new SQLiteConnection(Conexion.Cadena)) {
                     c.Open();
                     string strCurrentDayOperator = "select * from view_operator_current_day_activity";
-                    if(Config.Test) strCurrentDayOperator = "select * from view_operator_monday_day_activity";
+                    if(Config.TEST) strCurrentDayOperator = "select * from view_operator_monday_day_activity";
                     using (SQLiteCommand cmdQueryOperatorOfTheDay = new SQLiteCommand(strCurrentDayOperator, c)) {
                         using (SQLiteDataReader rdrQueryOperatorOfTheDay = cmdQueryOperatorOfTheDay.ExecuteReader()) {
                             while (rdrQueryOperatorOfTheDay.Read()) {

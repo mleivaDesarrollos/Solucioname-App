@@ -78,6 +78,9 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Entidades.Asunto.datasource" />
+    <None Include="Entidades.Balance.datasource" />
+    <None Include="Entidades.BalanceArray.datasource" />
     <None Include="Entidades.BalanceHour.datasource" />
     <None Include="Entidades.Operador.datasource" />
     <None Include="Service References\SrvSolucioname\Entidades.xsd">

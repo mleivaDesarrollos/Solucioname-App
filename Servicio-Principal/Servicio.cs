@@ -108,7 +108,6 @@ namespace Servicio_Principal
             StartSendAsuntosPending();
             // Load operator to must be connected today
             loadOperatorsMustWorkToday();
-            loadTodayBalance();
         }
         #endregion
 
@@ -280,14 +279,20 @@ namespace Servicio_Principal
         }
 
         /// <summary>
-        /// Retreive a list with balance of current day
+        /// Get assigned asuntos of current day
         /// </summary>
         /// <returns></returns>
-        public List<BalanceHour> getTodayBalanceHour()
+        public List<Asunto> getAssignedAsuntosOfCurrentDay()
         {
-            return SQL.Balance.GetAllOfToday();
+            try {
+                return SQL.Asunto.GetAsuntosAssignedFromToday();
+            }
+            catch (Exception ex) {
+                Log.Error(SQL.Asunto.CLASSNAME, ex.Message);
+                return null;
+            }
         }
-
+        
         /// <summary>
         /// Returns a list with total operator must working today
         /// </summary>
@@ -342,15 +347,7 @@ namespace Servicio_Principal
         #endregion
 
         #region helper_methods
-
-        /// <summary>
-        /// Proceed to load today balance for disposal to backoffice operations
-        /// </summary>
-        private void loadTodayBalance()
-        {
-            SQL.Balance.CheckAndCreateBalanceCorrespondingToday(lstOperatorMustConnected.Select((client) => client.Operator).ToList());
-        }
-
+        
         /// <summary>
         /// Check operator paseed on parameter to validate is the same of the logged on service
         /// </summary>
@@ -378,7 +375,7 @@ namespace Servicio_Principal
                         connectedBackoffice = null;
                     }
                     
-                }).TimeoutAfter(5000);
+                }).TimeoutAfter(Config.BACKOFFICE_TIMEOUT);
             } catch (TimeoutException) {
                 Log.Error("MainService", "timeout sending refresh for backoffice");
                 connectedBackoffice = null;
@@ -386,6 +383,34 @@ namespace Servicio_Principal
                 Log.Error("MainService", "error sending refresh to backoffice: " + ex.Message);
             }
 
+        }
+
+        /// <summary>
+        /// Sent confirmation to UI Backoffice of adding a new asunto
+        /// </summary>
+        /// <param name="prmAsuntoSented"></param>
+        private async void SentBalanceRefreshOnBackoffice(Entidades.Asunto prmAsuntoSented)
+        {
+            try {
+                await Task.Run(() =>
+                {
+                    try {
+                        // Using Callback of asunto sent information for backoffice client
+                        connectedBackoffice.Callback.AsuntoProcessCompleted(prmAsuntoSented);
+                    }
+                    catch (Exception ex) {
+                        Log.Error("MainService", "error sending confirmation to backoffice: " + ex.Message);
+                    }
+                }).TimeoutAfter(Config.BACKOFFICE_TIMEOUT);
+            }
+            catch (TimeoutException) {
+                // The current logged backoffice is not responding, removing from the service
+                connectedBackoffice = null;
+                Log.Info("MainService", "the backoffice is not responding, closing connection...");
+            }
+            catch (Exception ex) {
+                Log.Error("MainService", "there is an error processing callback sent" + ex.Message);
+            }
         }
 
         private async Task sentDisconnectToCurrentBackoffice(Client prevClient, Entidades.Operador paramNewBackoffice)
@@ -396,7 +421,7 @@ namespace Servicio_Principal
                 // Sent to previous backoffice a message and force disconnection
                 prevClient.Callback.Mensaje(string.Format("the operator {0} has been connected to the service. Your connection has been forcedly terminated.", paramNewBackoffice.UserName));
                 prevClient.Callback.ForceDisconnect();
-            }).TimeoutAfter(5000);
+            }).TimeoutAfter(Config.BACKOFFICE_TIMEOUT);
             
         }
         #endregion

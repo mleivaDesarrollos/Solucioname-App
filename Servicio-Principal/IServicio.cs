@@ -37,7 +37,8 @@ namespace Servicio_Principal
         List<Operador> getListOfOperatorMustWorkToday();
 
         [OperationContract]
-        List<BalanceHour> getTodayBalanceHour();
+        List<Asunto> getAssignedAsuntosOfCurrentDay();
+
 
         [OperationContract(IsOneWay = true)]
         void SetStatus(Operador operatorToChange, AvailabiltyStatus paramNewStatus);

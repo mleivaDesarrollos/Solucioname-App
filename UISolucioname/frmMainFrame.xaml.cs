@@ -592,6 +592,11 @@ namespace UISolucioname
             newAsuntoFromService(a);            
         }
 
+        public void AsuntoProcessCompleted(Asunto a)
+        {
+
+        }
+
         public void ForceDisconnect()
         {
 

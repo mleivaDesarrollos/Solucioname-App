@@ -11,6 +11,8 @@ namespace Servicio_Principal.SQL
     public static class Asunto
     {
 
+        public static readonly string CLASSNAME = "AsuntoDAO";
+
         /// <summary>
         /// Agrega un asunto a la base de datos de respaldo
         /// </summary>
@@ -49,8 +51,6 @@ namespace Servicio_Principal.SQL
                         cmdDeleteFromPendientes.Parameters.Agregar("@Oper", asunto.Oper.UserName);
                         cmdDeleteFromPendientes.ExecuteNonQuery();
                     }
-                    // Get current time and save on variable. To keep integrity between different operations, use this over SQLite Date
-                    DateTime dtmCurrentTimeProcess = new DateTime(2018, 08, 29, 21, 47, 0);
                     // On delete go to add on assigned table
                     string sAddAssignedAsuntoToRegistry = "INSERT INTO asuntos_assigned_successful (number, operator, short_description, for_report, assignation_date) values (@Number, @Oper, @ShortDesc, @ForReport, @AssignDate)";
 
@@ -59,33 +59,16 @@ namespace Servicio_Principal.SQL
                         cmdInsertAssignedAsuntos.Parameters.Agregar("@Oper", asunto.Oper.UserName);
                         cmdInsertAssignedAsuntos.Parameters.Agregar("@ShortDesc", asunto.DescripcionBreve);
                         cmdInsertAssignedAsuntos.Parameters.Agregar("@ForReport", asunto.Reportable);
-                        cmdInsertAssignedAsuntos.Parameters.Agregar("@AssignDate", dtmCurrentTimeProcess);
+                        cmdInsertAssignedAsuntos.Parameters.Agregar("@AssignDate", asunto.AssignmentTime);
 
                         cmdInsertAssignedAsuntos.ExecuteNonQuery();
                     }
                     // When the registry is saved, proceed to calculate column to save
-                    Balance.AddEntry(asunto, c, t, dtmCurrentTimeProcess);
+                    //Balance.AddEntry(asunto, c, t);
                     // if all operations are successful, commit changes over database
                     t.Commit();
                 }
             }
-            
-            
-            /*            
-            using (SQLiteConnection c = new SQLiteConnection(Conexion.Cadena))
-            {
-                c.Open();
-                string strRemoveAsuntoFromQueue = "DELETE FROM asuntos_pendiente_asignacion where numero=@Numero and operador=@Oper";
-
-                using (SQLiteCommand cmdRemoveAsuntoFromQueue = new SQLiteCommand(strRemoveAsuntoFromQueue,c))
-                {
-                    // Parametrizamos las variables pasadas por parametro
-                    cmdRemoveAsuntoFromQueue.Parameters.Agregar("@Numero", asunto.Numero);
-                    cmdRemoveAsuntoFromQueue.Parameters.Agregar("@Oper", asunto.Oper.UserName);
-                    // Ejecutamos el comando
-                    cmdRemoveAsuntoFromQueue.ExecuteNonQuery();
-                }
-            }*/
         }
 
         /// <summary>
@@ -130,6 +113,41 @@ namespace Servicio_Principal.SQL
             }
             // Se devuelve el listado procesado
             return lstAsuntosPending;            
+        }
+
+        /// <summary>
+        /// Checks on database for asuntos saved today
+        /// </summary>
+        /// <returns></returns>
+        public static List<Entidades.Asunto> GetAsuntosAssignedFromToday()
+        {
+            // Generate a new list instance of asunto
+            List<Entidades.Asunto> lstAsuntoToday = new List<Entidades.Asunto>();
+            try {
+                using (SQLiteConnection c = new SQLiteConnection(Conexion.Cadena)) {
+                    c.Open();
+                    string strQueryAsuntoOfCurrentDay = "SELECT * from asuntos_assigned_successful where assignation_date LIKE (date('now', 'localtime') || '%') ";
+                    using (SQLiteCommand cmdQueryAsuntoOfCurrentDay = new SQLiteCommand(strQueryAsuntoOfCurrentDay, c)) {
+                        using (SQLiteDataReader rdrQueryAsuntoOfCurrenDay = cmdQueryAsuntoOfCurrentDay.ExecuteReader()) {
+                            while (rdrQueryAsuntoOfCurrenDay.Read()) {
+                                lstAsuntoToday.Add(new Entidades.Asunto()
+                                {
+                                    Numero = rdrQueryAsuntoOfCurrenDay["number"].ToString(),
+                                    Oper = new Entidades.Operador() { UserName = rdrQueryAsuntoOfCurrenDay["operator"].ToString() },
+                                    DescripcionBreve = rdrQueryAsuntoOfCurrenDay["short_description"].ToString(),
+                                    Reportable = Convert.ToBoolean(rdrQueryAsuntoOfCurrenDay["for_report"]),
+                                    AssignmentTime = Convert.ToDateTime(rdrQueryAsuntoOfCurrenDay["assignation_date"])
+                                });
+                            }
+                        }
+                    }
+                }
+                return lstAsuntoToday;
+            }
+            catch (Exception ex) {
+                throw ex;
+            }
+            
         }
 
 

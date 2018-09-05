@@ -12,6 +12,8 @@ namespace Servicio_Principal
         /// <summary>
         /// When needs test on weekend, set in config 1, also 0
         /// </summary>
-        public static readonly bool Test = Convert.ToBoolean(ConfigurationManager.AppSettings.GetValues("TEST")[0]);
+        public static readonly bool TEST = Convert.ToBoolean(ConfigurationManager.AppSettings.GetValues("TEST")[0]);
+
+        public static readonly int BACKOFFICE_TIMEOUT = Convert.ToInt32(ConfigurationManager.AppSettings.GetValues("BACKOFFICE_TIMEOUT")[0]);
     }
 }

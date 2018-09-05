@@ -19,6 +19,9 @@ namespace Entidades.Service.Interface
         void EnviarAsunto(Asunto a);
 
         [OperationContract(IsOneWay = true)]
+        void AsuntoProcessCompleted(Asunto a);
+
+        [OperationContract(IsOneWay = true)]
         void ForceDisconnect();
 
         [OperationContract(IsOneWay = true)]

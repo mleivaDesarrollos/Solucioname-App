@@ -59,8 +59,12 @@ namespace Servicio_Principal
             {
                 // Convertimos el asunto a tipo entidad
                 Entidades.Asunto asuntoEliminado = e.OldItems[0] as Entidades.Asunto;
+                // Save date of asunto assignment
+                asuntoEliminado.AssignmentTime = DateTime.Now;
                 // Removemos el asunto de la base de respaldo
                 SQL.Asunto.RemoveFromQueueAndSaveHistoricData(asuntoEliminado);
+                // Sent update request to logged backoffice
+                SentBalanceRefreshOnBackoffice(asuntoEliminado);
                 // Si el listado queda en 0 luego de remover el asunto del listado de pendientes, se detiene la task
                 if (lstAsuntosToDeliver.Count == 0)
                 {

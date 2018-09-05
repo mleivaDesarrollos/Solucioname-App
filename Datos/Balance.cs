@@ -13,10 +13,10 @@ namespace Datos
         /// Gets from service a list of balance today
         /// </summary>
         /// <returns></returns>
-        public async Task<List<Entidades.BalanceHour>> GetBalanceOfTodayOperator()
+        public async Task<List<Entidades.Asunto>> GetAsuntoAssignedOfCurrentDay()
         {
             try {
-                return await Client.Instance.GetBalanceOfTodayOperator();
+                return await Client.Instance.GetListOfAsuntosAssignedToday();
             }
             catch (Exception ex) {
                 throw ex;

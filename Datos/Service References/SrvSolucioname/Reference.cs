@@ -63,11 +63,11 @@ namespace Datos.SrvSolucioname {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/getListOfOperatorMustWorkToday", ReplyAction="http://tempuri.org/IServicio/getListOfOperatorMustWorkTodayResponse")]
         System.Threading.Tasks.Task<Entidades.Operador[]> getListOfOperatorMustWorkTodayAsync();
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/getTodayBalanceHour", ReplyAction="http://tempuri.org/IServicio/getTodayBalanceHourResponse")]
-        Entidades.BalanceHour[] getTodayBalanceHour();
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/getAssignedAsuntosOfCurrentDay", ReplyAction="http://tempuri.org/IServicio/getAssignedAsuntosOfCurrentDayResponse")]
+        Entidades.Asunto[] getAssignedAsuntosOfCurrentDay();
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/getTodayBalanceHour", ReplyAction="http://tempuri.org/IServicio/getTodayBalanceHourResponse")]
-        System.Threading.Tasks.Task<Entidades.BalanceHour[]> getTodayBalanceHourAsync();
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/getAssignedAsuntosOfCurrentDay", ReplyAction="http://tempuri.org/IServicio/getAssignedAsuntosOfCurrentDayResponse")]
+        System.Threading.Tasks.Task<Entidades.Asunto[]> getAssignedAsuntosOfCurrentDayAsync();
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/SetStatus")]
         void SetStatus(Entidades.Operador operatorToChange, Entidades.AvailabiltyStatus paramNewStatus);
@@ -90,6 +90,9 @@ namespace Datos.SrvSolucioname {
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/EnviarAsunto")]
         void EnviarAsunto(Entidades.Asunto a);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/AsuntoProcessCompleted")]
+        void AsuntoProcessCompleted(Entidades.Asunto a);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/ForceDisconnect")]
         void ForceDisconnect();
@@ -196,12 +199,12 @@ namespace Datos.SrvSolucioname {
             return base.Channel.getListOfOperatorMustWorkTodayAsync();
         }
         
-        public Entidades.BalanceHour[] getTodayBalanceHour() {
-            return base.Channel.getTodayBalanceHour();
+        public Entidades.Asunto[] getAssignedAsuntosOfCurrentDay() {
+            return base.Channel.getAssignedAsuntosOfCurrentDay();
         }
         
-        public System.Threading.Tasks.Task<Entidades.BalanceHour[]> getTodayBalanceHourAsync() {
-            return base.Channel.getTodayBalanceHourAsync();
+        public System.Threading.Tasks.Task<Entidades.Asunto[]> getAssignedAsuntosOfCurrentDayAsync() {
+            return base.Channel.getAssignedAsuntosOfCurrentDayAsync();
         }
         
         public void SetStatus(Entidades.Operador operatorToChange, Entidades.AvailabiltyStatus paramNewStatus) {

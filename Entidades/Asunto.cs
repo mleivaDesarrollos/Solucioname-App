@@ -64,6 +64,11 @@ namespace Entidades
             get; set;
         }
 
+        [DataMember]
+        public DateTime AssignmentTime {
+            get; set;
+        }
+
         public Asunto()
         {
 

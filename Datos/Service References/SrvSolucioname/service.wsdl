@@ -55,11 +55,11 @@
   <wsdl:message name="IServicio_getListOfOperatorMustWorkToday_OutputMessage">
     <wsdl:part name="parameters" element="tns:getListOfOperatorMustWorkTodayResponse" />
   </wsdl:message>
-  <wsdl:message name="IServicio_getTodayBalanceHour_InputMessage">
-    <wsdl:part name="parameters" element="tns:getTodayBalanceHour" />
+  <wsdl:message name="IServicio_getAssignedAsuntosOfCurrentDay_InputMessage">
+    <wsdl:part name="parameters" element="tns:getAssignedAsuntosOfCurrentDay" />
   </wsdl:message>
-  <wsdl:message name="IServicio_getTodayBalanceHour_OutputMessage">
-    <wsdl:part name="parameters" element="tns:getTodayBalanceHourResponse" />
+  <wsdl:message name="IServicio_getAssignedAsuntosOfCurrentDay_OutputMessage">
+    <wsdl:part name="parameters" element="tns:getAssignedAsuntosOfCurrentDayResponse" />
   </wsdl:message>
   <wsdl:message name="IServicio_SetStatus_InputMessage">
     <wsdl:part name="parameters" element="tns:SetStatus" />
@@ -75,6 +75,9 @@
   </wsdl:message>
   <wsdl:message name="IServicio_EnviarAsunto_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:EnviarAsunto" />
+  </wsdl:message>
+  <wsdl:message name="IServicio_AsuntoProcessCompleted_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:AsuntoProcessCompleted" />
   </wsdl:message>
   <wsdl:message name="IServicio_ForceDisconnect_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:ForceDisconnect" />
@@ -120,9 +123,9 @@
       <wsdl:input wsaw:Action="http://tempuri.org/IServicio/getListOfOperatorMustWorkToday" message="tns:IServicio_getListOfOperatorMustWorkToday_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IServicio/getListOfOperatorMustWorkTodayResponse" message="tns:IServicio_getListOfOperatorMustWorkToday_OutputMessage" />
     </wsdl:operation>
-    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="getTodayBalanceHour">
-      <wsdl:input wsaw:Action="http://tempuri.org/IServicio/getTodayBalanceHour" message="tns:IServicio_getTodayBalanceHour_InputMessage" />
-      <wsdl:output wsaw:Action="http://tempuri.org/IServicio/getTodayBalanceHourResponse" message="tns:IServicio_getTodayBalanceHour_OutputMessage" />
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="getAssignedAsuntosOfCurrentDay">
+      <wsdl:input wsaw:Action="http://tempuri.org/IServicio/getAssignedAsuntosOfCurrentDay" message="tns:IServicio_getAssignedAsuntosOfCurrentDay_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IServicio/getAssignedAsuntosOfCurrentDayResponse" message="tns:IServicio_getAssignedAsuntosOfCurrentDay_OutputMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="SetStatus">
       <wsdl:input wsaw:Action="http://tempuri.org/IServicio/SetStatus" message="tns:IServicio_SetStatus_InputMessage" />
@@ -136,6 +139,9 @@
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="EnviarAsunto">
       <wsdl:output wsaw:Action="http://tempuri.org/IServicio/EnviarAsunto" message="tns:IServicio_EnviarAsunto_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="AsuntoProcessCompleted">
+      <wsdl:output wsaw:Action="http://tempuri.org/IServicio/AsuntoProcessCompleted" message="tns:IServicio_AsuntoProcessCompleted_OutputCallbackMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="ForceDisconnect">
       <wsdl:output wsaw:Action="http://tempuri.org/IServicio/ForceDisconnect" message="tns:IServicio_ForceDisconnect_OutputCallbackMessage" />
@@ -214,8 +220,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="getTodayBalanceHour">
-      <soap12:operation soapAction="http://tempuri.org/IServicio/getTodayBalanceHour" style="document" />
+    <wsdl:operation name="getAssignedAsuntosOfCurrentDay">
+      <soap12:operation soapAction="http://tempuri.org/IServicio/getAssignedAsuntosOfCurrentDay" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -246,6 +252,12 @@
     </wsdl:operation>
     <wsdl:operation name="EnviarAsunto">
       <soap12:operation soapAction="http://tempuri.org/IServicio/EnviarAsunto" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AsuntoProcessCompleted">
+      <soap12:operation soapAction="http://tempuri.org/IServicio/AsuntoProcessCompleted" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>

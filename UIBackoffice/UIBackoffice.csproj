@@ -67,7 +67,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="BalanceCurrentDay.cs" />
+    <Compile Include="BalanceDay.cs" />
     <Compile Include="frmAddAsunto.xaml.cs">
       <DependentUpon>frmAddAsunto.xaml</DependentUpon>
     </Compile>
@@ -113,9 +113,24 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="rptBalanceOfAssignedAsuntosCurrentDay.rdlc" />
+    <EmbeddedResource Include="Reports\RptBalanceTodayTwentyOneHour.rdlc" />
+    <EmbeddedResource Include="Reports\RptBalanceTodayTwentyHour.rdlc" />
+    <EmbeddedResource Include="Reports\RptBalanceTodayNineteenHour.rdlc" />
+    <EmbeddedResource Include="Reports\RptBalanceTodayEighteenHour.rdlc" />
+    <EmbeddedResource Include="Reports\RptBalanceTodaySeventeenHour.rdlc" />
+    <EmbeddedResource Include="Reports\RptBalanceTodaySixteenHour.rdlc" />
+    <EmbeddedResource Include="Reports\RptBalanceTodayFifteenHour.rdlc" />
+    <EmbeddedResource Include="Reports\RptBalanceTodayFourteenHour.rdlc" />
+    <EmbeddedResource Include="Reports\RptBalanceTodayThirsteenHour.rdlc" />
+    <EmbeddedResource Include="Reports\RptBalanceTodayTwelveHour.rdlc" />
+    <EmbeddedResource Include="Reports\RptBalanceTodayElevenHour.rdlc" />
+    <EmbeddedResource Include="Reports\RptBalanceTodayTenHour.rdlc" />
+    <EmbeddedResource Include="Reports\RptBalanceTodayNineHour.rdlc" />
+    <EmbeddedResource Include="Reports\RptBalanceTodayEightHour.rdlc" />
+    <EmbeddedResource Include="Reports\RptBalanceTodaySevenHour.rdlc" />
+    <EmbeddedResource Include="Reports\RptBalanceTodayWithQuarters.rdlc" />
     <None Include="packages.config" />
-    <None Include="Properties\DataSources\BalanceCurrentDay.datasource" />
+    <None Include="Properties\DataSources\BalanceDay.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -187,6 +202,7 @@
   <ItemGroup>
     <Resource Include="Images\yellowstatus.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
