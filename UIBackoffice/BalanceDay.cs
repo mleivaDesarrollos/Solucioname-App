@@ -48,7 +48,7 @@ namespace UIBackoffice
             try {
                 // Find specific balance on the list
                 Entidades.Balance balanceToIncrement = List.Find((balance) => balance.UserName == prmAsuntoToFetch.Oper.UserName);
-                // Increment balance finded
+                // Increment balance finded                
                 balanceToIncrement.Increment(prmAsuntoToFetch.AssignmentTime);
             }
             catch (Exception ex) {

@@ -100,6 +100,10 @@ namespace Entidades
         /// </summary>
         [DataMember]
         public string UserName { get; set; }
+
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
         /// <summary>
         /// by 15 minutes save quantity of asuntos assigned. From 07:00, 07:15...21:30, 21:45
         /// </summary>
@@ -509,6 +513,15 @@ namespace Entidades
                 return TwentyOneStart + TwentyOneFirstQuarter + TwentyOneHalf + TwentyOneLastQuarter;
             }
         }
+
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+        public DateTime BreakOneStart { get; set; }
+        public DateTime BreakOneEnd { get; set; }
+        public DateTime BreakTwoStart { get; set; }
+        public DateTime BreakTwoEnd { get; set; }
+        public DateTime BreakThreeStart { get; set; }
+        public DateTime BreakThreeEnd { get; set; }
 
         /// <summary>
         /// Increment by 1 balance count filtering by hour and minute

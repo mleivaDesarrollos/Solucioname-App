@@ -128,9 +128,12 @@
     <EmbeddedResource Include="Reports\RptBalanceTodayNineHour.rdlc" />
     <EmbeddedResource Include="Reports\RptBalanceTodayEightHour.rdlc" />
     <EmbeddedResource Include="Reports\RptBalanceTodaySevenHour.rdlc" />
+    <EmbeddedResource Include="Reports\RptBalanceTodayWithQuarters - Copy.rdlc" />
     <EmbeddedResource Include="Reports\RptBalanceTodayWithQuarters.rdlc" />
     <None Include="packages.config" />
     <None Include="Properties\DataSources\BalanceDay.datasource" />
+    <None Include="Properties\DataSources\frmBackoffice.datasource" />
+    <None Include="Properties\DataSources\OperBackofficeList.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

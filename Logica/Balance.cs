@@ -46,11 +46,26 @@ namespace Logica
             if (prmListOfOperatorsToCreate == null) throw new Exception("La lista no ha sido comunicada o esta vacía");
             // Iterates over the list of operators to generate the list
             foreach (var operatorLogged in prmListOfOperatorsToCreate) {
+                // Generate a new balance entity
+                Entidades.Balance newBalance = new Entidades.Balance() {
+                    UserName = operatorLogged.UserName,
+                    FirstName = operatorLogged.Nombre, LastName = operatorLogged.Apellido,
+                    StartTime = operatorLogged.StartTime,
+                    EndTime = operatorLogged.EndTime };
+                if(operatorLogged.Breaks.Count >= 1) {
+                    newBalance.BreakOneStart = operatorLogged.Breaks[0].Start;
+                    newBalance.BreakOneEnd = operatorLogged.Breaks[0].End;
+                }
+                if(operatorLogged.Breaks.Count >= 2) {
+                    newBalance.BreakTwoStart = operatorLogged.Breaks[1].Start;
+                    newBalance.BreakTwoEnd = operatorLogged.Breaks[1].End;
+                }
+                if(operatorLogged.Breaks.Count >= 3) {
+                    newBalance.BreakThreeStart = operatorLogged.Breaks[2].Start;
+                    newBalance.BreakThreeEnd = operatorLogged.Breaks[2].End;
+                }
                 // Generate a new instance of balance and save on the list
-                lstNewBalance.Add(new Entidades.Balance()
-                {
-                    UserName = operatorLogged.UserName
-                });
+                lstNewBalance.Add(newBalance);
             }
             // Return the list proceseed
             return lstNewBalance;

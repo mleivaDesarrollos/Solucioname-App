@@ -40,19 +40,26 @@ namespace UIBackoffice
         
         private class HourReport
         {
-            public int Value { get; set; }
+            public string Value { get; set; }
 
             public string Name { get; set; }
 
-            public string ReportSource { get; set; }
-
-            public HourReport(int hour, string visibleName, string reportOrigin)
+            public int IntValue { get; set; }
+            
+            public HourReport(string hour, string visibleName, int intvalue)
             {
                 Value = hour;
                 Name = visibleName;
-                ReportSource = reportOrigin;
+                IntValue = intvalue;
             }
         }   
+
+        internal enum TimeFilteringReport
+        {
+            Totals,
+            Quarters,
+            QuartersAndTotals
+        }
         #region constructor
         public frmBackoffice()
         {
@@ -69,6 +76,10 @@ namespace UIBackoffice
 
         System.Timers.Timer tmrCheckTimeForNextEvent;
 
+        System.Timers.Timer tmrCheckCurrentTimeHourChange;
+
+        static readonly double TIME_MARGIN_FOR_NEXT_HOUR_CALCULATION = 5000;
+
         ReportDataSource rptDataSourceBalanceDay;
 
         BalanceDay balanceOfOperators;
@@ -77,28 +88,33 @@ namespace UIBackoffice
 
         HourReport currentHourFilter;
 
-        static OperatorReport oprAllOperators = new OperatorReport("all", "<Todos>");
+        TimeFilteringReport currentTimeFiltering;
 
-        static HourReport basicHourFilter = new HourReport(0, "<Todos>", "UIBackoffice.Reports.RptBalanceTodayWithQuarters.rdlc");
+        static readonly OperatorReport oprAllOperators = new OperatorReport("all", "<Todos>");
+
+        static readonly HourReport basicHourFilter = new HourReport("all", "<Todos>", 0);
+
+        static readonly HourReport currentTimeHourFilter = new HourReport("current", "<Ahora>", -1);
 
         List<HourReport> lstHourFilter = new List<HourReport>()
         {
             basicHourFilter,
-            new HourReport(7, "07:00", "UIBackoffice.Reports.RptBalanceTodaySevenHour.rdlc"),
-            new HourReport(8, "08:00", "UIBackoffice.Reports.RptBalanceTodayEightHour.rdlc"),
-            new HourReport(9, "09:00", "UIBackoffice.Reports.RptBalanceTodayNineHour.rdlc"),
-            new HourReport(10, "10:00", "UIBackoffice.Reports.RptBalanceTodayTenHour.rdlc"),
-            new HourReport(11, "11:00", "UIBackoffice.Reports.RptBalanceTodayElevenHour.rdlc"),
-            new HourReport(12, "12:00", "UIBackoffice.Reports.RptBalanceTodayTwelveHour.rdlc"),
-            new HourReport(13, "13:00", "UIBackoffice.Reports.RptBalanceTodayThirsteenHour.rdlc"),
-            new HourReport(14, "14:00", "UIBackoffice.Reports.RptBalanceTodayFourteenHour.rdlc"),
-            new HourReport(15, "15:00", "UIBackoffice.Reports.RptBalanceTodayFifteenHour.rdlc"),
-            new HourReport(16, "16:00", "UIBackoffice.Reports.RptBalanceTodaySixteenHour.rdlc"),
-            new HourReport(17, "17:00", "UIBackoffice.Reports.RptBalanceTodaySeventeenHour.rdlc"),
-            new HourReport(18, "18:00", "UIBackoffice.Reports.RptBalanceTodayEighteenHour.rdlc"),
-            new HourReport(19, "19:00", "UIBackoffice.Reports.RptBalanceTodayNineteenHour.rdlc"),
-            new HourReport(20, "20:00", "UIBackoffice.Reports.RptBalanceTodayTwentyHour.rdlc"),
-            new HourReport(21, "21:00", "UIBackoffice.Reports.RptBalanceTodayTwentyOneHour.rdlc")
+            currentTimeHourFilter,
+            new HourReport("seven", "07:00", 7),
+            new HourReport("eight", "08:00", 8),
+            new HourReport("nine", "09:00", 9),
+            new HourReport("ten", "10:00", 10),
+            new HourReport("eleven", "11:00", 11),
+            new HourReport("twelve", "12:00", 12),
+            new HourReport("thirsteen", "13:00", 13),
+            new HourReport("fourteen", "14:00", 14),
+            new HourReport("fifteen", "15:00", 15),
+            new HourReport("sixteen", "16:00", 16),
+            new HourReport("seventeen", "17:00", 17),
+            new HourReport("eighteen", "18:00", 18),
+            new HourReport("nineteen", "19:00", 19),
+            new HourReport("twenty", "20:00", 20),
+            new HourReport("twentyone", "21:00", 21)
         };
         #endregion
 
@@ -170,7 +186,36 @@ namespace UIBackoffice
             // Sent reconnect signal
             SentReconnectSignal();
         }
-        
+        private void rdbTotals_Checked(object sender, RoutedEventArgs e)
+        {
+            if(rdbTotals.IsChecked == true) {
+                currentTimeFiltering = TimeFilteringReport.Totals;
+            }
+            else if (rdbQuarters.IsChecked == true) {
+                currentTimeFiltering = TimeFilteringReport.Quarters;
+            }
+            else {
+                currentTimeFiltering = TimeFilteringReport.QuartersAndTotals;
+            }
+            LoadReportInformation();
+        }
+
+        /// <summary>
+        /// Reaching next hour, update filter information and setup next start time
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TmrCheckCurrentTimeHourChange_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                // Establish an update for report filtering
+                SetReportFiltering(currentTimeHourFilter);
+                // Desactivate timer
+                tmrCheckCurrentTimeHourChange.Enabled = false;
+            }));
+        }
+
         #endregion
 
         #region public_interface
@@ -180,11 +225,95 @@ namespace UIBackoffice
             configureTimeToNextEvent();
             configureErrorService();
             LoadServiceVariable(true);
-            
         }
+
         #endregion
 
         #region helper_methods
+
+        /// <summary>
+        /// Start timer for hour change event
+        /// </summary>
+        private void StartTimerToCheckHourChange()
+        {
+            if (tmrCheckCurrentTimeHourChange == null) tmrCheckCurrentTimeHourChange = new System.Timers.Timer();
+            if (!tmrCheckCurrentTimeHourChange.Enabled) {
+                // Check current Timepsan of the day
+                TimeSpan nowTime = DateTime.Now.TimeOfDay;
+                // Check next hour difference using Math Ceiling
+                var nextHour = TimeSpan.FromHours(Math.Ceiling(nowTime.TotalHours));
+                // Calc the difference and save on a variable
+                var differenceToNextHour = (nextHour - nowTime).TotalMilliseconds;
+                // Set calulated value on interval property
+                tmrCheckCurrentTimeHourChange.Interval = differenceToNextHour + TIME_MARGIN_FOR_NEXT_HOUR_CALCULATION;
+                // Configure launch event
+                tmrCheckCurrentTimeHourChange.Elapsed += TmrCheckCurrentTimeHourChange_Elapsed;
+                // Start operation of timer
+                tmrCheckCurrentTimeHourChange.Enabled = true;              
+            }
+        }
+
+        /// <summary>
+        /// Checks if the timer is active and stop current activity
+        /// </summary>
+        private void StopTimerToCheckHourChange()
+        {
+            if(tmrCheckCurrentTimeHourChange != null) {
+                if (tmrCheckCurrentTimeHourChange.Enabled) {
+                    // Stop timer activity
+                    tmrCheckCurrentTimeHourChange.Enabled = false;
+                }
+            }
+        }
+
+
+        private void ActivateTimeFiltering()
+        {
+            rdbQuartersAndTotals.IsChecked = true;
+            rdbQuarters.Checked += rdbTotals_Checked;
+            rdbQuartersAndTotals.Checked += rdbTotals_Checked;
+            rdbTotals.Checked += rdbTotals_Checked;
+        }
+
+        private void FillHourComboByOperator()
+        {
+            // Deactivate selection change event
+            cboHourReportFiltering.SelectionChanged -= CboHourReportFiltering_SelectionChanged;
+            if(currentOperatorFilter == oprAllOperators) {
+                cboHourReportFiltering.ItemsSource = lstHourFilter;
+            }
+            else {
+                // Gets current operator filtered
+                OperatorReport opReportFiltered = cboOperatorReportFiltering.SelectedItem as OperatorReport;
+                // Gets Operator Backoffice entity
+                OperBackoffice operboFilter = lstDetailedOperators.First((opbo) => opbo.UserName == opReportFiltered.UserName);
+                // Get Hour of start and end
+                int opboStartHour = operboFilter.StartTime.Hour;
+                int opboEndHour = operboFilter.EndTime.Hour;
+                // Loads combo of hours with operation time of seleceted operator
+                cboHourReportFiltering.ItemsSource = lstHourFilter.Where((hrFlt) => (hrFlt.IntValue >= opboStartHour && hrFlt.IntValue < opboEndHour) || hrFlt.IntValue == basicHourFilter.IntValue).ToList();
+                
+            }
+            // Change index of filter
+            cboHourReportFiltering.SelectedItem = basicHourFilter;
+            currentHourFilter = basicHourFilter;
+            // Activate selectión changed event
+            cboHourReportFiltering.SelectionChanged += CboHourReportFiltering_SelectionChanged;
+        }
+
+        private string GetTimeFilterName(TimeFilteringReport filterOption)
+        {
+            switch (filterOption) {
+                case TimeFilteringReport.Totals:
+                    return "HourOnly";
+                case TimeFilteringReport.Quarters:
+                    return "QuarterOnly";
+                case TimeFilteringReport.QuartersAndTotals:
+                default:
+                    return "QuarterAndHour";
+            }
+        }
+
         /// <summary>
         /// Set up error service adding to the interface the current instance
         /// </summary>
@@ -199,26 +328,35 @@ namespace UIBackoffice
 
         private void SetReportFiltering(OperatorReport prmOperatorToFilter)
         {
-            if(currentOperatorFilter != prmOperatorToFilter) {
+            // Stop timer checking
+            StopTimerToCheckHourChange();
+            if (currentOperatorFilter != prmOperatorToFilter) {
                 // Save current operator in local Variable
                 currentOperatorFilter = prmOperatorToFilter;
+                // Set hour combo with user related times
+                FillHourComboByOperator();
                 // Load and refresh report
                 LoadReportInformation();
             }
         }
-
+        
         private void SetReportFiltering(HourReport prmHourToFilter)
         {
-            if(currentHourFilter != prmHourToFilter) {
-                // Set origin of report
-                rptBalanceTotals.LocalReport.ReportEmbeddedResource = prmHourToFilter.ReportSource;
+            // Stop current time checking
+            StopTimerToCheckHourChange();
+            if (currentHourFilter != prmHourToFilter) {
                 // Save current hour filter on local variable
                 currentHourFilter = prmHourToFilter;
-                // Load and refresh report
-                LoadReportInformation();
             }
+            if (prmHourToFilter == currentTimeHourFilter) {
+                // Apply special filter for check current time
+                currentHourFilter = lstHourFilter.First((hrFlt) => hrFlt.IntValue == DateTime.Now.Hour);
+                StartTimerToCheckHourChange();
+            }
+            // Load and refresh report
+            LoadReportInformation();
         }
-
+        
         /// <summary>
         /// Instanciate a new balance day object and loads with base information
         /// </summary>
@@ -226,11 +364,13 @@ namespace UIBackoffice
         {
             if (balanceOfOperators == null) {
                 currentOperatorFilter = oprAllOperators;
+                currentHourFilter = basicHourFilter;
+                currentTimeFiltering = TimeFilteringReport.QuartersAndTotals;
                 // Generate a new Report Data Source
                 if (rptDataSourceBalanceDay == null) rptDataSourceBalanceDay = new ReportDataSource();
-                rptDataSourceBalanceDay.Name = "dsBalanceToday";
+                rptDataSourceBalanceDay.Name = "dsBalanceToday";                
                 rptBalanceTotals.LocalReport.DataSources.Add(rptDataSourceBalanceDay);
-                rptBalanceTotals.LocalReport.ReportEmbeddedResource = basicHourFilter.ReportSource;
+                rptBalanceTotals.LocalReport.ReportEmbeddedResource = "UIBackoffice.Reports.RptBalanceTodayWithQuarters.rdlc";
                 rptBalanceTotals.ShowBackButton = false;
                 rptBalanceTotals.ShowDocumentMapButton = false;
                 rptBalanceTotals.ShowPageNavigationControls = false;
@@ -238,20 +378,23 @@ namespace UIBackoffice
                 rptBalanceTotals.ShowStopButton = false;
                 balanceOfOperators = new BalanceDay();
                 await balanceOfOperators.Generate(lstDetailedOperators.GetOperatorList());
+                rptDataSourceBalanceDay.Value = balanceOfOperators.List;
+                ActivateTimeFiltering();
                 // Load initial information
                 LoadReportInformation();
             }
         }
         
-
         /// <summary>
         /// Filter report list by operator
         /// </summary>
         /// <param name="prmReportToFilter"></param>
         private void LoadReportInformation()
         {
-            rptDataSourceBalanceDay.Value = balanceOfOperators.List.FindAll((operSelect) => operSelect.UserName == currentOperatorFilter.UserName).ToList();
-            if (currentOperatorFilter == oprAllOperators) rptDataSourceBalanceDay.Value = balanceOfOperators.List;            
+            ReportParameter operatorFilter = new ReportParameter("ShowOneUserOnly", currentOperatorFilter.UserName);
+            ReportParameter hourFilter = new ReportParameter("ShowHour", currentHourFilter.Value);
+            ReportParameter timeFilter = new ReportParameter("FilterBy", GetTimeFilterName(currentTimeFiltering));
+            rptBalanceTotals.LocalReport.SetParameters(new ReportParameter[] { operatorFilter, hourFilter, timeFilter });
             RefreshReportBalanceCurrentDay();
         }
 
@@ -516,5 +659,6 @@ namespace UIBackoffice
         }
 
         #endregion
+
     }
 }
