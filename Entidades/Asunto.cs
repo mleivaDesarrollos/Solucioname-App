@@ -11,6 +11,8 @@ namespace Entidades
     [DataContract]
     public class Asunto
     {
+        private static readonly DateTime NULLDATE = Convert.ToDateTime("01/01/0001 0:00:00");
+
         private string _numero;
 
         [DataMember]
@@ -65,8 +67,38 @@ namespace Entidades
         }
 
         [DataMember]
-        public DateTime AssignmentTime {
-            get; set;
+        public DateTime SendingDate { get; set; }
+
+        [DataMember]
+        public DateTime AssignmentDate { get; set; }
+
+
+        [DataMember]
+        public DateTime LoadedOnSolucionameDate { get; set; }
+
+        public bool isAssigned {
+            get {
+                if(AssignmentDate == NULLDATE) {
+                    return false;
+                }
+                return true;
+            }
+        }
+
+        public bool isCreatedByBackoffice {
+            get {
+                if(SendingDate == LoadedOnSolucionameDate) {
+                    return true;
+                }
+                return false;
+            }
+            set {
+                if (value) {
+                    DateTime dtmRegister = DateTime.Now;
+                    SendingDate = dtmRegister;
+                    LoadedOnSolucionameDate = dtmRegister;
+                }
+            }
         }
 
         public Asunto()

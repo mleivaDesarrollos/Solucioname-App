@@ -5,13 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UIBackoffice
+namespace Entidades
 {
     public class OperBackoffice : INotifyPropertyChanged
     {
-        public Entidades.Operador Operator;
+        public Operador Operator;
 
-        internal enum WorkingDayStatus
+        public enum WorkingDayStatus
         {
             PreviousToStart,
             Started,
@@ -102,7 +102,7 @@ namespace UIBackoffice
             }
         }
 
-        private WorkingDayStatus WorkStatus {
+        public WorkingDayStatus WorkStatus {
             get {
                 DateTime currentTime = DateTime.Now;
                 if (currentTime <= Operator.StartTime) {
@@ -167,7 +167,7 @@ namespace UIBackoffice
         /// <summary>
         /// Display a interface for update data corresponding to time left to the user
         /// </summary>
-        internal void CalculateTimeLeft()
+        public void CalculateTimeLeft()
         {
             CalculateNextEvent();
             TimeSpan differenceWithCurrentTime = NextEvent - DateTime.Now;

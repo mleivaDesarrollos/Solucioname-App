@@ -291,6 +291,19 @@ namespace Datos.ServiceOperation
             }
         }
 
+        public async Task<List<Entidades.Asunto>> GetListOfUnassignedAsuntos()
+        {
+            try {
+                // Prepares proxy for operation
+                await prepareProxy();
+                // Calls service for get list of asuntos
+                return proxy.getUnassignedAsuntos().ToList();
+            }
+            catch (Exception ex) {
+                throw ex;
+            }
+        }
+
         #endregion
 
         #region private_helper_methods
@@ -400,14 +413,30 @@ namespace Datos.ServiceOperation
             }
             catch (Exception ex) {
                 Except.Throw(ex);
-            }
-            
+            }            
+        }
+
+        async void IServicioCallback.SentAsuntosBatch(Entidades.Asunto[] lstA)
+        {
+            // Generate a new duplicate list for interface processing
+            List<Entidades.Asunto> lstDuplicated = new List<Entidades.Asunto>();
+            // Duplicates all elements on received list
+            lstA.ToList().ForEach(asunto => lstDuplicated.Add(new Entidades.Asunto(asunto)));
+            callbackInteraction.SentAsuntosBatch(lstDuplicated);
+            // If the process complete correctly, return response
+            await prepareProxy();            
+        }
+
+        void IServicioCallback.BatchAsuntoProcessCompleted(Entidades.Asunto[] lstA)
+        {
+            callbackInteraction.BatchAsuntoProcessCompleted(lstA.ToList());
         }
 
         void IServicioCallback.AsuntoProcessCompleted(Entidades.Asunto a)
         {
             callbackInteraction.AsuntoProcessCompleted(a);
         }
+        
 
         void IServicioCallback.ForceDisconnect()
         {
@@ -424,10 +453,17 @@ namespace Datos.ServiceOperation
             callbackInteraction.RefreshOperatorStatus();
         }
 
+        
+        void IServicioCallback.NotifyNewAsuntoFromSolucioname()
+        {
+            callbackInteraction.NotifyNewAsuntoFromSolucioname();
+        }
+
         bool IServicioCallback.IsActive()
         {
             return true;
         }
+
 
         #endregion
 

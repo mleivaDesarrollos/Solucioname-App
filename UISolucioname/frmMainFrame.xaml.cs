@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.ServiceModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -234,7 +235,7 @@ namespace UISolucioname
                 // Generamos un nuevo objeto de Logica Asunto
                 Logica.Asunto logAsunto = new Logica.Asunto();
                 // Cargamos el ItemSource del dg Asuntos Diarios con la información recolectada de la base personal
-                dgAsuntosDia.ItemsSource = logAsunto.TraerAsuntosDelDia(App.Current.Properties["user"] as Entidades.Operador);
+                dgAsuntosDia.ItemsSource = logAsunto.getCurrentDayList(App.Current.Properties["user"] as Entidades.Operador);
             }
             catch (Exception ex)
             {
@@ -283,23 +284,13 @@ namespace UISolucioname
                 if (a.Oper.UserName != operLogged.UserName)
                     throw new Exception("Se ha recibido un asunto de un operador erroneo. Informar al administrador. Asunto: " + a.Numero + ". Operador: " + a.Oper.UserName);
                 // TODO : A modo de prueba inicial, el primer estado lo generamos en la capa de presentación. Esto debería ser generado en el servicio, para mantener fidelidad con el horario de entrada del asunto en bandeja
-                if (a.Estados == null)
-                    a.Estados = new List<Estado>()
-                    {
-                        new Estado()
-                        {
-                            Ord = 1,
-                            Detalle = "Nuevo asunto asignado",
-                            FechaHora = DateTime.Now,
-                            Tipo = Logica.TipoEstado.TraerEstadoAsuntoInicialNormal()
-                        }
-                    };
+                generateInitialStatusOfAsunto(a);
                 // Consultamos si el asunto en cuestion existe en la base de datos del operador
-                if (!logAsunto.ExisteAsunto(a)) {
+                if (!logAsunto.Exist(a)) {
                     // Si no existe, se agrega a la base de datos
-                    logAsunto.Agregar(a);
+                    logAsunto.Add(a);
                     // Actualizamos la capa de presentación y los casos diarios
-                    NotifyUIOfNewAsunto(a);
+                    NotifyUIOfNewAsunto(a.Numero,false);
                 }
             }
             catch (Exception ex) {
@@ -307,19 +298,68 @@ namespace UISolucioname
             }
         }
 
+        private void newAsuntoFromService(List<Asunto> lstOfNewAsuntos)
+        {
+            try {
+                // Get current user properties and save in a temporary variable
+                Operador operatorCurrentlyLogeed = App.Current.Properties["user"] as Operador;
+                // Compare all asuntos with operator to confirm if all are the same
+                if(!lstOfNewAsuntos.TrueForAll(asunto => asunto.Oper.UserName == operatorCurrentlyLogeed.UserName)) {
+                    string[] lstOfAsuntosCorrupted = lstOfNewAsuntos.FindAll(asunto => asunto.Oper.UserName != asunto.Oper.UserName).Select(asunto => asunto.Numero).ToArray();
+                    throw new Exception("Se ha encontrado que los siguientes asuntos no estaban destinados a vos: " + string.Join(", ", lstOfAsuntosCorrupted) + ". Informe al administrador");
+                }
+                // On all asuntos generate starting status
+                lstOfNewAsuntos.ForEach(asunto => generateInitialStatusOfAsunto(asunto));
+                // Generate new logic asunto object
+                Logica.Asunto logAsunto = new Logica.Asunto();
+                // Save list of non duplicated asuntos in a new list
+                List<Asunto> lstNonDuplicatedAsuntos = logAsunto.GetNonDuplicatedAsuntosFromList(lstOfNewAsuntos);
+                // Select from the list only the asuntos non duplicated
+                if (lstNonDuplicatedAsuntos.Count > 0) {
+                    // Procedd with add al filtered asuntos
+                    logAsunto.Add(lstNonDuplicatedAsuntos);
+                    // Show on UI layer reporting new asunto count
+                    NotifyUIOfNewAsunto(lstNonDuplicatedAsuntos.Count.ToString(), true);
+                }
+
+            } catch (Exception ex) {
+                Except.Throw(ex);                
+            }
+        }
+
+        private void generateInitialStatusOfAsunto(Entidades.Asunto a)
+        {            
+            if(a.Estados == null) { 
+                a.Estados = new List<Estado>()
+                {
+                    new Estado()
+                    {
+                        Ord = 1,
+                        Detalle = "Nuevo asunto asignado",
+                        FechaHora = DateTime.Now,
+                        Tipo = Logica.TipoEstado.TraerEstadoAsuntoInicialNormal()
+                    }
+                };
+            }
+        }
+
         /// <summary>
         /// Notify on UI the new asunto
         /// </summary>
         /// <param name="prmAsunto"></param>
-        private void NotifyUIOfNewAsunto(Asunto prmNewAsunto)
+        private void NotifyUIOfNewAsunto(String prmAsuntoInformation, bool isBatchAdd)
         {
             Dispatcher.BeginInvoke((Action)(() =>
             {
                 // Actualizamos el listado de asuntos y los asuntos diarios
                 CargarAsuntosDiarios();
                 pagListadogeneral.ActualizarListado();
-                // Mostramos un mensaje en la barra de estado
-                Util.MsgBox.Error("Has recibido un nuevo asunto: " + prmNewAsunto.Numero);
+                if (isBatchAdd) {
+                    Util.MsgBox.Error(String.Format("Se han recibido {0} nuevos asuntos", prmAsuntoInformation));
+                } else {
+                    // Mostramos un mensaje en la barra de estado
+                    Util.MsgBox.Error("Has recibido un nuevo asunto: " + prmAsuntoInformation);
+                }
             }));
 
         }
@@ -400,7 +440,7 @@ namespace UISolucioname
                         Oper = App.Current.Properties["user"] as Entidades.Operador
                     };
                     // Procesamos la entidad y la eliminamos
-                    logAsunto.Eliminar(entAsunto);
+                    logAsunto.Remove(entAsunto);
                     // Cargamos los asuntos diarios nuevamente.
                     CargarAsuntosDiarios();
                     // Cargamos el listado general
@@ -597,6 +637,16 @@ namespace UISolucioname
 
         }
 
+        public void SentAsuntosBatch(List<Asunto> lstA)
+        {
+            newAsuntoFromService(lstA);
+        }
+
+        public void BatchAsuntoProcessCompleted(List<Asunto> lstA)
+        {
+        
+        }
+
         public void ForceDisconnect()
         {
 
@@ -620,6 +670,11 @@ namespace UISolucioname
         public void RefreshOperatorStatus()
         {
             
+        }
+
+        public void NotifyNewAsuntoFromSolucioname()
+        {
+
         }
         #endregion
 

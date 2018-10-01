@@ -522,7 +522,7 @@ namespace Entidades
         public DateTime BreakTwoEnd { get; set; }
         public DateTime BreakThreeStart { get; set; }
         public DateTime BreakThreeEnd { get; set; }
-
+        
         /// <summary>
         /// Increment by 1 balance count filtering by hour and minute
         /// </summary>
@@ -531,14 +531,30 @@ namespace Entidades
         {
             // Validates if input parameter is correct
             if (prmDtmReference == null) throw new Exception("BalanceEntity: datetime passed by parameter is null");
+            // Increment hour value on selected position of array
+            QuarterCount[getTotalPosition(prmDtmReference)]++;
+        }
+
+        /// <summary>
+        /// Decrement by balance count filtering by hour and minutes
+        /// </summary>
+        /// <param name="prmDtmReference"></param>
+        public void Decrement(DateTime prmDtmReference)
+        {
+            // Validates if parameter input is correctly loaded. Because is a public interface, we need validate values
+            if (prmDtmReference == null) throw new Exception("BalanceEntity: datetime passed by parameter is null");
+            QuarterCount[getTotalPosition(prmDtmReference)]--;
+        }
+
+        private int getTotalPosition(DateTime prmDtmReferenced)
+        {
             // Subdivide hour and minutes
-            int intMinutes = prmDtmReference.Minute;
-            int intHour = prmDtmReference.Hour;
+            int intMinutes = prmDtmReferenced.Minute;
+            int intHour = prmDtmReferenced.Hour;
             // Get position of incremental values
             int posMinutes = GetMinutesCurrentPos(intMinutes);
             int posHour = GetPosOfHourArray(intHour);
-            // Increment hour value on selected position of array
-            QuarterCount[posHour + posMinutes]++;
+            return posMinutes + posHour;
         }
 
         /// <summary>

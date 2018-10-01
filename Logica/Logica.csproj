@@ -51,6 +51,7 @@
     <Compile Include="EstadoAsunto.cs" />
     <Compile Include="GrupoResolutor.cs" />
     <Compile Include="Operador.cs" />
+    <Compile Include="OperBackofficeList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TipoEstado.cs" />
   </ItemGroup>

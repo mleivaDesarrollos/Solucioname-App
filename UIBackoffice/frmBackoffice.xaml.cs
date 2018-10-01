@@ -17,6 +17,8 @@ using System.Collections.ObjectModel;
 using Errors;
 using System.Diagnostics;
 using Microsoft.Reporting.WinForms;
+using System.ComponentModel;
+using System.Configuration;
 
 namespace UIBackoffice
 {
@@ -72,7 +74,11 @@ namespace UIBackoffice
         /// <summary>
         /// List of operator working today
         /// </summary>
-        OperBackofficeList lstDetailedOperators = new OperBackofficeList();
+        Logica.OperBackofficeList lstDetailedOperators;
+
+        BackgroundWorker bgwShowMessage = null;
+
+        List<Asunto> lstAsuntosWithoutAssign = new List<Asunto>();
 
         System.Timers.Timer tmrCheckTimeForNextEvent;
 
@@ -82,13 +88,15 @@ namespace UIBackoffice
 
         ReportDataSource rptDataSourceBalanceDay;
 
-        BalanceDay balanceOfOperators;
+        Logica.Balance balanceOfOperators;
 
         OperatorReport currentOperatorFilter;
 
         HourReport currentHourFilter;
 
         TimeFilteringReport currentTimeFiltering;
+
+        ConfigBackoffice Config;
 
         static readonly OperatorReport oprAllOperators = new OperatorReport("all", "<Todos>");
 
@@ -139,9 +147,28 @@ namespace UIBackoffice
                 // generates a new instance of the add asunto dialog
                 frmAddAsunto frmNewAsunto = new frmAddAsunto(operatorToAddAsunto);
                 // Shows the dialog
+                frmNewAsunto.Owner = this;
                 frmNewAsunto.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                frmNewAsunto.ShowDialog();
+                if (frmNewAsunto.ShowDialog() == true) {
+                    balanceOfOperators.Increment(frmNewAsunto.confirmedNewAsunto);
+                    frmNewAsunto.Close();
+                    RefreshReportBalanceCurrentDay();
+                }
             }            
+        }
+
+        private void txtAssignStackAsunto_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if(lstAsuntosWithoutAssign.Count > 0) {
+                // Generate a new instance of Batch add
+                frmAddBatchAsunto frmBatchAddAsunto = new frmAddBatchAsunto(lstDetailedOperators.GetOperatorListReadyToReceive(), lstAsuntosWithoutAssign);
+                // Configures owner of window
+                frmBatchAddAsunto.Owner = this;
+                // Configure window related on parent
+                frmBatchAddAsunto.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                // Show dialog
+                frmBatchAddAsunto.ShowDialog();
+            }
         }
 
         /// <summary>
@@ -216,20 +243,50 @@ namespace UIBackoffice
             }));
         }
 
+        private void BgwShowMessage_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            lblMessage.Visibility = Visibility.Hidden;
+            lblMessage.Text = "";
+            bgwShowMessage = null;
+        }
+
+        private void BgwShowMessage_DoWork(object sender, DoWorkEventArgs e, int iCantSegs)
+        {
+            // Pausamos la ejecución teniendo en cuenta la cantidad de segundos solicitados
+            System.Threading.Thread.Sleep(iCantSegs * 1000);
+        }
+
         #endregion
 
         #region public_interface
         public void LoadConnectionInformation()
         {
+            getConfigurationInformation();
             configureAfterSuccessConnectionValues();
             configureTimeToNextEvent();
             configureErrorService();
             LoadServiceVariable(true);
+            getAsuntosWithoutAssignation();
         }
+
 
         #endregion
 
         #region helper_methods
+
+
+        /// <summary>
+        ///  Gets from configuration file information related to application work
+        /// </summary>
+        private void getConfigurationInformation()
+        {
+            try {                
+                Config = new ConfigBackoffice();                                
+            }
+            catch (Exception ex) {
+                Assert.Throw(ex);                
+            }            
+        }
 
         /// <summary>
         /// Start timer for hour change event
@@ -266,6 +323,18 @@ namespace UIBackoffice
             }
         }
 
+        private async void getAsuntosWithoutAssignation()
+        {
+            // On notification receipt, loads asuntos from service. Generate a new logic object
+            Logica.Asunto logAsunto = new Logica.Asunto();
+            // Gets from the logic object all asuntos
+            lstAsuntosWithoutAssign = await logAsunto.GetUnassignedAsuntos();
+            // Update total of asuntos pendientes
+            await Dispatcher.BeginInvoke((Action)(() =>
+            {
+                txtTotalAsuntoWithoutAssign.Text = lstAsuntosWithoutAssign.Count.ToString();
+            }));
+        }
 
         private void ActivateTimeFiltering()
         {
@@ -356,7 +425,28 @@ namespace UIBackoffice
             // Load and refresh report
             LoadReportInformation();
         }
-        
+
+
+        /// <summary>
+        /// Muestra en la barra de estado un mensaje 
+        /// </summary>
+        /// <param name="messageToShow">Mensaje a mostrar por pantalla</param>
+        /// <param name="iCantSegs">Cantidad de segundos que se quiere mostrar el mensaje en pantalla</param>
+        public void ShowMessageOnStatusBar(string messageToShow, int iCantSegs)
+        {
+            if (bgwShowMessage == null) {
+                // Generamos un Background Worker para mantener el mensaje activo por unos momentos y luego ocultar
+                bgwShowMessage = new BackgroundWorker();
+                bgwShowMessage.DoWork += (sender, e) => BgwShowMessage_DoWork(sender, e, iCantSegs);
+                bgwShowMessage.RunWorkerCompleted += BgwShowMessage_RunWorkerCompleted;
+                // Cargamos el mensaje y lo hacemos visible
+                lblMessage.Text = messageToShow;
+                lblMessage.Visibility = Visibility.Visible;
+                // Ejecutamos el worker asincronico            
+                bgwShowMessage.RunWorkerAsync();
+            }
+        }
+
         /// <summary>
         /// Instanciate a new balance day object and loads with base information
         /// </summary>
@@ -376,7 +466,7 @@ namespace UIBackoffice
                 rptBalanceTotals.ShowPageNavigationControls = false;
                 rptBalanceTotals.ShowRefreshButton = false;
                 rptBalanceTotals.ShowStopButton = false;
-                balanceOfOperators = new BalanceDay();
+                balanceOfOperators = new Logica.Balance();
                 await balanceOfOperators.Generate(lstDetailedOperators.GetOperatorList());
                 rptDataSourceBalanceDay.Value = balanceOfOperators.List;
                 ActivateTimeFiltering();
@@ -551,6 +641,7 @@ namespace UIBackoffice
         private void configureAfterSuccessConnectionValues()
         {
             txtTodayDate.Text = DateTime.Now.ToShortDateString();
+            lstDetailedOperators = new Logica.OperBackofficeList(Config);
             // Gets operator from application
             Operador operLogged = App.Current.Properties["user"] as Operador;
             txtOper.Text = operLogged.Nombre + " " + operLogged.Apellido;
@@ -625,6 +716,27 @@ namespace UIBackoffice
             {
                 LoadServiceVariable();
             }));
+        }
+        public void SentAsuntosBatch(List<Asunto> lstA)
+        {
+
+        }
+
+        public void BatchAsuntoProcessCompleted(List<Asunto> lstA)
+        {
+
+        }
+
+        public async void NotifyNewAsuntoFromSolucioname()
+        {
+            // Loads asuntos without assignation
+            getAsuntosWithoutAssignation();
+            // When the list is received, notifies
+            await Dispatcher.BeginInvoke((Action)(() =>
+            {
+                ShowMessageOnStatusBar("Se recibieron nuevos asuntos", 10);
+            }));
+
         }
 
 

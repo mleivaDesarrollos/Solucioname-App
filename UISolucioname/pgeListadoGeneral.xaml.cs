@@ -101,7 +101,7 @@ namespace UISolucioname
                     // Generamos un nuevo objeto logica de estado de asuntos
                     Logica.Asunto logEAsunto = new Logica.Asunto();
                     // Cargamos el DataView con la información recolectada desde la base de                 
-                    dvLoad = logEAsunto.TraerPorPeriodo(_iMonth, _iYear, App.Current.Properties["user"] as Entidades.Operador).AsDataView();
+                    dvLoad = logEAsunto.GetByPeriod(_iMonth, _iYear, App.Current.Properties["user"] as Entidades.Operador).AsDataView();
                 }
                 dvListadoAsuntos = dvLoad;
                 // A modo de ejemplo practico, se utiliza el periodo actual y el usuario presente
@@ -136,7 +136,7 @@ namespace UISolucioname
                             Oper = App.Current.Properties["user"] as Entidades.Operador
                         };
                         // Procesamos el pedido de baja utilizando el objeto de lógica
-                        logAsunto.Eliminar(entAsunto);
+                        logAsunto.Remove(entAsunto);
                         // Informamos que la baja fue procesada
                         Util.MsgBox.Error("Se ha procesado la baja del asunto de manera correcta.");
                         // Recargamos el resumen de tickets mensuales
@@ -202,7 +202,7 @@ namespace UISolucioname
                 // Generamos un objeto de lógica disponible para utilzarlo en el procedimiento
                 Logica.Asunto logAsunto = new Logica.Asunto();
                 // Traemos el listado de asuntos filtrado según el dato cargado en el TextBox
-                CargarResumenTicketsMensuales(logAsunto.TraerAsuntosFiltradoPorNumero(App.Current.Properties["user"] as Entidades.Operador, txtFiltroAsunto.Text).AsDataView());                
+                CargarResumenTicketsMensuales(logAsunto.getFilteredByNumber(App.Current.Properties["user"] as Entidades.Operador, txtFiltroAsunto.Text).AsDataView());                
             }
             catch (Exception ex)
             {

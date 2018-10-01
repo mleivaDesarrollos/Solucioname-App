@@ -191,7 +191,7 @@ namespace UISolucioname
                         Numero = pSNumero,
                         Oper = App.Current.Properties["user"] as Entidades.Operador
                     };
-                    entAsunto = logAsunto.TraerAsunto(entAsunto);
+                    entAsunto = logAsunto.Get(entAsunto);
                     // Cargamos los campos correspondientes
                     CargarCamposAsunto(entAsunto);
                     // Cargamos los datos correspondientes a la actuación si la entidad viene cargada
@@ -656,7 +656,7 @@ namespace UISolucioname
                 // Generamos un objeto de logica asunto
                 Logica.Asunto logAsunto = new Logica.Asunto();
                 // Procesamos el pedido de alta
-                logAsunto.Agregar(pEntAsunto);
+                logAsunto.Add(pEntAsunto);
                 // Mostramos un mensaje de exito en solicitud
                 Util.MsgBox.Error("Se ha cargado el asunto de manera correcta");
                 // Actualizamos el listado de asuntos cargados
@@ -682,7 +682,7 @@ namespace UISolucioname
                 // Generamos un objeto de lógica de asunto
                 Logica.Asunto logAsunto = new Logica.Asunto();
                 // Modificamos el asunto procesado
-                logAsunto.Modificar(entAsunto);
+                logAsunto.Modify(entAsunto);
                 // Enviamos el mensaje de actualización
                 Util.MsgBox.Error("Se ha actualizado un asunto de manera correcta.");
                 // Actualizamos el listado de asuntos
@@ -765,7 +765,7 @@ namespace UISolucioname
                         // Generamos un asunto que contenga solo este número cargado
                         Entidades.Asunto entAsunto = new Entidades.Asunto() { Numero = txtNumAsunto.Text, Oper = App.Current.Properties["user"] as Entidades.Operador };
                         // Ejecutamos la consulta a la base de datos con el valor del campo cargado
-                        if (logAsunto.ExisteAsunto(entAsunto))
+                        if (logAsunto.Exist(entAsunto))
                         {
                             if (Util.MsgBox.Consulta("El asunto " + txtNumAsunto.Text + " se encuentra cargado. ¿Deseas traer el asunto guardado?") == true)
                             {

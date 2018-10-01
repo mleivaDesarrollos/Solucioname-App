@@ -14,7 +14,7 @@ namespace Servicio_Principal.CommandExecution
             // Si el operador relacionado no es nulo, quiere decir que hay alguna operación a realizar sobre el
             if (Related == null)
                 // Devolvemos al administrador de consola un listado de operadores conectados
-                currentServiceInstance.retreiveListOfConnectedOperators();
+                currentServiceInstance.getOperatorList();
             else
                 // De momento solamente tenemos programada la desconexión forzada
                 currentServiceInstance.ForceToDisconnectFromService(Related);

@@ -18,15 +18,32 @@ namespace Logica
         /// Autor : Maximiliano Leiva
         /// </summary>
         /// <param name="pAsunto"></param>
-        public void Agregar(Entidades.Asunto pAsunto)
+        public void Add(Entidades.Asunto pAsunto)
         {
             try
             {
                 // Hacemos persistir la información
-                datAsunto.Agregar(pAsunto);
+                datAsunto.Add(pAsunto);
             }
             catch (Exception ex)
             {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// Add a batch of asuntos
+        /// </summary>
+        /// <param name="lstA"></param>
+        public void Add(List<Entidades.Asunto> lstA)
+        {
+            try {
+                // Validates if the list is sented with data. If the list have one value, the petition is rejected because this method is for a batch of asuntos
+                if (lstA == null || lstA.Count <= 1) throw new Exception("La lista de asuntos recibida esta vacía, es nula o es menor al minimo");
+                // Process to Data Layer with a add Request
+                datAsunto.Add(lstA);
+
+            } catch (Exception ex) {
                 throw ex;
             }
         }
@@ -37,11 +54,11 @@ namespace Logica
         /// Autor : Maximiliano Leiva
         /// </summary>
         /// <param name="pAsunto"></param>
-        public void Eliminar(Entidades.Asunto pAsunto)
+        public void Remove(Entidades.Asunto pAsunto)
         {
             try
             {
-                datAsunto.Eliminar(pAsunto);
+                datAsunto.Remove(pAsunto);
             }
             catch (Exception ex)
             {
@@ -55,11 +72,11 @@ namespace Logica
         /// Autor : Maximiliano Leiva
         /// </summary>
         /// <param name="pAsunto"></param>
-        public void Modificar(Entidades.Asunto pAsunto)
+        public void Modify(Entidades.Asunto pAsunto)
         {
             try
             {
-                datAsunto.Modificar(pAsunto);
+                datAsunto.Modify(pAsunto);
             }
             catch (Exception ex)
             {
@@ -72,16 +89,16 @@ namespace Logica
         /// Autor : Maximiliano Leiva
         /// </summary>
         /// <param name="pNumeroAsunto"></param>
-        public Entidades.Asunto TraerAsunto(Entidades.Asunto pAsunto)
+        public Entidades.Asunto Get(Entidades.Asunto pAsunto)
         {
             try
             {
                 // Recolectamos el asunto desde la base de datos
-                Entidades.Asunto asuntoRecolectado = datAsunto.TraerAsunto(pAsunto);
+                Entidades.Asunto asuntoRecolectado = datAsunto.Get(pAsunto);
                 // El asunto viene con faltante de datos relativos a las propiedades especificas de los estados. Por tanto se carga
-                asuntoRecolectado.Estados = TraerEstadosCompletos(asuntoRecolectado.Estados);
+                asuntoRecolectado.Estados = getFullStatus(asuntoRecolectado.Estados);
                 // Procedemos de la misma forma con los estados de actuación
-                if (asuntoRecolectado.Actuacion != null) asuntoRecolectado.Actuacion.Estados = TraerEstadosCompletos(asuntoRecolectado.Actuacion.Estados);
+                if (asuntoRecolectado.Actuacion != null) asuntoRecolectado.Actuacion.Estados = getFullStatus(asuntoRecolectado.Actuacion.Estados);
                 // Devolvemos el asunto cargado
                 return asuntoRecolectado;
 
@@ -97,15 +114,28 @@ namespace Logica
         /// </summary>
         /// <param name="pAsunto"></param>
         /// <returns></returns>
-        public bool ExisteAsunto(Entidades.Asunto pAsunto)
+        public bool Exist(Entidades.Asunto pAsunto)
         {
             try
             {
-                return datAsunto.ExisteAsunto(pAsunto);
+                return datAsunto.Exist(pAsunto);
             }
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        public List<Entidades.Asunto> GetNonDuplicatedAsuntosFromList(List<Entidades.Asunto> lstA)
+        {
+            try {
+                // Validates if the list is sented with data. If the list have one value, the petition is rejected because this method is for a batch of asuntos
+                if (lstA == null || lstA.Count <= 1) throw new Exception("La lista de asuntos recibida esta vacía, es nula o es menor al minimo");
+                // Return the process with result of data process
+                return datAsunto.GetNonDuplicatedAsuntosFromList(lstA);
+
+            } catch (Exception ex) {
+                throw ex;                
             }
         }
 
@@ -116,12 +146,12 @@ namespace Logica
         /// <param name="iAno"></param>
         /// <param name="pOper"></param>
         /// <returns></returns>
-        public DataTable TraerPorPeriodo(int iMes, int iAno, Entidades.Operador pOper)
+        public DataTable GetByPeriod(int iMes, int iAno, Entidades.Operador pOper)
         {
             try
             {
                 // Regresamos el valro obtenido
-                return datAsunto.TraerPorPeriodo(iMes, iAno, pOper);
+                return datAsunto.GetByPeriod(iMes, iAno, pOper);
             }
             catch (Exception e)
             {
@@ -136,14 +166,14 @@ namespace Logica
         /// </summary>
         /// <param name="pOper">Operador que quiere recolectar sus asuntos del día</param>
         /// <returns></returns>
-        public List<Entidades.AsuntoDiario> TraerAsuntosDelDia(Entidades.Operador pOper)
+        public List<Entidades.AsuntoDiario> getCurrentDayList(Entidades.Operador pOper)
         {
             try
             {
                 // Generamos un listado de asuntos diarios que sera devuelto en el proceso
                 List<Entidades.AsuntoDiario> lstAsuntoDiario = new List<Entidades.AsuntoDiario>();
                 // Traemos el listado de asuntos del día
-                List<Entidades.Asunto> lstAsuntos = datAsunto.TraerAsuntosDelDia(pOper);
+                List<Entidades.Asunto> lstAsuntos = datAsunto.GetCurrentDayList(pOper);
                 #region proceso_asuntos_tiempo
                 // Recorremos el listado de asuntos
                 foreach (Entidades.Asunto asunto in lstAsuntos)
@@ -217,11 +247,11 @@ namespace Logica
         /// <param name="pOper"></param>
         /// <param name="pTextoFiltro"></param>
         /// <returns></returns>
-        public DataTable TraerAsuntosFiltradoPorNumero(Entidades.Operador pOper, string pTextoFiltro)
+        public DataTable getFilteredByNumber(Entidades.Operador pOper, string pTextoFiltro)
         {
             try
             {
-                return datAsunto.TraerAsuntosFiltradoPorNumero(pOper, pTextoFiltro);
+                return datAsunto.GetFilteredByNumber(pOper, pTextoFiltro);
             }
             catch (Exception ex)
             {
@@ -233,11 +263,11 @@ namespace Logica
         /// Trae desde la base de datos la información del año minimo de la consulta
         /// </summary>
         /// <returns>Entero con el año procesado</returns>
-        public int TraerYearMinimo()
+        public int getMinYear()
         {
             try
             {
-                return datAsunto.TraerYearMinimo();
+                return datAsunto.GetMinYear();
             }
             catch (Exception ex)
             {
@@ -250,11 +280,11 @@ namespace Logica
         /// Trae desde la base de datos la información del año minimo de la consulta
         /// </summary>
         /// <returns>Entero con el año procesado</returns>
-        public int TraerYearMaximo()
+        public int getMaxYear()
         {
             try
             {
-                return datAsunto.TraerYearMaximo();
+                return datAsunto.GetMaxYear();
             }
             catch (Exception ex)
             {
@@ -283,7 +313,7 @@ namespace Logica
         /// </summary>
         /// <param name="pAsunto"></param>
         /// <returns>Lista con todos los detalles cargados</returns>
-        private List<Entidades.Estado> TraerEstadosCompletos(List<Entidades.Estado> lstEstadosIncompleto)
+        private List<Entidades.Estado> getFullStatus(List<Entidades.Estado> lstEstadosIncompleto)
         {
             // Generamos la lista a procesar
             List<Entidades.Estado> lstEstados = new List<Entidades.Estado>();
@@ -295,6 +325,20 @@ namespace Logica
             }
             // Devolvemos el listado procesado
             return lstEstados;
-        }        
+        }
+
+        /// <summary>
+        /// Calls data for unassigned asuntos
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<Entidades.Asunto>> GetUnassignedAsuntos()
+        {
+            try {
+                return await datAsunto.GetUnassignedAsuntos();
+            }
+            catch (Exception ex) {
+                throw ex;
+            }
+        }
     }
 }

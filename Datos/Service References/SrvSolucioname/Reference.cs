@@ -51,6 +51,12 @@ namespace Datos.SrvSolucioname {
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/SentAsuntoToOperator")]
         System.Threading.Tasks.Task SentAsuntoToOperatorAsync(Entidades.Operador prmOperatorBackoffice, Entidades.Asunto prmAsunto);
         
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/SentBatchOfAsuntosToOperator")]
+        void SentBatchOfAsuntosToOperator(Entidades.Operador prmOperatorBackoffice, Entidades.Asunto[] lstA);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/SentBatchOfAsuntosToOperator")]
+        System.Threading.Tasks.Task SentBatchOfAsuntosToOperatorAsync(Entidades.Operador prmOperatorBackoffice, Entidades.Asunto[] lstA);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/getOperatorList", ReplyAction="http://tempuri.org/IServicio/getOperatorListResponse")]
         Entidades.Operador[] getOperatorList();
         
@@ -68,6 +74,12 @@ namespace Datos.SrvSolucioname {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/getAssignedAsuntosOfCurrentDay", ReplyAction="http://tempuri.org/IServicio/getAssignedAsuntosOfCurrentDayResponse")]
         System.Threading.Tasks.Task<Entidades.Asunto[]> getAssignedAsuntosOfCurrentDayAsync();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/getUnassignedAsuntos", ReplyAction="http://tempuri.org/IServicio/getUnassignedAsuntosResponse")]
+        Entidades.Asunto[] getUnassignedAsuntos();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/getUnassignedAsuntos", ReplyAction="http://tempuri.org/IServicio/getUnassignedAsuntosResponse")]
+        System.Threading.Tasks.Task<Entidades.Asunto[]> getUnassignedAsuntosAsync();
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/SetStatus")]
         void SetStatus(Entidades.Operador operatorToChange, Entidades.AvailabiltyStatus paramNewStatus);
@@ -91,8 +103,14 @@ namespace Datos.SrvSolucioname {
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/EnviarAsunto")]
         void EnviarAsunto(Entidades.Asunto a);
         
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/SentAsuntosBatch")]
+        void SentAsuntosBatch(Entidades.Asunto[] lstA);
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/AsuntoProcessCompleted")]
         void AsuntoProcessCompleted(Entidades.Asunto a);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/BatchAsuntoProcessCompleted")]
+        void BatchAsuntoProcessCompleted(Entidades.Asunto[] lstA);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/ForceDisconnect")]
         void ForceDisconnect();
@@ -102,6 +120,9 @@ namespace Datos.SrvSolucioname {
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/RefreshOperatorStatus")]
         void RefreshOperatorStatus();
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/NotifyNewAsuntoFromSolucioname")]
+        void NotifyNewAsuntoFromSolucioname();
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/IsActive", ReplyAction="http://tempuri.org/IServicio/IsActiveResponse")]
         bool IsActive();
@@ -183,6 +204,14 @@ namespace Datos.SrvSolucioname {
             return base.Channel.SentAsuntoToOperatorAsync(prmOperatorBackoffice, prmAsunto);
         }
         
+        public void SentBatchOfAsuntosToOperator(Entidades.Operador prmOperatorBackoffice, Entidades.Asunto[] lstA) {
+            base.Channel.SentBatchOfAsuntosToOperator(prmOperatorBackoffice, lstA);
+        }
+        
+        public System.Threading.Tasks.Task SentBatchOfAsuntosToOperatorAsync(Entidades.Operador prmOperatorBackoffice, Entidades.Asunto[] lstA) {
+            return base.Channel.SentBatchOfAsuntosToOperatorAsync(prmOperatorBackoffice, lstA);
+        }
+        
         public Entidades.Operador[] getOperatorList() {
             return base.Channel.getOperatorList();
         }
@@ -205,6 +234,14 @@ namespace Datos.SrvSolucioname {
         
         public System.Threading.Tasks.Task<Entidades.Asunto[]> getAssignedAsuntosOfCurrentDayAsync() {
             return base.Channel.getAssignedAsuntosOfCurrentDayAsync();
+        }
+        
+        public Entidades.Asunto[] getUnassignedAsuntos() {
+            return base.Channel.getUnassignedAsuntos();
+        }
+        
+        public System.Threading.Tasks.Task<Entidades.Asunto[]> getUnassignedAsuntosAsync() {
+            return base.Channel.getUnassignedAsuntosAsync();
         }
         
         public void SetStatus(Entidades.Operador operatorToChange, Entidades.AvailabiltyStatus paramNewStatus) {

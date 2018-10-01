@@ -51,13 +51,15 @@
   <xs:complexType name="Asunto">
     <xs:sequence>
       <xs:element minOccurs="0" name="Actuacion" nillable="true" type="tns:Actuacion" />
-      <xs:element minOccurs="0" name="AssignmentTime" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="AssignmentDate" type="xs:dateTime" />
       <xs:element minOccurs="0" name="DescripcionBreve" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Estados" nillable="true" type="tns:ArrayOfEstado" />
       <xs:element minOccurs="0" name="GrupoDerivado" nillable="true" type="tns:GrupoResolutor" />
+      <xs:element minOccurs="0" name="LoadedOnSolucionameDate" type="xs:dateTime" />
       <xs:element minOccurs="0" name="Numero" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Oper" nillable="true" type="tns:Operador" />
       <xs:element minOccurs="0" name="Reportable" type="xs:boolean" />
+      <xs:element minOccurs="0" name="SendingDate" type="xs:dateTime" />
     </xs:sequence>
   </xs:complexType>
   <xs:element name="Asunto" nillable="true" type="tns:Asunto" />
@@ -138,16 +140,16 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="ActuacionTipo" nillable="true" type="tns:ActuacionTipo" />
-  <xs:complexType name="ArrayOfOperador">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="Operador" nillable="true" type="tns:Operador" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ArrayOfOperador" nillable="true" type="tns:ArrayOfOperador" />
   <xs:complexType name="ArrayOfAsunto">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="unbounded" name="Asunto" nillable="true" type="tns:Asunto" />
     </xs:sequence>
   </xs:complexType>
   <xs:element name="ArrayOfAsunto" nillable="true" type="tns:ArrayOfAsunto" />
+  <xs:complexType name="ArrayOfOperador">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Operador" nillable="true" type="tns:Operador" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfOperador" nillable="true" type="tns:ArrayOfOperador" />
 </xs:schema>

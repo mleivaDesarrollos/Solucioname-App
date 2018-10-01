@@ -64,7 +64,7 @@ namespace Datos
         /// <param name="pAsunto"></param>
         /// <param name="c"></param>
         /// <param name="t"></param>
-        public static void AgregarEstadoPorAsunto(Entidades.Asunto pAsunto, SQLiteConnection c, SQLiteTransaction t)
+        public static void AddAllFromAsunto(Entidades.Asunto pAsunto, SQLiteConnection c, SQLiteTransaction t)
         {
             String strIngresarEstados = "INSERT INTO asuntos_estados (numero, operador, fechaHora, detalle, ord, tipo) values (@Numero, @Operador, @FechaHora, @Detalle, @Ord, @Tipo)";
             // Preparamos el comando a ejecutar para ingresar los estados
@@ -117,7 +117,7 @@ namespace Datos
             // Eliminamos los estados de asunto
             EliminarEstadosPorAsunto(pAsunto, conn, trans);
             // Agregamos los estados cargados del asunto
-            AgregarEstadoPorAsunto(pAsunto, conn, trans);
+            AddAllFromAsunto(pAsunto, conn, trans);
         }
         
     }

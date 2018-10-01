@@ -38,10 +38,10 @@ namespace Servicio_Principal
         {
             try {
                 // Instance new timer object
-                operatorCheckTimer = new Timer();
+                tmrOperatorCheck = new Timer();
                 // Parametrizes the timer
-                operatorCheckTimer.Elapsed += OperatorCheckTimer_Elapsed;
-                operatorCheckTimer.Interval = _dblOperatorCheckInterval;
+                tmrOperatorCheck.Elapsed += OperatorCheckTimer_Elapsed;
+                tmrOperatorCheck.Interval = _dblOperatorCheckInterval;
                 // Link a event to list for starting and stop timer
                 lstOperatorMustConnected.CollectionChanged += LstConnectedClients_CollectionChanged;
             } catch (Exception ex) {
@@ -55,9 +55,9 @@ namespace Servicio_Principal
         private void startOperatorCheckTimer(bool log = true)
         {
             // if the timer isn't configured, throw error
-            if (operatorCheckTimer != null && lstOperatorMustConnected.Count != 0) {
-                if (!operatorCheckTimer.Enabled) {
-                    operatorCheckTimer.Enabled = true;
+            if (tmrOperatorCheck != null && lstOperatorMustConnected.Count != 0) {
+                if (!tmrOperatorCheck.Enabled) {
+                    tmrOperatorCheck.Enabled = true;
                     if (log) Log.Info(_operatorClassName, "started normally.");
                 }
                     
@@ -70,9 +70,9 @@ namespace Servicio_Principal
         private void stopOperatorCheckTimer(bool log = true)
         {
             // if the timer isn't configured, throw error
-            if (operatorCheckTimer != null) {
-                if (operatorCheckTimer.Enabled) {
-                    operatorCheckTimer.Enabled = false;
+            if (tmrOperatorCheck != null) {
+                if (tmrOperatorCheck.Enabled) {
+                    tmrOperatorCheck.Enabled = false;
                     if(log) Log.Info(_operatorClassName, "stopped normally.");
                 }
                 // if the timer is already stopped, don't do anything
@@ -119,7 +119,7 @@ namespace Servicio_Principal
             // On add new client
             if(e.Action == NotifyCollectionChangedAction.Add) {
                 // If timer isn't started
-                if(!operatorCheckTimer.Enabled) {
+                if(!tmrOperatorCheck.Enabled) {
                     // Start them
                     startOperatorCheckTimer();
                 }
@@ -128,7 +128,7 @@ namespace Servicio_Principal
                 // if no more client connected
                 if(lstOperatorMustConnected.Count  == 0) {
                     // if timer is started
-                    if (operatorCheckTimer.Enabled) {
+                    if (tmrOperatorCheck.Enabled) {
                         // Stop the timer
                         stopOperatorCheckTimer();
                     }

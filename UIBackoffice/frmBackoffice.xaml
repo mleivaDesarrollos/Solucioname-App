@@ -70,7 +70,8 @@
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="1*"/>
-                                <ColumnDefinition Width="0.4*"/>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="0.25*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Orientation="Horizontal">
                                 <StackPanel.Resources>
@@ -83,9 +84,24 @@
                                 </StackPanel.Resources>
                                 <TextBlock Name="txtUnlog" MouseLeftButtonDown="txtUnlog_MouseDown">Desloguear</TextBlock>
                                 <TextBlock Name="txtOper">(Operador)</TextBlock>
-
+                                <Border BorderThickness="2 0 0 0" BorderBrush="{StaticResource AppContentTextColor}"  Margin="20"/>
+                                <TextBlock Name="txtAssignStackAsunto" MouseDown="txtAssignStackAsunto_MouseDown">Asignar asuntos en cola</TextBlock>
                             </StackPanel>
-                            <TextBlock Grid.Column="1" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource AppContentTextColor}">Suit Backoffice</TextBlock>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Orientation="Horizontal">
+                                <StackPanel.Resources>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Margin" Value="10 3 0 0"/>
+                                        <Setter Property="Foreground" Value="{StaticResource AppContentTextColor}"/>
+                                    </Style>
+                                </StackPanel.Resources>
+                                <TextBlock>Pendientes: </TextBlock>
+                                <TextBlock Name="txtTotalAsuntoWithoutAssign">0</TextBlock>
+                                
+                            </StackPanel>
+                            
+                            <TextBlock Grid.Column="2" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource AppContentTextColor}">Suit Backoffice</TextBlock>
                         </Grid>
                     </Border>
                     <Grid Name="grdBackofficePanel" Grid.Row="1" Grid.ColumnSpan="2" Visibility="Visible">

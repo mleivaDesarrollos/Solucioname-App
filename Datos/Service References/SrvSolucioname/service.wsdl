@@ -43,6 +43,9 @@
   <wsdl:message name="IServicio_SentAsuntoToOperator_InputMessage">
     <wsdl:part name="parameters" element="tns:SentAsuntoToOperator" />
   </wsdl:message>
+  <wsdl:message name="IServicio_SentBatchOfAsuntosToOperator_InputMessage">
+    <wsdl:part name="parameters" element="tns:SentBatchOfAsuntosToOperator" />
+  </wsdl:message>
   <wsdl:message name="IServicio_getOperatorList_InputMessage">
     <wsdl:part name="parameters" element="tns:getOperatorList" />
   </wsdl:message>
@@ -61,6 +64,12 @@
   <wsdl:message name="IServicio_getAssignedAsuntosOfCurrentDay_OutputMessage">
     <wsdl:part name="parameters" element="tns:getAssignedAsuntosOfCurrentDayResponse" />
   </wsdl:message>
+  <wsdl:message name="IServicio_getUnassignedAsuntos_InputMessage">
+    <wsdl:part name="parameters" element="tns:getUnassignedAsuntos" />
+  </wsdl:message>
+  <wsdl:message name="IServicio_getUnassignedAsuntos_OutputMessage">
+    <wsdl:part name="parameters" element="tns:getUnassignedAsuntosResponse" />
+  </wsdl:message>
   <wsdl:message name="IServicio_SetStatus_InputMessage">
     <wsdl:part name="parameters" element="tns:SetStatus" />
   </wsdl:message>
@@ -76,8 +85,14 @@
   <wsdl:message name="IServicio_EnviarAsunto_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:EnviarAsunto" />
   </wsdl:message>
+  <wsdl:message name="IServicio_SentAsuntosBatch_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:SentAsuntosBatch" />
+  </wsdl:message>
   <wsdl:message name="IServicio_AsuntoProcessCompleted_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:AsuntoProcessCompleted" />
+  </wsdl:message>
+  <wsdl:message name="IServicio_BatchAsuntoProcessCompleted_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:BatchAsuntoProcessCompleted" />
   </wsdl:message>
   <wsdl:message name="IServicio_ForceDisconnect_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:ForceDisconnect" />
@@ -87,6 +102,9 @@
   </wsdl:message>
   <wsdl:message name="IServicio_RefreshOperatorStatus_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:RefreshOperatorStatus" />
+  </wsdl:message>
+  <wsdl:message name="IServicio_NotifyNewAsuntoFromSolucioname_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:NotifyNewAsuntoFromSolucioname" />
   </wsdl:message>
   <wsdl:message name="IServicio_IsActive_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:IsActive" />
@@ -115,6 +133,9 @@
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="SentAsuntoToOperator">
       <wsdl:input wsaw:Action="http://tempuri.org/IServicio/SentAsuntoToOperator" message="tns:IServicio_SentAsuntoToOperator_InputMessage" />
     </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="SentBatchOfAsuntosToOperator">
+      <wsdl:input wsaw:Action="http://tempuri.org/IServicio/SentBatchOfAsuntosToOperator" message="tns:IServicio_SentBatchOfAsuntosToOperator_InputMessage" />
+    </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="getOperatorList">
       <wsdl:input wsaw:Action="http://tempuri.org/IServicio/getOperatorList" message="tns:IServicio_getOperatorList_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IServicio/getOperatorListResponse" message="tns:IServicio_getOperatorList_OutputMessage" />
@@ -126,6 +147,10 @@
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="getAssignedAsuntosOfCurrentDay">
       <wsdl:input wsaw:Action="http://tempuri.org/IServicio/getAssignedAsuntosOfCurrentDay" message="tns:IServicio_getAssignedAsuntosOfCurrentDay_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IServicio/getAssignedAsuntosOfCurrentDayResponse" message="tns:IServicio_getAssignedAsuntosOfCurrentDay_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="getUnassignedAsuntos">
+      <wsdl:input wsaw:Action="http://tempuri.org/IServicio/getUnassignedAsuntos" message="tns:IServicio_getUnassignedAsuntos_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IServicio/getUnassignedAsuntosResponse" message="tns:IServicio_getUnassignedAsuntos_OutputMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="SetStatus">
       <wsdl:input wsaw:Action="http://tempuri.org/IServicio/SetStatus" message="tns:IServicio_SetStatus_InputMessage" />
@@ -140,8 +165,14 @@
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="EnviarAsunto">
       <wsdl:output wsaw:Action="http://tempuri.org/IServicio/EnviarAsunto" message="tns:IServicio_EnviarAsunto_OutputCallbackMessage" />
     </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="SentAsuntosBatch">
+      <wsdl:output wsaw:Action="http://tempuri.org/IServicio/SentAsuntosBatch" message="tns:IServicio_SentAsuntosBatch_OutputCallbackMessage" />
+    </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="AsuntoProcessCompleted">
       <wsdl:output wsaw:Action="http://tempuri.org/IServicio/AsuntoProcessCompleted" message="tns:IServicio_AsuntoProcessCompleted_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="BatchAsuntoProcessCompleted">
+      <wsdl:output wsaw:Action="http://tempuri.org/IServicio/BatchAsuntoProcessCompleted" message="tns:IServicio_BatchAsuntoProcessCompleted_OutputCallbackMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="ForceDisconnect">
       <wsdl:output wsaw:Action="http://tempuri.org/IServicio/ForceDisconnect" message="tns:IServicio_ForceDisconnect_OutputCallbackMessage" />
@@ -151,6 +182,9 @@
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="RefreshOperatorStatus">
       <wsdl:output wsaw:Action="http://tempuri.org/IServicio/RefreshOperatorStatus" message="tns:IServicio_RefreshOperatorStatus_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="NotifyNewAsuntoFromSolucioname">
+      <wsdl:output wsaw:Action="http://tempuri.org/IServicio/NotifyNewAsuntoFromSolucioname" message="tns:IServicio_NotifyNewAsuntoFromSolucioname_OutputCallbackMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="IsActive">
       <wsdl:output wsaw:Action="http://tempuri.org/IServicio/IsActive" message="tns:IServicio_IsActive_OutputCallbackMessage" />
@@ -202,6 +236,12 @@
         <soap12:body use="literal" />
       </wsdl:input>
     </wsdl:operation>
+    <wsdl:operation name="SentBatchOfAsuntosToOperator">
+      <soap12:operation soapAction="http://tempuri.org/IServicio/SentBatchOfAsuntosToOperator" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
     <wsdl:operation name="getOperatorList">
       <soap12:operation soapAction="http://tempuri.org/IServicio/getOperatorList" style="document" />
       <wsdl:input>
@@ -222,6 +262,15 @@
     </wsdl:operation>
     <wsdl:operation name="getAssignedAsuntosOfCurrentDay">
       <soap12:operation soapAction="http://tempuri.org/IServicio/getAssignedAsuntosOfCurrentDay" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getUnassignedAsuntos">
+      <soap12:operation soapAction="http://tempuri.org/IServicio/getUnassignedAsuntos" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -256,8 +305,20 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="SentAsuntosBatch">
+      <soap12:operation soapAction="http://tempuri.org/IServicio/SentAsuntosBatch" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="AsuntoProcessCompleted">
       <soap12:operation soapAction="http://tempuri.org/IServicio/AsuntoProcessCompleted" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="BatchAsuntoProcessCompleted">
+      <soap12:operation soapAction="http://tempuri.org/IServicio/BatchAsuntoProcessCompleted" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>
@@ -276,6 +337,12 @@
     </wsdl:operation>
     <wsdl:operation name="RefreshOperatorStatus">
       <soap12:operation soapAction="http://tempuri.org/IServicio/RefreshOperatorStatus" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="NotifyNewAsuntoFromSolucioname">
+      <soap12:operation soapAction="http://tempuri.org/IServicio/NotifyNewAsuntoFromSolucioname" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>

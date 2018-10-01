@@ -45,8 +45,8 @@ namespace UIBackoffice.Util
             // Generamos el objeto logica asunto para traer la información de la base de datos
             Logica.Asunto logAsunto = new Logica.Asunto();
             // Traemos el año minimo cargado en la base de datos
-            int iYearMinimo = logAsunto.TraerYearMinimo();
-            int iYearMaximo = logAsunto.TraerYearMaximo();
+            int iYearMinimo = logAsunto.getMinYear();
+            int iYearMaximo = logAsunto.getMaxYear();
             // Diferencia entre año maximo y minimo
             for (int i = 0; i <= iYearMaximo - iYearMinimo; i++)
             {

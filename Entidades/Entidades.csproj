@@ -36,6 +36,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
@@ -53,9 +54,12 @@
     <Compile Include="AsuntoDiario.cs" />
     <Compile Include="AvailabiltyStatus.cs" />
     <Compile Include="Balance.cs" />
+    <Compile Include="ConfigBackoffice.cs" />
     <Compile Include="Estado.cs" />
+    <Compile Include="Exceptions\Config.cs" />
     <Compile Include="GrupoResolutor.cs" />
     <Compile Include="HourCount.cs" />
+    <Compile Include="OperBackoffice.cs" />
     <Compile Include="Service\Command.cs" />
     <Compile Include="Service\CommandType\Gestion.cs" />
     <Compile Include="Service\CommandType\Message.cs" />

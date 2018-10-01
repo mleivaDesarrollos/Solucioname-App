@@ -28,11 +28,11 @@ namespace Servicio_Principal
                 // Configuramos la colección para que opere en base a las modificaciones
                 lstAsuntosToDeliver.CollectionChanged += LstAsuntosToDeliver_CollectionChanged;
                 // Inicializamos el valor del timer
-                deliverAsuntosPendingTimer = new System.Timers.Timer();
+                tmrDeliverPendingAsuntos = new System.Timers.Timer();
                 // Obtenemos el intervalo de repetición del timer
-                deliverAsuntosPendingTimer.Interval = Convert.ToDouble(ConfigurationManager.AppSettings.GetValues("DELIVER_PENDING_ASUNTOS_TIME_INTERVAL")[0]);
+                tmrDeliverPendingAsuntos.Interval = Convert.ToDouble(ConfigurationManager.AppSettings.GetValues("DELIVER_PENDING_ASUNTOS_TIME_INTERVAL")[0]);
                 // Establecemos la funcion relacionada
-                deliverAsuntosPendingTimer.Elapsed += DeliverPendingAsuntos;
+                tmrDeliverPendingAsuntos.Elapsed += DeliverPendingAsuntos;
             }
             catch (Exception ex)
             {
@@ -47,9 +47,10 @@ namespace Servicio_Principal
             {
                 // Si la acción corresponde a un agregado, se procede a hacer una inserción sobre la base de respaldo
                 Entidades.Asunto asuntoNuevo = e.NewItems[0] as Entidades.Asunto;
+                // Add to SQL Qeue
                 SQL.Asunto.AddToQueue(asuntoNuevo);
                 // Si el timer se encuentra deshabilitado se habilita
-                if (!deliverAsuntosPendingTimer.Enabled)
+                if (!tmrDeliverPendingAsuntos.Enabled)
                 {
                     // Iniciamos el servicio de distribución de asuntos
                     StartSendAsuntosPending();
@@ -60,7 +61,7 @@ namespace Servicio_Principal
                 // Convertimos el asunto a tipo entidad
                 Entidades.Asunto asuntoEliminado = e.OldItems[0] as Entidades.Asunto;
                 // Save date of asunto assignment
-                asuntoEliminado.AssignmentTime = DateTime.Now;
+                asuntoEliminado.AssignmentDate = DateTime.Now;
                 // Removemos el asunto de la base de respaldo
                 SQL.Asunto.RemoveFromQueueAndSaveHistoricData(asuntoEliminado);
                 // Sent update request to logged backoffice
@@ -81,10 +82,10 @@ namespace Servicio_Principal
         private void StartSendAsuntosPending(bool reportLog = true)
         {
             // Si el timer cumple con las siguientes condiciones se inicia procedimiento
-            if (deliverAsuntosPendingTimer != null && lstAsuntosToDeliver.Count > 0 )
+            if (tmrDeliverPendingAsuntos != null && lstAsuntosToDeliver.Count > 0 )
             {
                 // Habilitamos el servicio
-                deliverAsuntosPendingTimer.Enabled = true;
+                tmrDeliverPendingAsuntos.Enabled = true;
                 if (reportLog) Log.Info(_asuntosPendingClassName, "service started normally.");
             }
         }
@@ -94,10 +95,10 @@ namespace Servicio_Principal
         /// </summary>
         private void StopSendAsuntosPending()
         {
-            if (deliverAsuntosPendingTimer != null)
+            if (tmrDeliverPendingAsuntos != null)
             {
                 // Deshabilitamos el servicio temporizador
-                deliverAsuntosPendingTimer.Enabled = false;
+                tmrDeliverPendingAsuntos.Enabled = false;
             }
         }
 
@@ -109,28 +110,53 @@ namespace Servicio_Principal
         private async void DeliverPendingAsuntos(object o, ElapsedEventArgs e)
         {
             StopSendAsuntosPending();
-            // Convertimos el objeto pasado por parametro a timer
-            System.Timers.Timer pendingDeliverAsuntosTimer = o as System.Timers.Timer;
-            // Recorremos el listado de asuntos pasado por parametro
-            foreach (var asuntoToDeliver in getAsuntosToDeliverCheckingConnectedOperators())
-            {
-                try
-                {                        
-                    await Task.Run(() =>
-                    {
-                        try {
-                            getCallback(asuntoToDeliver.Oper).EnviarAsunto(asuntoToDeliver);
-                        } catch (Exception) {
-                            Log.Error(_asuntosPendingClassName, string.Format("cannot send asunto {0} to {1}", asuntoToDeliver.Numero, asuntoToDeliver.Oper.UserName));
-                        }
-                    }).TimeoutAfter(2000);
-                }
-                catch (TimeoutException) { }
-                catch (Exception ex) {
-                    Log.Error(_asuntosPendingClassName, ex.Message);
-                }
-            }
+            // Retrieve the list of connected operators
+            List<Entidades.Operador> lstConnectedOperators = getListConnectedOperators();
+            // Si hay operadores conectados, se procesa
+            if(lstConnectedOperators.Count > 0) {
+                // Iterates over al connected operators
+                foreach (var connectedOperator in lstConnectedOperators) {
+                    // Get the list of asuntos from current operator
+                    List<Entidades.Asunto> lstAsuntosOfOperator = lstAsuntosToDeliver.Where(asunto => asunto.Oper.UserName == connectedOperator.UserName).ToList();
+                    // Sent asuntos to operator
+                    SentAsuntoToOperator(lstAsuntosOfOperator);
+                }                
+            }            
             StartSendAsuntosPending(false);               
+        }
+
+        /// <summary>
+        /// Sent asunto in batch to a cliente
+        /// 
+        /// </summary>
+        /// <param name="lstAsuntoToSent"></param>
+        private async void SentAsuntoToOperator(List<Entidades.Asunto> lstAsuntoToSent)
+        {
+            try {
+                await Task.Run(() =>
+                {
+                    try {
+                        if (lstAsuntoToSent.Count == 1) {
+                            // Get asunto to sent
+                            Entidades.Asunto asuntoToSent = lstAsuntoToSent[0];
+                            // Sent callback to operator
+                            getCallback(asuntoToSent.Oper).EnviarAsunto(asuntoToSent);
+                        } else if (lstAsuntoToSent.Count > 1) {
+                            // Get operator from list
+                            Entidades.Operador operToSent = lstAsuntoToSent[0].Oper;
+                            // Sent a batch with the list of asuntos
+                            getCallback(operToSent).SentAsuntosBatch(lstAsuntoToSent);
+                        }
+                    } catch (Exception ex) {
+                        Log.Error("AsuntosPendingDelivery-SentAsunto", ex.Message);                       
+                    }
+                }).TimeoutAfter(2000);
+
+            } 
+            catch (TimeoutException) { }
+            catch (Exception ex) {
+                Log.Error("AsuntosPendingDelivery-SentAsunto", ex.Message);
+            }
         }
 
         /// <summary>
@@ -149,10 +175,11 @@ namespace Servicio_Principal
                 {
                     lstAsuntosFilteredByConnectedOperator.Add(asuntosPending);
                 }
-            }
+            }            
             // Devolvemos el listado procesado
             return lstAsuntosFilteredByConnectedOperator;
         }
+        
 
         /// <summary>
         /// Completamos la recepción de asuntos de parte del servicio. Se implementa en clase dedicada a la administración de entrega de asuntos pendientes
@@ -173,5 +200,35 @@ namespace Servicio_Principal
                 Log.Error(_asuntosPendingClassName, string.Format("error delivering asunto number {0} to {1}.", asuntoToConfirm.Numero, asuntoToConfirm.Oper));
             }
         }
+
+        private void ConfirmAsuntoReceipt(List<Entidades.Asunto> lstOfAsuntoToConfirm)
+        {
+            try {
+                lock (syncObject) {
+                    // Unconnects event temporaly to process confirmation
+                    lstAsuntosToDeliver.CollectionChanged -= LstAsuntosToDeliver_CollectionChanged;
+                    // Update on Service Database confirmation asuntos
+                    SQL.Asunto.RemoveFromQueueAndSaveHistoricData(lstOfAsuntoToConfirm);
+                    // Remove from asunto pending to deliver list
+                    foreach (var asuntoToConfirm in lstOfAsuntoToConfirm) {
+                        lstAsuntosToDeliver.Remove(
+                            lstAsuntosToDeliver.First(
+                                asuntoDeliver => asuntoDeliver.Numero == asuntoToConfirm.Numero &&
+                                    asuntoDeliver.Oper.UserName == asuntoToConfirm.Oper.UserName
+                                ));
+                    }
+                    // Check if post remove asuntos the delivering list is empty
+                    if (lstAsuntosToDeliver.Count == 0) {
+                        StopSendAsuntosPending();
+                        Log.Info(_asuntosPendingClassName, "the service has been stopped correctly because all asuntos has been delivered.");
+                    }
+                    // Connect event again to event handler collection changed
+                    lstAsuntosToDeliver.CollectionChanged += LstAsuntosToDeliver_CollectionChanged;
+                }
+            } catch (Exception ex) {
+                Log.Error("ConfirmingAsuntoReceipt", string.Format("Error processing batch confirmation asuntos for {0} : {1}", lstOfAsuntoToConfirm[INDEX_START].Oper, ex.Message));
+            }
+        }
+        
     }
 }

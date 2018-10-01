@@ -22,6 +22,8 @@ namespace UIBackoffice
     {
         Entidades.Operador operatorToSent;
 
+        public Entidades.Asunto confirmedNewAsunto;
+
         public frmAddAsunto(Entidades.Operador prmOperatorToSent)
         {
             InitializeComponent();
@@ -39,7 +41,8 @@ namespace UIBackoffice
                 {
                     Numero = txtAsuntoNumber.Text,
                     DescripcionBreve = txtShortDescription.Text,
-                    Oper = operatorToSent
+                    Oper = operatorToSent,
+                    isCreatedByBackoffice = true
                 };
                 // Generates a new logic asunto object
                 Logica.Asunto logAsunto = new Logica.Asunto();
@@ -47,8 +50,10 @@ namespace UIBackoffice
                 Entidades.Operador backofficeOperator = App.Current.Properties["user"] as Entidades.Operador;
                 // Calls a sent method
                 logAsunto.SentAsuntoToOperator(backofficeOperator, newAsunto);
-                // Close Window on successful 
-                Close();
+                // Set property on public property
+                confirmedNewAsunto = newAsunto;
+                // Sets result to true
+                DialogResult = true;
             }
             catch (Exception ex) {
                 Except.Throw(ex);   

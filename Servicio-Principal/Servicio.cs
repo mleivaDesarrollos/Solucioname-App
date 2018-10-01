@@ -48,11 +48,20 @@ namespace Servicio_Principal
         internal ObservableCollection<Entidades.Asunto> lstAsuntosToDeliver = new ObservableCollection<Entidades.Asunto>();
 
         /// <summary>
+        /// Asunto from service unassigned
+        /// </summary>
+        internal List<Entidades.Asunto> lstAsuntoFromServiceUnassigned = new List<Entidades.Asunto>();
+
+        /// <summary>
         /// Temporizador asignado para la distribución de asuntos pendientes
         /// </summary>
-        System.Timers.Timer deliverAsuntosPendingTimer;
+        System.Timers.Timer tmrDeliverPendingAsuntos;
 
-        System.Timers.Timer operatorCheckTimer;
+        System.Timers.Timer tmrOperatorCheck;
+
+        System.Timers.Timer tmrAsuntoServiceCheck;
+
+        private static readonly int INDEX_START = 0;
 
         /// <summary>
         /// Objeto de sincronización, utilizado fundamentalmente para no producir deadlocks en peticiones de usuario
@@ -105,7 +114,10 @@ namespace Servicio_Principal
         {
             // Configuramos el servicio de envío de asuntos y lo activamos
             ConfigSendAsuntosPending();
-            StartSendAsuntosPending();
+            StartSendAsuntosPending();            
+            // Configure asunto service checking task
+            ConfigureAsuntoServiceCheckTimer();
+            StartAsuntoCheckTimer(true);
             // Load operator to must be connected today
             loadOperatorsMustWorkToday();
         }
@@ -163,6 +175,18 @@ namespace Servicio_Principal
             CheckAndUpdateCallbackOperator(getClientByOperator(asuntoToConfirm.Oper), CurrentCallback);
             // Confirm asunto receipt
             ConfirmAsuntoReceipt(asuntoToConfirm);
+        }
+        
+        /// <summary>
+        /// Confirm Batch Asunto Reception from client 
+        /// </summary>
+        /// <param name="asuntoToConfirm"></param>
+        public void BatchAsuntoReceiptCompleted(List<Entidades.Asunto> lstAsuntoToConfirm)
+        {
+            // Update callback from client
+            CheckAndUpdateCallbackOperator(getClientByOperator(lstAsuntoToConfirm[0].Oper), CurrentCallback);
+            // Confirm receipt from list
+            ConfirmAsuntoReceipt(lstAsuntoToConfirm);
         }
 
         /// <summary>
@@ -240,7 +264,7 @@ namespace Servicio_Principal
             try {
                 // Check if the operator who sents the asunto is a backoffice operator logged
                 if (!CheckCallingBackofficeIsAlreadyLogged(prmOperatorBackoffice)) {
-                    throw new Exception( "backoffice asunto sender is not logged on the service. Rejecting asunto sent request");
+                    throw new Exception(Error.BACKOFFICE_SENDER_IS_NOT_CORRECTLY_LOGGED);
                 }
                 // Validates asunto if correct loaded
                 if (SQL.Asunto.Validate(prmAsunto)) {
@@ -253,9 +277,29 @@ namespace Servicio_Principal
                 }
             }
             catch (Exception ex) {
-                Log.Error("MainService", ex.Message);
+                Log.Error("SentAsuntoToOperator", ex.Message);
                 
             }            
+        }
+
+        /// <summary>
+        /// Sent a batch of asuntos on wich service controls
+        /// </summary>
+        /// <param name="prmOperatorBackoffice"></param>
+        /// <param name="lstA"></param>
+        public void SentBatchOfAsuntosToOperator(Operador prmOperatorBackoffice, List<Entidades.Asunto> lstA)
+        {
+            // Validates if the petition sender is already logged on system
+            if (!CheckCallingBackofficeIsAlreadyLogged(prmOperatorBackoffice))
+                throw new Exception(Error.BACKOFFICE_SENDER_IS_NOT_CORRECTLY_LOGGED);
+            // Validates if the list is correctly loaded
+            if (SQL.Asunto.Validate(lstA)) {
+                // Add total of asunto list on delivering list
+                lstA.ForEach(asunto => lstAsuntosToDeliver.Add(asunto));
+            } else {
+                String conflictedAsuntos = SQL.Asunto.GetDuplicatedConflictedAsuntoNumbers(lstA);
+                CurrentCallback.Mensaje(string.Format("No se ha podido enviar los asuntos en lote debido a que existen conflictos con los siguientes asuntos: {0}. Tienen el mismo número y operador", conflictedAsuntos));
+            }
         }
 
         /// <summary>
@@ -285,14 +329,26 @@ namespace Servicio_Principal
         public List<Asunto> getAssignedAsuntosOfCurrentDay()
         {
             try {
-                return SQL.Asunto.GetAsuntosAssignedFromToday();
+                
+                List<Asunto> lstAsuntosAssignedOfDay = SQL.Asunto.GetAsuntosAssignedFromToday();
+                foreach (var asuntoWithAssignationAndUndelivered in lstAsuntosToDeliver) {
+                    lstAsuntosAssignedOfDay.Add(asuntoWithAssignationAndUndelivered);
+                }
+                return lstAsuntosAssignedOfDay;
             }
             catch (Exception ex) {
                 Log.Error(SQL.Asunto.CLASSNAME, ex.Message);
                 return null;
             }
         }
-        
+
+        public List<Asunto> getUnassignedAsuntos()
+        {
+            lock (syncObject) {
+                return lstAsuntoFromServiceUnassigned;
+            }
+        }
+
         /// <summary>
         /// Returns a list with total operator must working today
         /// </summary>
@@ -413,6 +469,32 @@ namespace Servicio_Principal
             }
         }
 
+        /// <summary>
+        /// Sents to backoffice a notification with new asunto on system
+        /// </summary>
+        private async void SentNewAsuntoFromSolucionameNotificationToBackoffice()
+        {
+            try {
+                await Task.Run(() =>
+                {
+                    try {
+                        // Sent to backoffice a callback notification
+                        connectedBackoffice.Callback.NotifyNewAsuntoFromSolucioname();
+                    }
+                    catch (Exception ex) {
+                        Log.Error("MainService", "error sending new asunto from solucioname notification to backoffice: " + ex.Message);                        
+                    }
+                });
+            }
+            catch (TimeoutException ex) {
+                connectedBackoffice = null;
+                Log.Info("MainService", "the backoffice is not responding, closing connection...");
+            }
+            catch (Exception ex) {
+                Log.Error("MainService", "there is an error processing new asunto from solucioname notification: " + ex.Message);
+            }
+        }
+
         private async Task sentDisconnectToCurrentBackoffice(Client prevClient, Entidades.Operador paramNewBackoffice)
         {
             Log.Info("MainService", string.Format("backoffice {0} has been forcedly disconnected by {1}", connectedBackoffice.Operator, paramNewBackoffice.UserName));
@@ -456,28 +538,13 @@ namespace Servicio_Principal
             }            
         }
         
-        /// <summary>
-        /// Devuelve un listado con nombres de usuarios conectados al servicio actualmente
-        /// </summary>
-        /// <returns></returns>
-        internal void retreiveListOfConnectedOperators()
+        
+        private List<Entidades.Operador> getListConnectedOperators()
         {
-            // Devolvemos el listado ya procesado
-            ConsoleAdminCallback.Mensaje(getListConnectedOperator());
-        }
-
-        private string getListConnectedOperator()
-        {
-            // Preparamos el listado para procesar
-            string lstOperatorConnected = "";
-            // Agregamos un mensaje inicial
-            lstOperatorConnected += @"List of operators connected to service:\n";
-            // Recorremos el listado de operadores conectados
-            foreach (var username in lstOperatorMustConnected.Select((client) => client.Operator.UserName))
-            {
-                lstOperatorConnected += username + " ";
-            }
-            return lstOperatorConnected;
+            return lstOperatorMustConnected.Where(
+                operToday => operToday.Operator.Status != AvailabiltyStatus.Disconnected)
+                .Select(client => client.Operator).
+                ToList();
         }
 
         /// <summary>

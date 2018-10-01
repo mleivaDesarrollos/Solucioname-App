@@ -19,7 +19,13 @@ namespace Entidades.Service.Interface
         void EnviarAsunto(Asunto a);
 
         [OperationContract(IsOneWay = true)]
+        void SentAsuntosBatch(List<Asunto> lstA);
+
+        [OperationContract(IsOneWay = true)]
         void AsuntoProcessCompleted(Asunto a);
+
+        [OperationContract(IsOneWay = true)]
+        void BatchAsuntoProcessCompleted(List<Asunto> lstA);
 
         [OperationContract(IsOneWay = true)]
         void ForceDisconnect();
@@ -29,6 +35,9 @@ namespace Entidades.Service.Interface
 
         [OperationContract(IsOneWay = true)]
         void RefreshOperatorStatus();
+
+        [OperationContract(IsOneWay = true)]
+        void NotifyNewAsuntoFromSolucioname();
 
         [OperationContract]
         bool IsActive();

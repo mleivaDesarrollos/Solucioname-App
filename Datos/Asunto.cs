@@ -13,13 +13,14 @@ namespace Datos
 {
     public partial class Asunto
     {
+        private static readonly int INDEX_START_STRING = 0;
         /// <summary>
         /// Agrega un asunto a la base de datos
         /// Fecha de creación : 06/06/2018
         /// Autor : Maximiliano Leiva
         /// </summary>
         /// <param name="pEntAsunto">Entidad con los datos cargados que necesitan persistencia</param>
-        public void Agregar(Entidades.Asunto pEntAsunto)
+        public void Add(Entidades.Asunto pEntAsunto)
         {
             // Generamos el objeto de conexión
             using (SQLiteConnection c = new SQLiteConnection(Conexion.Cadena))
@@ -44,7 +45,7 @@ namespace Datos
                     if (pEntAsunto.Estados != null)
                     {
                         // Agregamos los estados que traiga el asunto en cuestión
-                        EstadoAsunto.AgregarEstadoPorAsunto(pEntAsunto, c, t);
+                        EstadoAsunto.AddAllFromAsunto(pEntAsunto, c, t);
                     }
                     
                     
@@ -57,6 +58,49 @@ namespace Datos
                 }
             }
         }
+        
+        /// <summary>
+        /// Add a batch of asuntos
+        /// </summary>
+        /// <param name="lstA"></param>
+        public void Add(List<Entidades.Asunto> lstA)
+        {
+            try {
+                // Validates if the list is sented with data. If the list have one value, the petition is rejected because this method is for a batch of asuntos
+                if (lstA == null || lstA.Count <= 1) throw new Exception("La lista de asuntos recibida esta vacía, es nula o es menor al minimo");
+                using (SQLiteConnection c = new SQLiteConnection(Conexion.Cadena)) {
+                    c.Open();
+                    using (SQLiteTransaction t = c.BeginTransaction()) {
+                        string strInsertAsuntoOnDatabase = "INSERT INTO asuntos VALUES (@Number, @Operator, @ShortDescription, @DerivedGroup, @ForReport)";
+                        using (SQLiteCommand cmdInsertAsuntoOnDatabase = new SQLiteCommand(strInsertAsuntoOnDatabase, c, t)) {
+                            foreach (var asuntoToSave in lstA) {
+                                cmdInsertAsuntoOnDatabase.Parameters.Agregar("@Number", asuntoToSave.Numero);
+                                cmdInsertAsuntoOnDatabase.Parameters.Agregar("@Operator", asuntoToSave.Oper.UserName);
+                                cmdInsertAsuntoOnDatabase.Parameters.Agregar("@ShortDescription", asuntoToSave.DescripcionBreve);
+                                cmdInsertAsuntoOnDatabase.Parameters.Agregar("@DerivedGroup", asuntoToSave.GrupoDerivado.Id);
+                                cmdInsertAsuntoOnDatabase.Parameters.Agregar("ForReport", asuntoToSave.Reportable);
+
+                                if(asuntoToSave.Estados != null) {
+                                    EstadoAsunto.AddAllFromAsunto(asuntoToSave, c, t);
+                                }
+
+                                if(asuntoToSave.Actuacion != null) {
+                                    Actuacion.Agregar(asuntoToSave, c, t);
+                                }
+
+                                cmdInsertAsuntoOnDatabase.ExecuteNonQuery();
+                            }
+                        }
+
+                        // When process is completed correctly, commit changes on database
+                        t.Commit();
+                    }
+                }
+
+            } catch (Exception ex) {
+                throw ex;
+            }
+        }
 
         /// <summary>
         /// Elimina un asunto de la base de datos
@@ -64,7 +108,7 @@ namespace Datos
         /// Autor : Maximiliano Leiva
         /// </summary>
         /// <param name="pEntAsunto"></param>
-        public void Eliminar(Entidades.Asunto pEntAsunto)
+        public void Remove(Entidades.Asunto pEntAsunto)
         {
             try
             {
@@ -106,7 +150,7 @@ namespace Datos
         /// Autor : Maximiliano Leiva
         /// </summary>
         /// <param name="pEntAsunto"></param>
-        public void Modificar(Entidades.Asunto pEntAsunto)
+        public void Modify(Entidades.Asunto pEntAsunto)
         {
             try
             {
@@ -161,7 +205,7 @@ namespace Datos
         /// Autor : Maximiliano Leiva
         /// </summary>
         /// <param name="pEntAsunto"></param>
-        public Entidades.Asunto TraerAsunto(Entidades.Asunto pEntAsunto)
+        public Entidades.Asunto Get(Entidades.Asunto pEntAsunto)
         {
             // Generamos una entidad nueva que sera procesada
             Entidades.Asunto entAsunto = new Entidades.Asunto();
@@ -210,7 +254,7 @@ namespace Datos
         /// </summary>
         /// <param name="pAsunto"></param>
         /// <returns></returns>
-        public bool ExisteAsunto(Entidades.Asunto pAsunto)
+        public bool Exist(Entidades.Asunto pAsunto)
         {
             try
             {
@@ -245,12 +289,48 @@ namespace Datos
         }
 
         /// <summary>
+        /// Retrieve filtered list to caller. The filter is based on non registered asunto on local base
+        /// </summary>
+        /// <param name="lstA"></param>
+        /// <returns></returns>
+        public List<Entidades.Asunto> GetNonDuplicatedAsuntosFromList(List<Entidades.Asunto> lstA)
+        {
+            // Generate a list to return in process
+            List<Entidades.Asunto> lstFilteredAsuntos = new List<Entidades.Asunto>();
+            try {
+                // Validates if the list is sented with data. If the list have one value, the petition is rejected because this method is for a batch of asuntos
+                if (lstA == null || lstA.Count <= 1) throw new Exception("La lista de asuntos recibida esta vacía, es nula o es menor al minimo");
+                using (SQLiteConnection c = new SQLiteConnection(Conexion.Cadena)) {
+                    c.Open();
+                    string strQueryNonDuplicatedAsuntos = "SELECT numero FROM asuntos WHERE operador=@Operator AND numero NOT IN (@AsuntoList)";
+                    using (SQLiteCommand cmdQueryNonDuplicatedAsuntos = new SQLiteCommand(strQueryNonDuplicatedAsuntos, c)) {
+                        // Get Operator from the given list
+                        Entidades.Operador operatorUsedToCheck = lstA[0].Oper;
+                        cmdQueryNonDuplicatedAsuntos.Parameters.Agregar("@Operator", operatorUsedToCheck.UserName);
+                        cmdQueryNonDuplicatedAsuntos.Parameters.Agregar("@AsuntoList", getNumberOfAsuntosOnlyFromListForDatabaseRead(lstA));
+                        using (SQLiteDataReader rdrQueryNonDuplicatedAsuntos = cmdQueryNonDuplicatedAsuntos.ExecuteReader()) {
+                            while (rdrQueryNonDuplicatedAsuntos.Read()) {
+                                string asuntoNumber = rdrQueryNonDuplicatedAsuntos["numero"].ToString();
+                                // Add the finded asunto to list of new asuntos
+                                lstFilteredAsuntos.Add(lstA.Find(asunto => asunto.Numero == asuntoNumber));
+                            }
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                throw ex;
+            }
+            // Return the list at the end of the process
+            return lstFilteredAsuntos;
+        }
+
+        /// <summary>
         /// Por solicitud trae filtrado los registros cargados por mes y año
         /// </summary>
-        /// <param name="iMes">Mes de registro</param>
-        /// <param name="iAno">Año de registro</param>
+        /// <param name="iMonth">Mes de registro</param>
+        /// <param name="iYear">Año de registro</param>
         /// <param name="pOper">Operador que ejecuta la consulta</param>
-        public DataTable TraerPorPeriodo(int iMes, int iAno, Entidades.Operador pOper)
+        public DataTable GetByPeriod(int iMonth, int iYear, Entidades.Operador pOper)
         {
             // Generamos una lista que devolveremos al final del recorrido
             DataTable dtResult = new DataTable();
@@ -263,8 +343,8 @@ namespace Datos
                 using (SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter(_consultaVistaEstadoAsunto, Conexion.Cadena))
                 {
                     // Parametrizamos los datos a utilizar
-                    DateTime dtPeriodoInicio = new DateTime(iAno, iMes, 1).AddDays(-1);
-                    DateTime dtPeriodoFinal = new DateTime(iAno, iMes, 1).AddMonths(1);
+                    DateTime dtPeriodoInicio = new DateTime(iYear, iMonth, 1).AddDays(-1);
+                    DateTime dtPeriodoFinal = new DateTime(iYear, iMonth, 1).AddMonths(1);
                     dataAdapter.SelectCommand.Parameters.Add(new SQLiteParameter()
                     {
                         ParameterName = "@PeriodoInicio",
@@ -301,7 +381,7 @@ namespace Datos
         /// <param name="pOper"></param>
         /// <param name="pTextoFiltro"></param>
         /// <returns></returns>
-        public DataTable TraerAsuntosFiltradoPorNumero(Entidades.Operador pOper, string pTextoFiltro)
+        public DataTable GetFilteredByNumber(Entidades.Operador pOper, string pTextoFiltro)
         {
             // Generamos la DataTable a procesar
             DataTable dtResultado = new DataTable();
@@ -332,7 +412,7 @@ namespace Datos
         /// Autor : Maximiliano Leiva
         /// </summary>
         /// <returns></returns>
-        public List<Entidades.Asunto> TraerAsuntosDelDia(Entidades.Operador pOper)
+        public List<Entidades.Asunto> GetCurrentDayList(Entidades.Operador pOper)
         {
             // Generamos la lista a devolver
             List<Entidades.Asunto> lstAsuntoDiario = new List<Entidades.Asunto>();
@@ -389,7 +469,7 @@ namespace Datos
         /// Autor : Maximiliano Leiva
         /// </summary>
         /// <returns></returns>
-        public int TraerYearMinimo()
+        public int GetMinYear()
         {
             // Generamos el valor int a devolver, por defecto tomamos el año actual
             int iYear = DateTime.Now.Year;
@@ -418,7 +498,7 @@ namespace Datos
             return iYear;
         }
 
-        public int TraerYearMaximo()
+        public int GetMaxYear()
         {
             // Generamos el valor int a devolver, por defecto tomamos el año actual
             int iYear = DateTime.Now.Year;
@@ -460,6 +540,40 @@ namespace Datos
             catch (Exception ex) {
                 Except.Throw(ex);
             }
+        }
+
+
+        /// <summary>
+        /// Gets from service the list of asuntos unassigned
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<Entidades.Asunto>> GetUnassignedAsuntos()
+        {
+            try {
+                return await Client.Instance.GetListOfUnassignedAsuntos();
+            }
+            catch (Exception ex) {
+                throw ex;
+            }
+        }
+
+
+        /// <summary>
+        /// Process a list of asuntos and save number only on a string with format for query on database
+        /// </summary>
+        /// <param name="lstAsuntosToParse"></param>
+        /// <returns></returns>
+        private string getNumberOfAsuntosOnlyFromListForDatabaseRead(List<Entidades.Asunto> lstAsuntosToParse)
+        {
+            // Get all numebers of asunto and save on array
+            string[] unformattedListOfasuntos = lstAsuntosToParse.Select(asunto => asunto.Numero).ToArray();
+            // Unify all numbers on one string, separating by ', '. This seperator is for query formatting purposes
+            string strLstOfAsuntos = String.Join("', '", unformattedListOfasuntos);
+            // The join don't adds ' on start and the end, manually adds for correct formatting
+            strLstOfAsuntos.Insert(INDEX_START_STRING, "'");
+            strLstOfAsuntos.Insert(strLstOfAsuntos.Length - 1, "'");
+            // Return processed value
+            return strLstOfAsuntos;
         }
     }
 }

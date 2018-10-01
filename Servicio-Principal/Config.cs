@@ -15,5 +15,9 @@ namespace Servicio_Principal
         public static readonly bool TEST = Convert.ToBoolean(ConfigurationManager.AppSettings.GetValues("TEST")[0]);
 
         public static readonly int BACKOFFICE_TIMEOUT = Convert.ToInt32(ConfigurationManager.AppSettings.GetValues("BACKOFFICE_TIMEOUT")[0]);
+
+        public static readonly double ASUNTO_SERVICE_CHECK_CICLE_TIME = Convert.ToDouble(ConfigurationManager.AppSettings.GetValues("ASUNTO_SERVICE_CHECK_CICLE_TIME")[0]);
+
+        public static readonly bool TEST_MAILING_SERVICE = Convert.ToBoolean(ConfigurationManager.AppSettings.GetValues("TEST_MAILING_SERVICE")[0]);
     }
 }

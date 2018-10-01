@@ -28,7 +28,13 @@ namespace Servicio_Principal
         void AsuntoReceiptCompleted(Entidades.Asunto asuntoToConfirm);
 
         [OperationContract(IsOneWay = true)]
+        void BatchAsuntoReceiptCompleted(List<Entidades.Asunto> lstAsuntoToConfirm);
+
+        [OperationContract(IsOneWay = true)]
         void SentAsuntoToOperator(Operador prmOperatorBackoffice, Asunto prmAsunto);
+
+        [OperationContract(IsOneWay = true)]
+        void SentBatchOfAsuntosToOperator(Operador prmOperatorBackoffice, List<Entidades.Asunto> lstA);
 
         [OperationContract]
         List<Entidades.Operador> getOperatorList();
@@ -39,6 +45,8 @@ namespace Servicio_Principal
         [OperationContract]
         List<Asunto> getAssignedAsuntosOfCurrentDay();
 
+        [OperationContract]
+        List<Asunto> getUnassignedAsuntos();
 
         [OperationContract(IsOneWay = true)]
         void SetStatus(Operador operatorToChange, AvailabiltyStatus paramNewStatus);
