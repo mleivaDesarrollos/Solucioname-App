@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -30,6 +31,7 @@ namespace Datos.Util
             return dtPFecha.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
         }
 
+        [DebuggerStepThrough]
         internal static void Agregar(this SQLiteParameterCollection cmdParam, String pStrParametro, object pValor)
         {
             // Generamos un nuevo parametro

@@ -22,17 +22,17 @@ namespace Servicio_Principal
         /// </summary>
         private void ConfigSendAsuntosPending()
         {
-            try { 
-                // Cargamos los asuntos encolados en memoria
-                lstAsuntosToDeliver = new ObservableCollection<Entidades.Asunto>(SQL.Asunto.getQueue());
-                // Configuramos la colección para que opere en base a las modificaciones
-                lstAsuntosToDeliver.CollectionChanged += LstAsuntosToDeliver_CollectionChanged;
+            try {
+                // Load all asunto
+                DeliverAsuntoList = new AsuntoDeliverList(SQL.Asunto.getQueue());
                 // Inicializamos el valor del timer
                 tmrDeliverPendingAsuntos = new System.Timers.Timer();
                 // Obtenemos el intervalo de repetición del timer
                 tmrDeliverPendingAsuntos.Interval = Convert.ToDouble(ConfigurationManager.AppSettings.GetValues("DELIVER_PENDING_ASUNTOS_TIME_INTERVAL")[0]);
                 // Establecemos la funcion relacionada
                 tmrDeliverPendingAsuntos.Elapsed += DeliverPendingAsuntos;
+                // Checks if the list is empty
+                if (!DeliverAsuntoList.IsEmpty) StartSendAsuntosPending(true);
             }
             catch (Exception ex)
             {
@@ -40,49 +40,13 @@ namespace Servicio_Principal
             }
         }
 
-        private void LstAsuntosToDeliver_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            // Si se agrega un elemento a la colección de distribución y está desactivado se procesa la activación del deliver pending timer
-            if (e.Action == NotifyCollectionChangedAction.Add)
-            {
-                // Si la acción corresponde a un agregado, se procede a hacer una inserción sobre la base de respaldo
-                Entidades.Asunto asuntoNuevo = e.NewItems[0] as Entidades.Asunto;
-                // Add to SQL Qeue
-                SQL.Asunto.AddToQueue(asuntoNuevo);
-                // Si el timer se encuentra deshabilitado se habilita
-                if (!tmrDeliverPendingAsuntos.Enabled)
-                {
-                    // Iniciamos el servicio de distribución de asuntos
-                    StartSendAsuntosPending();
-                }                
-            }
-            else if (e.Action == NotifyCollectionChangedAction.Remove)
-            {
-                // Convertimos el asunto a tipo entidad
-                Entidades.Asunto asuntoEliminado = e.OldItems[0] as Entidades.Asunto;
-                // Save date of asunto assignment
-                asuntoEliminado.AssignmentDate = DateTime.Now;
-                // Removemos el asunto de la base de respaldo
-                SQL.Asunto.RemoveFromQueueAndSaveHistoricData(asuntoEliminado);
-                // Sent update request to logged backoffice
-                SentBalanceRefreshOnBackoffice(asuntoEliminado);
-                // Si el listado queda en 0 luego de remover el asunto del listado de pendientes, se detiene la task
-                if (lstAsuntosToDeliver.Count == 0)
-                {
-                    // Detenemos el timer
-                    StopSendAsuntosPending();
-                    Log.Info(_asuntosPendingClassName, "the service has been stopped correctly because all asuntos has been delivered.");
-                }
-            }
-        }
-
         /// <summary>
         /// Si todos los valores del timer para envío son correctos, se inicia el proceso de envío de asuntos
         /// </summary>
-        private void StartSendAsuntosPending(bool reportLog = true)
+        private void StartSendAsuntosPending(bool reportLog = false)
         {
             // Si el timer cumple con las siguientes condiciones se inicia procedimiento
-            if (tmrDeliverPendingAsuntos != null && lstAsuntosToDeliver.Count > 0 )
+            if (tmrDeliverPendingAsuntos != null && ! DeliverAsuntoList.IsEmpty )
             {
                 // Habilitamos el servicio
                 tmrDeliverPendingAsuntos.Enabled = true;
@@ -95,7 +59,7 @@ namespace Servicio_Principal
         /// </summary>
         private void StopSendAsuntosPending()
         {
-            if (tmrDeliverPendingAsuntos != null)
+            if (tmrDeliverPendingAsuntos != null && DeliverAsuntoList.IsEmpty)
             {
                 // Deshabilitamos el servicio temporizador
                 tmrDeliverPendingAsuntos.Enabled = false;
@@ -117,12 +81,12 @@ namespace Servicio_Principal
                 // Iterates over al connected operators
                 foreach (var connectedOperator in lstConnectedOperators) {
                     // Get the list of asuntos from current operator
-                    List<Entidades.Asunto> lstAsuntosOfOperator = lstAsuntosToDeliver.Where(asunto => asunto.Oper.UserName == connectedOperator.UserName).ToList();
+                    List<Entidades.Asunto> lstAsuntosOfOperator = DeliverAsuntoList.Get.Where(asunto => asunto.Oper.UserName == connectedOperator.UserName).ToList();
                     // Sent asuntos to operator
                     SentAsuntoToOperator(lstAsuntosOfOperator);
                 }                
             }            
-            StartSendAsuntosPending(false);               
+            StartSendAsuntosPending();               
         }
 
         /// <summary>
@@ -158,28 +122,16 @@ namespace Servicio_Principal
                 Log.Error("AsuntosPendingDelivery-SentAsunto", ex.Message);
             }
         }
-
-        /// <summary>
-        /// Del listado de asuntos pendientes a entregar el día de hoy, comprueba que operadores se encuentran disponibles para recibir los asuntos
-        /// </summary>
-        /// <returns></returns>
-        private List<Entidades.Asunto> getAsuntosToDeliverCheckingConnectedOperators()
-        {
-            // Generamos el listado de asuntos a devolver
-            List<Entidades.Asunto> lstAsuntosFilteredByConnectedOperator = new List<Entidades.Asunto>();
-            // Recorremos el diccionario con operadores conectados
-            foreach (var asuntosPending in lstAsuntosToDeliver)
-            {
-                // Si el operador
-                if (lstOperatorMustConnected.ToList().Exists( (operIterate) => operIterate.Operator.Status != Entidades.AvailabiltyStatus.Disconnected && operIterate.Operator.UserName == asuntosPending.Oper.UserName))
-                {
-                    lstAsuntosFilteredByConnectedOperator.Add(asuntosPending);
-                }
-            }            
-            // Devolvemos el listado procesado
-            return lstAsuntosFilteredByConnectedOperator;
-        }
         
+        
+        private bool isAsuntoOwnerConnected(Entidades.Asunto asuntoToQuery)
+        {
+            return lstOperatorMustConnected
+                .ToList()
+                .Exists(
+                (operIterate) => operIterate.Operator.Status != Entidades.AvailabiltyStatus.Disconnected &&
+                operIterate.Operator.UserName == asuntoToQuery.Oper.UserName);
+        }
 
         /// <summary>
         /// Completamos la recepción de asuntos de parte del servicio. Se implementa en clase dedicada a la administración de entrega de asuntos pendientes
@@ -191,7 +143,7 @@ namespace Servicio_Principal
             {
                 lock(syncObject)
                 {
-                    lstAsuntosToDeliver.Remove(lstAsuntosToDeliver.First((asunto) => asunto.Numero == asuntoToConfirm.Numero && asunto.Oper.UserName == asuntoToConfirm.Oper.UserName));
+                    RemovePending(asuntoToConfirm);
                 }
 
             }
@@ -205,30 +157,89 @@ namespace Servicio_Principal
         {
             try {
                 lock (syncObject) {
-                    // Unconnects event temporaly to process confirmation
-                    lstAsuntosToDeliver.CollectionChanged -= LstAsuntosToDeliver_CollectionChanged;
-                    // Update on Service Database confirmation asuntos
-                    SQL.Asunto.RemoveFromQueueAndSaveHistoricData(lstOfAsuntoToConfirm);
                     // Remove from asunto pending to deliver list
-                    foreach (var asuntoToConfirm in lstOfAsuntoToConfirm) {
-                        lstAsuntosToDeliver.Remove(
-                            lstAsuntosToDeliver.First(
-                                asuntoDeliver => asuntoDeliver.Numero == asuntoToConfirm.Numero &&
-                                    asuntoDeliver.Oper.UserName == asuntoToConfirm.Oper.UserName
-                                ));
-                    }
-                    // Check if post remove asuntos the delivering list is empty
-                    if (lstAsuntosToDeliver.Count == 0) {
-                        StopSendAsuntosPending();
-                        Log.Info(_asuntosPendingClassName, "the service has been stopped correctly because all asuntos has been delivered.");
-                    }
-                    // Connect event again to event handler collection changed
-                    lstAsuntosToDeliver.CollectionChanged += LstAsuntosToDeliver_CollectionChanged;
+                    RemovePending(lstOfAsuntoToConfirm);
                 }
             } catch (Exception ex) {
                 Log.Error("ConfirmingAsuntoReceipt", string.Format("Error processing batch confirmation asuntos for {0} : {1}", lstOfAsuntoToConfirm[INDEX_START].Oper, ex.Message));
             }
         }
+
+        /// <summary>
+        /// Add pending asunto to qeue
+        /// </summary>
+        /// <param name="asuntoToEnqueue"></param>
+        private void AddPending(Entidades.Asunto asuntoToEnqueue)
+        {
+            // Add the asunto to distribution list
+            DeliverAsuntoList.Add(asuntoToEnqueue);
+            // Add to SQL Qeue
+            SQL.Asunto.AddToQueue(asuntoToEnqueue);
+            // Check if deliver pending asunto is in the list of asuntos without assignation.
+            if (!asuntoToEnqueue.isCreatedByBackoffice) {
+                lstAsuntoFromServiceUnassigned.RemoveAll(asunto => asunto.Numero == asuntoToEnqueue.Numero);
+            }
+            // When adds concludes, start deilvering task
+            StartSendAsuntosPending();
+        }
+
+        /// <summary>
+        /// Add a list of asunto to queue
+        /// </summary>
+        /// <param name="listAsuntoToEnqueue"></param>
+        private void AddPending(List<Entidades.Asunto> listAsuntoToEnqueue)
+        {
+            // Add asunto to distribution list
+            DeliverAsuntoList.Add(listAsuntoToEnqueue);
+            // Process add on database first
+            SQL.Asunto.AddToQueue(listAsuntoToEnqueue);
+            // Iterates over all asuntos gived for remove unassigned asunto
+            listAsuntoToEnqueue.ForEach(asuntoQueued =>
+            {
+                if (!asuntoQueued.isCreatedByBackoffice) {
+                    lstAsuntoFromServiceUnassigned.RemoveAll(asuntoWithoutAssign => asuntoQueued.Numero == asuntoWithoutAssign.Numero);
+                }
+            });        
+            // When adds concludes, start deilvering task
+            StartSendAsuntosPending();
+        }
+
+        /// <summary>
+        /// Remove asunto from Queue
+        /// </summary>
+        /// <param name="asuntoToUnqueue"></param>
+        private void RemovePending(Entidades.Asunto asuntoToUnqueue)
+        {
+            // Save date of asunto assignment
+            asuntoToUnqueue.AssignmentDate = DateTime.Now;
+            // Removemos el asunto de la base de respaldo
+            SQL.Asunto.RemoveFromQueueAndSaveHistoricData(asuntoToUnqueue);
+            // Sent update request to logged backoffice
+            SentBalanceRefreshOnBackoffice(asuntoToUnqueue);
+            // Save pending information to list
+            DeliverAsuntoList.Remove(asuntoToUnqueue);
+            // Stop sending pending asuntos
+            StopSendAsuntosPending();
+        }
+
+        /// <summary>
+        /// Remove list of asunto from queue
+        /// </summary>
+        /// <param name="listAsuntoToUnqueue"></param>
+        private void RemovePending(List<Entidades.Asunto> listAsuntoToUnqueue)
+        {
+            // Set up the assignation date to the exact moment who run the method
+            DateTime assignationTime = DateTime.Now;
+            listAsuntoToUnqueue.ForEach(asunto => asunto.AssignmentDate = assignationTime);
+            // Update on Service Database confirmation asuntos
+            SQL.Asunto.RemoveFromQueueAndSaveHistoricData(listAsuntoToUnqueue);
+            // Save pending information to list
+            DeliverAsuntoList.Remove(listAsuntoToUnqueue);
+            // Stop sending pending asuntos
+            StopSendAsuntosPending();
+        }
+
+        
         
     }
 }

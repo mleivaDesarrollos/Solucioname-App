@@ -309,6 +309,20 @@ namespace Logica
         }
 
         /// <summary>
+        /// Sent to service a request for distribute a list of asuntos
+        /// </summary>
+        /// <param name="prmBackofficeSender"></param>
+        /// <param name="prmListOfAsunto"></param>
+        public async Task SentBatchAsuntoToOperators(Entidades.Operador prmBackofficeSender, List<Entidades.Asunto> prmListOfAsunto)
+        {
+            try {
+                await datAsunto.SentBatchAsuntoToOperators(prmBackofficeSender, prmListOfAsunto);
+            } catch (Exception ex) {
+                throw ex;
+            }
+        }
+
+        /// <summary>
         /// Recibe un listado de asuntos parcialmente cargado, y lo procesa cargandoló en su totalidad
         /// </summary>
         /// <param name="pAsunto"></param>

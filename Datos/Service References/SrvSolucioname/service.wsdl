@@ -40,6 +40,9 @@
   <wsdl:message name="IServicio_AsuntoReceiptCompleted_InputMessage">
     <wsdl:part name="parameters" element="tns:AsuntoReceiptCompleted" />
   </wsdl:message>
+  <wsdl:message name="IServicio_BatchAsuntoReceiptCompleted_InputMessage">
+    <wsdl:part name="parameters" element="tns:BatchAsuntoReceiptCompleted" />
+  </wsdl:message>
   <wsdl:message name="IServicio_SentAsuntoToOperator_InputMessage">
     <wsdl:part name="parameters" element="tns:SentAsuntoToOperator" />
   </wsdl:message>
@@ -106,6 +109,9 @@
   <wsdl:message name="IServicio_NotifyNewAsuntoFromSolucioname_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:NotifyNewAsuntoFromSolucioname" />
   </wsdl:message>
+  <wsdl:message name="IServicio_UpdateOnAsuntosWithoutAssignation_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:UpdateOnAsuntosWithoutAssignation" />
+  </wsdl:message>
   <wsdl:message name="IServicio_IsActive_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:IsActive" />
   </wsdl:message>
@@ -129,6 +135,9 @@
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="AsuntoReceiptCompleted">
       <wsdl:input wsaw:Action="http://tempuri.org/IServicio/AsuntoReceiptCompleted" message="tns:IServicio_AsuntoReceiptCompleted_InputMessage" />
+    </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="BatchAsuntoReceiptCompleted">
+      <wsdl:input wsaw:Action="http://tempuri.org/IServicio/BatchAsuntoReceiptCompleted" message="tns:IServicio_BatchAsuntoReceiptCompleted_InputMessage" />
     </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="SentAsuntoToOperator">
       <wsdl:input wsaw:Action="http://tempuri.org/IServicio/SentAsuntoToOperator" message="tns:IServicio_SentAsuntoToOperator_InputMessage" />
@@ -186,6 +195,9 @@
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="NotifyNewAsuntoFromSolucioname">
       <wsdl:output wsaw:Action="http://tempuri.org/IServicio/NotifyNewAsuntoFromSolucioname" message="tns:IServicio_NotifyNewAsuntoFromSolucioname_OutputCallbackMessage" />
     </wsdl:operation>
+    <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="UpdateOnAsuntosWithoutAssignation">
+      <wsdl:output wsaw:Action="http://tempuri.org/IServicio/UpdateOnAsuntosWithoutAssignation" message="tns:IServicio_UpdateOnAsuntosWithoutAssignation_OutputCallbackMessage" />
+    </wsdl:operation>
     <wsdl:operation msc:isInitiating="true" msc:isTerminating="false" name="IsActive">
       <wsdl:output wsaw:Action="http://tempuri.org/IServicio/IsActive" message="tns:IServicio_IsActive_OutputCallbackMessage" />
       <wsdl:input wsaw:Action="http://tempuri.org/IServicio/IsActiveResponse" message="tns:IServicio_IsActive_InputCallbackMessage" />
@@ -226,6 +238,12 @@
     </wsdl:operation>
     <wsdl:operation name="AsuntoReceiptCompleted">
       <soap12:operation soapAction="http://tempuri.org/IServicio/AsuntoReceiptCompleted" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="BatchAsuntoReceiptCompleted">
+      <soap12:operation soapAction="http://tempuri.org/IServicio/BatchAsuntoReceiptCompleted" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -343,6 +361,12 @@
     </wsdl:operation>
     <wsdl:operation name="NotifyNewAsuntoFromSolucioname">
       <soap12:operation soapAction="http://tempuri.org/IServicio/NotifyNewAsuntoFromSolucioname" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateOnAsuntosWithoutAssignation">
+      <soap12:operation soapAction="http://tempuri.org/IServicio/UpdateOnAsuntosWithoutAssignation" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>

@@ -12,7 +12,7 @@ namespace Servicio_Principal.CommandExecution
         public void Call(Servicio currentServiceInstance)
         {
             // Agregamos el asunto al listado de entrega de asuntos del servicio
-            currentServiceInstance.lstAsuntosToDeliver.Add(Asunto);
+            currentServiceInstance.DeliverAsuntoList.Add(Asunto);
         }
 
         /// <summary>

@@ -24,5 +24,7 @@ namespace Servicio_Principal
         /// If the Backoffice sender is not logged throw an exception
         /// </summary>
         public static string BACKOFFICE_SENDER_IS_NOT_CORRECTLY_LOGGED = "backoffice asunto sender is not logged on the service. Rejecting asunto sent request";
+
+        public static string ASUNTO_ALREADY_IN_DELIVER_LIST = "there is asunto duplicated on deliver list";
     }
 }

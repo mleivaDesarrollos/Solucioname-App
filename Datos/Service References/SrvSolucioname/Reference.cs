@@ -45,6 +45,12 @@ namespace Datos.SrvSolucioname {
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/AsuntoReceiptCompleted")]
         System.Threading.Tasks.Task AsuntoReceiptCompletedAsync(Entidades.Asunto asuntoToConfirm);
         
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/BatchAsuntoReceiptCompleted")]
+        void BatchAsuntoReceiptCompleted(Entidades.Asunto[] lstAsuntoToConfirm);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/BatchAsuntoReceiptCompleted")]
+        System.Threading.Tasks.Task BatchAsuntoReceiptCompletedAsync(Entidades.Asunto[] lstAsuntoToConfirm);
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/SentAsuntoToOperator")]
         void SentAsuntoToOperator(Entidades.Operador prmOperatorBackoffice, Entidades.Asunto prmAsunto);
         
@@ -124,6 +130,9 @@ namespace Datos.SrvSolucioname {
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/NotifyNewAsuntoFromSolucioname")]
         void NotifyNewAsuntoFromSolucioname();
         
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServicio/UpdateOnAsuntosWithoutAssignation")]
+        void UpdateOnAsuntosWithoutAssignation();
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServicio/IsActive", ReplyAction="http://tempuri.org/IServicio/IsActiveResponse")]
         bool IsActive();
     }
@@ -194,6 +203,14 @@ namespace Datos.SrvSolucioname {
         
         public System.Threading.Tasks.Task AsuntoReceiptCompletedAsync(Entidades.Asunto asuntoToConfirm) {
             return base.Channel.AsuntoReceiptCompletedAsync(asuntoToConfirm);
+        }
+        
+        public void BatchAsuntoReceiptCompleted(Entidades.Asunto[] lstAsuntoToConfirm) {
+            base.Channel.BatchAsuntoReceiptCompleted(lstAsuntoToConfirm);
+        }
+        
+        public System.Threading.Tasks.Task BatchAsuntoReceiptCompletedAsync(Entidades.Asunto[] lstAsuntoToConfirm) {
+            return base.Channel.BatchAsuntoReceiptCompletedAsync(lstAsuntoToConfirm);
         }
         
         public void SentAsuntoToOperator(Entidades.Operador prmOperatorBackoffice, Entidades.Asunto prmAsunto) {

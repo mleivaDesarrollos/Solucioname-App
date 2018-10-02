@@ -240,6 +240,21 @@ namespace Datos.ServiceOperation
         }
 
         /// <summary>
+        /// Sent to proxy service a request for distribute a batch of asuntos
+        /// </summary>
+        /// <param name="prmBackofficeSender"></param>
+        /// <param name="prmListOfAsunto"></param>
+        public async Task SentBatchAsuntoToOperators(Entidades.Operador prmBackofficeSender, List<Entidades.Asunto> prmListOfAsunto)
+        {
+            try {
+                await HandleProxy();
+                proxy.SentBatchOfAsuntosToOperator(prmBackofficeSender, prmListOfAsunto.ToArray());
+            } catch (Exception ex) {
+                throw ex;
+            }
+        }
+
+        /// <summary>
         /// Communicates with the service and get a list of connected operators with full data
         /// </summary>
         /// <returns></returns>
@@ -424,7 +439,9 @@ namespace Datos.ServiceOperation
             lstA.ToList().ForEach(asunto => lstDuplicated.Add(new Entidades.Asunto(asunto)));
             callbackInteraction.SentAsuntosBatch(lstDuplicated);
             // If the process complete correctly, return response
-            await prepareProxy();            
+            await prepareProxy();
+            // Sent to Service confirmation with reception of asuntos
+            proxy.BatchAsuntoReceiptCompleted(lstA); 
         }
 
         void IServicioCallback.BatchAsuntoProcessCompleted(Entidades.Asunto[] lstA)
@@ -436,7 +453,11 @@ namespace Datos.ServiceOperation
         {
             callbackInteraction.AsuntoProcessCompleted(a);
         }
-        
+
+        void IServicioCallback.UpdateOnAsuntosWithoutAssignation()
+        {
+            callbackInteraction.UpdateOnAsuntosWithoutAssignation();
+        }
 
         void IServicioCallback.ForceDisconnect()
         {

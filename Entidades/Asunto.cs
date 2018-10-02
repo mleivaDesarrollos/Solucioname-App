@@ -104,7 +104,7 @@ namespace Entidades
         public Asunto()
         {
 
-        }
+        }        
 
         public Asunto(Asunto duplicateAsunto)
         {
@@ -115,6 +115,14 @@ namespace Entidades
             GrupoDerivado = duplicateAsunto.GrupoDerivado;
             DescripcionBreve = duplicateAsunto.DescripcionBreve;
             Estados = duplicateAsunto.Estados;
+        }
+
+        public bool Equals(Asunto asuntoToCompare)
+        {
+            if(Numero == asuntoToCompare.Numero && Oper.UserName == asuntoToCompare.Oper.UserName) {
+                return true;
+            }
+            return false;
         }
     }
 }

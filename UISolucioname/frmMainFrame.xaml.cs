@@ -328,19 +328,17 @@ namespace UISolucioname
         }
 
         private void generateInitialStatusOfAsunto(Entidades.Asunto a)
-        {            
-            if(a.Estados == null) { 
-                a.Estados = new List<Estado>()
-                {
-                    new Estado()
-                    {
-                        Ord = 1,
-                        Detalle = "Nuevo asunto asignado",
-                        FechaHora = DateTime.Now,
-                        Tipo = Logica.TipoEstado.TraerEstadoAsuntoInicialNormal()
-                    }
-                };
+        {
+            if (a.Estados == null) {
+                a.Estados = new List<Estado>();
             }
+            a.Estados.Add(new Estado()
+            {
+                Ord = 1,
+                Detalle = "Nuevo asunto asignado",
+                FechaHora = DateTime.Now,
+                Tipo = Logica.TipoEstado.TraerEstadoAsuntoInicialNormal()
+            });              
         }
 
         /// <summary>
@@ -671,6 +669,12 @@ namespace UISolucioname
         {
             
         }
+
+        public void UpdateOnAsuntosWithoutAssignation()
+        {
+
+        }
+
 
         public void NotifyNewAsuntoFromSolucioname()
         {

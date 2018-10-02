@@ -77,8 +77,8 @@ namespace Datos
                                 cmdInsertAsuntoOnDatabase.Parameters.Agregar("@Number", asuntoToSave.Numero);
                                 cmdInsertAsuntoOnDatabase.Parameters.Agregar("@Operator", asuntoToSave.Oper.UserName);
                                 cmdInsertAsuntoOnDatabase.Parameters.Agregar("@ShortDescription", asuntoToSave.DescripcionBreve);
-                                cmdInsertAsuntoOnDatabase.Parameters.Agregar("@DerivedGroup", asuntoToSave.GrupoDerivado.Id);
-                                cmdInsertAsuntoOnDatabase.Parameters.Agregar("ForReport", asuntoToSave.Reportable);
+                                cmdInsertAsuntoOnDatabase.Parameters.Agregar("@DerivedGroup", asuntoToSave.GrupoDerivado != null ? asuntoToSave.GrupoDerivado.Id : 0);
+                                cmdInsertAsuntoOnDatabase.Parameters.Agregar("@ForReport", asuntoToSave.Reportable);
 
                                 if(asuntoToSave.Estados != null) {
                                     EstadoAsunto.AddAllFromAsunto(asuntoToSave, c, t);
@@ -300,19 +300,20 @@ namespace Datos
             try {
                 // Validates if the list is sented with data. If the list have one value, the petition is rejected because this method is for a batch of asuntos
                 if (lstA == null || lstA.Count <= 1) throw new Exception("La lista de asuntos recibida esta vacía, es nula o es menor al minimo");
+                // Load all asuntos in duplicated list
+                lstA.ForEach(asunto => lstFilteredAsuntos.Add(new Entidades.Asunto(asunto)));
                 using (SQLiteConnection c = new SQLiteConnection(Conexion.Cadena)) {
                     c.Open();
-                    string strQueryNonDuplicatedAsuntos = "SELECT numero FROM asuntos WHERE operador=@Operator AND numero NOT IN (@AsuntoList)";
+                    string strQueryNonDuplicatedAsuntos = String.Format("SELECT numero FROM asuntos WHERE operador=@Operator AND numero IN ({0})", getNumberOfAsuntosOnlyFromListForDatabaseRead(lstA));
                     using (SQLiteCommand cmdQueryNonDuplicatedAsuntos = new SQLiteCommand(strQueryNonDuplicatedAsuntos, c)) {
                         // Get Operator from the given list
                         Entidades.Operador operatorUsedToCheck = lstA[0].Oper;
                         cmdQueryNonDuplicatedAsuntos.Parameters.Agregar("@Operator", operatorUsedToCheck.UserName);
-                        cmdQueryNonDuplicatedAsuntos.Parameters.Agregar("@AsuntoList", getNumberOfAsuntosOnlyFromListForDatabaseRead(lstA));
                         using (SQLiteDataReader rdrQueryNonDuplicatedAsuntos = cmdQueryNonDuplicatedAsuntos.ExecuteReader()) {
                             while (rdrQueryNonDuplicatedAsuntos.Read()) {
                                 string asuntoNumber = rdrQueryNonDuplicatedAsuntos["numero"].ToString();
                                 // Add the finded asunto to list of new asuntos
-                                lstFilteredAsuntos.Add(lstA.Find(asunto => asunto.Numero == asuntoNumber));
+                                lstFilteredAsuntos.Remove(lstFilteredAsuntos.Find(asunto => asunto.Numero == asuntoNumber));
                             }
                         }
                     }
@@ -542,6 +543,19 @@ namespace Datos
             }
         }
 
+        /// <summary>
+        /// Sent to client service object a request for distribute a batch of asuntos
+        /// </summary>
+        /// <param name="prmBackofficeSender"></param>
+        /// <param name="prmListOfAsunto"></param>
+        public async Task SentBatchAsuntoToOperators(Entidades.Operador prmBackofficeSender, List<Entidades.Asunto> prmListOfAsunto)
+        {
+            try {
+                await Client.Instance.SentBatchAsuntoToOperators(prmBackofficeSender, prmListOfAsunto);
+            } catch (Exception ex) {
+                throw ex;
+            }
+        }
 
         /// <summary>
         /// Gets from service the list of asuntos unassigned
@@ -570,8 +584,8 @@ namespace Datos
             // Unify all numbers on one string, separating by ', '. This seperator is for query formatting purposes
             string strLstOfAsuntos = String.Join("', '", unformattedListOfasuntos);
             // The join don't adds ' on start and the end, manually adds for correct formatting
-            strLstOfAsuntos.Insert(INDEX_START_STRING, "'");
-            strLstOfAsuntos.Insert(strLstOfAsuntos.Length - 1, "'");
+            strLstOfAsuntos = strLstOfAsuntos.Insert(INDEX_START_STRING, @"'");
+            strLstOfAsuntos = strLstOfAsuntos.Insert(strLstOfAsuntos.Length, @"'");
             // Return processed value
             return strLstOfAsuntos;
         }

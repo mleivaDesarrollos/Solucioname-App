@@ -45,7 +45,7 @@
                         <DataGrid Name="dgAsuntosWithoutAssignation" AutoGenerateColumns="False" HeadersVisibility="Column" SelectionMode="Single"  IsReadOnly="True">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="N° Asunto" Width="0.15*" Binding="{Binding Numero}" IsReadOnly="True"/>
-                                <DataGridTextColumn Header="Horario de recepción" Width="0.25*" Binding="{Binding LoadedOnSolucionameTime}" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="Horario de recepción" Width="0.25*" Binding="{Binding LoadedOnSolucionameDate}" IsReadOnly="True"/>
                                 <DataGridTextColumn Header="Descripcion Breve" Width="0.45*" Binding="{Binding DescripcionBreve}" IsReadOnly="True"/>
                                 <DataGridTemplateColumn Header="Operador a asignar" Width="0.2*">
                                     <DataGridTemplateColumn.CellTemplate>

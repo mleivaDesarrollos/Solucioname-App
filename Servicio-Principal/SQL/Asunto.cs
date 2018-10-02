@@ -31,18 +31,44 @@ namespace Servicio_Principal.SQL
             using (SQLiteConnection c = new SQLiteConnection(Conexion.Cadena))
             {
                 c.Open();
-                string strAddAsuntoToQueue = "INSERT INTO asuntos_pendiente_asignacion VALUES (@Numero, @Oper, @ShortDesc, @Reporting, @SendingDate, @LoadedTime)";
-                using (SQLiteCommand cmdAddAsuntoToQueue = new SQLiteCommand(strAddAsuntoToQueue, c))
-                {
-                    // Parametrizamos los valores del asunto cargado
-                    cmdAddAsuntoToQueue.Parameters.Agregar("@Numero", asunto.Numero);
-                    cmdAddAsuntoToQueue.Parameters.Agregar("@Oper", asunto.Oper.UserName);
-                    cmdAddAsuntoToQueue.Parameters.Agregar("@ShortDesc", asunto.DescripcionBreve);
-                    cmdAddAsuntoToQueue.Parameters.Agregar("@Reporting", asunto.Reportable);
-                    cmdAddAsuntoToQueue.Parameters.Agregar("@SendingDate", asunto.SendingDate.ToString("yyyy-MM-dd HH:mm:ss"));
-                    cmdAddAsuntoToQueue.Parameters.Agregar("@LoadedTime", asunto.LoadedOnSolucionameDate.ToString("yyyy-MM-dd HH:mm:ss"));
-                    // Ejecutamos el comando parametrizado
-                    cmdAddAsuntoToQueue.ExecuteNonQuery();
+                using (SQLiteTransaction t = c.BeginTransaction()) {
+                    using (SQLiteCommand cmdAddAsuntoToQueue = getAddToPendingQueueCommand(c, t, asunto)) {
+                        // Ejecutamos el comando parametrizado
+                        cmdAddAsuntoToQueue.ExecuteNonQuery();
+                    }
+                    if (!asunto.isCreatedByBackoffice) {
+                        using (SQLiteCommand cmdRemoveFromAsuntosAssigned = getDeleteAsuntoWithoutAssignationCommand(c, t, asunto)) {
+                            // Ejecutamos la eliminación del asunto de los inasignados
+                            cmdRemoveFromAsuntosAssigned.ExecuteNonQuery();
+                        }
+                    }
+                    t.Commit();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Add a batch of asuntos to distribution pending database
+        /// </summary>
+        /// <param name="prmListOfPendingAsuntos"></param>
+        public static void AddToQueue(List<Entidades.Asunto> prmListOfPendingAsuntos)
+        {
+            using (SQLiteConnection c = new SQLiteConnection(Conexion.Cadena)) {
+                c.Open();
+                using (SQLiteTransaction t = c.BeginTransaction()) {
+                    foreach (var asuntoToEnqueue in prmListOfPendingAsuntos) {
+                        using (SQLiteCommand cmdAddAsuntoToQueue = getAddToPendingQueueCommand(c, t, asuntoToEnqueue)) {
+                            // Ejecutamos el comando parametrizado
+                            cmdAddAsuntoToQueue.ExecuteNonQuery();
+                        }
+                        if (!asuntoToEnqueue.isCreatedByBackoffice) {
+                            using (SQLiteCommand cmdRemoveFromAsuntosAssigned = getDeleteAsuntoWithoutAssignationCommand(c, t, asuntoToEnqueue)) {
+                                // Ejecutamos la eliminación del asunto de los inasignados
+                                cmdRemoveFromAsuntosAssigned.ExecuteNonQuery();
+                            }
+                        }
+                    }
+                    t.Commit();
                 }
             }
         }
@@ -91,6 +117,40 @@ namespace Servicio_Principal.SQL
                     t.Commit();
                 }
             }
+        }
+
+        /// <summary>
+        /// Dispose a command with all parameters added for adding to asunto_pendiente_asignacion table
+        /// </summary>
+        /// <param name="conn"></param>
+        /// <param name="tran"></param>
+        /// <param name="asuntoToEnqueue"></param>
+        /// <returns></returns>
+        private static SQLiteCommand getAddToPendingQueueCommand(SQLiteConnection conn, SQLiteTransaction tran, Entidades.Asunto asuntoToEnqueue)
+        {
+            // Generate a new SQliTe
+            string strAddAsuntoToQueue = "INSERT INTO asuntos_pendiente_asignacion VALUES (@Numero, @Oper, @ShortDesc, @Reporting, @LoadedTime, @SendingDate)";
+            SQLiteCommand cmdAddAsuntoToQueue = new SQLiteCommand(strAddAsuntoToQueue, conn, tran);
+            // Parametrizamos los valores del asunto cargado
+            cmdAddAsuntoToQueue.Parameters.Agregar("@Numero", asuntoToEnqueue.Numero);
+            cmdAddAsuntoToQueue.Parameters.Agregar("@Oper", asuntoToEnqueue.Oper.UserName);
+            cmdAddAsuntoToQueue.Parameters.Agregar("@ShortDesc", asuntoToEnqueue.DescripcionBreve);
+            cmdAddAsuntoToQueue.Parameters.Agregar("@Reporting", asuntoToEnqueue.Reportable);
+            cmdAddAsuntoToQueue.Parameters.Agregar("@SendingDate", asuntoToEnqueue.SendingDate.ToString("yyyy-MM-dd HH:mm:ss"));
+            cmdAddAsuntoToQueue.Parameters.Agregar("@LoadedTime", asuntoToEnqueue.LoadedOnSolucionameDate.ToString("yyyy-MM-dd HH:mm:ss"));
+            // Return processed command to caller
+            return cmdAddAsuntoToQueue;
+        }
+
+        private static SQLiteCommand getDeleteAsuntoWithoutAssignationCommand(SQLiteConnection conn, SQLiteTransaction tran, Entidades.Asunto asuntoToRemove)
+        {
+            // Dispose string to query database
+            string strRemoveAsuntoWithoutAssignation = "DELETE FROM asuntos_on_solucioname_without_assignation WHERE number=@Number";
+            SQLiteCommand cmdRemoveAsuntoWithoutAssignation = new SQLiteCommand(strRemoveAsuntoWithoutAssignation, conn, tran);
+            // Parametrize command
+            cmdRemoveAsuntoWithoutAssignation.Parameters.Agregar("@Number", asuntoToRemove.Numero);
+            // Return processed command
+            return cmdRemoveAsuntoWithoutAssignation;
         }
 
         /// <summary>

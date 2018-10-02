@@ -39,6 +39,9 @@ namespace Entidades.Service.Interface
         [OperationContract(IsOneWay = true)]
         void NotifyNewAsuntoFromSolucioname();
 
+        [OperationContract(IsOneWay = true)]
+        void UpdateOnAsuntosWithoutAssignation();
+
         [OperationContract]
         bool IsActive();
     }

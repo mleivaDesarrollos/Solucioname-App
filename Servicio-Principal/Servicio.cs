@@ -45,7 +45,8 @@ namespace Servicio_Principal
         /// <summary>
         /// Listado de asuntos pendientes de entrega a operadores
         /// </summary>
-        internal ObservableCollection<Entidades.Asunto> lstAsuntosToDeliver = new ObservableCollection<Entidades.Asunto>();
+        //internal ObservableCollection<Entidades.Asunto> lstAsuntosToDeliver = new ObservableCollection<Entidades.Asunto>();
+        internal AsuntoDeliverList DeliverAsuntoList;
 
         /// <summary>
         /// Asunto from service unassigned
@@ -269,7 +270,7 @@ namespace Servicio_Principal
                 // Validates asunto if correct loaded
                 if (SQL.Asunto.Validate(prmAsunto)) {
                     // Adds a asunto to deliver 
-                    lstAsuntosToDeliver.Add(prmAsunto);
+                    AddPending(prmAsunto);
                 }
                 else {
                     // Sent a reject sent message
@@ -294,8 +295,8 @@ namespace Servicio_Principal
                 throw new Exception(Error.BACKOFFICE_SENDER_IS_NOT_CORRECTLY_LOGGED);
             // Validates if the list is correctly loaded
             if (SQL.Asunto.Validate(lstA)) {
-                // Add total of asunto list on delivering list
-                lstA.ForEach(asunto => lstAsuntosToDeliver.Add(asunto));
+                // Adds the list to pending of distribution
+                AddPending(lstA);
             } else {
                 String conflictedAsuntos = SQL.Asunto.GetDuplicatedConflictedAsuntoNumbers(lstA);
                 CurrentCallback.Mensaje(string.Format("No se ha podido enviar los asuntos en lote debido a que existen conflictos con los siguientes asuntos: {0}. Tienen el mismo número y operador", conflictedAsuntos));
@@ -331,7 +332,7 @@ namespace Servicio_Principal
             try {
                 
                 List<Asunto> lstAsuntosAssignedOfDay = SQL.Asunto.GetAsuntosAssignedFromToday();
-                foreach (var asuntoWithAssignationAndUndelivered in lstAsuntosToDeliver) {
+                foreach (var asuntoWithAssignationAndUndelivered in DeliverAsuntoList.Get) {
                     lstAsuntosAssignedOfDay.Add(asuntoWithAssignationAndUndelivered);
                 }
                 return lstAsuntosAssignedOfDay;
@@ -447,6 +448,8 @@ namespace Servicio_Principal
         /// <param name="prmAsuntoSented"></param>
         private async void SentBalanceRefreshOnBackoffice(Entidades.Asunto prmAsuntoSented)
         {
+            // Validate if the backoffice is logged in
+            if (connectedBackoffice == null) return;
             try {
                 await Task.Run(() =>
                 {
@@ -465,6 +468,58 @@ namespace Servicio_Principal
                 Log.Info("MainService", "the backoffice is not responding, closing connection...");
             }
             catch (Exception ex) {
+                Log.Error("MainService", "there is an error processing callback sent" + ex.Message);
+            }
+        }
+        /// <summary>
+        /// Sent confirmation to UI Backoffice of adding a new asunto
+        /// </summary>
+        /// <param name="prmAsuntoSented"></param>
+        private async void SentBalanceRefreshOnBackoffice(List<Entidades.Asunto> prmAsuntoSented)
+        {
+            // Validate if the backoffice is logged in
+            if (connectedBackoffice == null) return;
+            try {
+                await Task.Run(() =>
+                {
+                    try {
+                        // Using Callback of asunto sent information for backoffice client
+                        connectedBackoffice.Callback.BatchAsuntoProcessCompleted(prmAsuntoSented);
+                    } catch (Exception ex) {
+                        Log.Error("MainService", "error sending confirmation to backoffice: " + ex.Message);
+                    }
+                }).TimeoutAfter(Config.BACKOFFICE_TIMEOUT);
+            } catch (TimeoutException) {
+                // The current logged backoffice is not responding, removing from the service
+                connectedBackoffice = null;
+                Log.Info("MainService", "the backoffice is not responding, closing connection...");
+            } catch (Exception ex) {
+                Log.Error("MainService", "there is an error processing callback sent" + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Sent a signal to operator for refresh list of asuntos without assignation
+        /// </summary>
+        private async void SentRefreshAsuntoWithoutAssignationSignal()
+        {
+            // Validate if the backoffice is logged in
+            if (connectedBackoffice == null) return;
+            try {
+                await Task.Run(() =>
+                {
+                    try {
+                        // Using Callback of asunto sent information for backoffice client
+                        connectedBackoffice.Callback.UpdateOnAsuntosWithoutAssignation();
+                    } catch (Exception ex) {
+                        Log.Error("MainService", "error sending confirmation to backoffice: " + ex.Message);
+                    }
+                }).TimeoutAfter(Config.BACKOFFICE_TIMEOUT);
+            } catch (TimeoutException) {
+                // The current logged backoffice is not responding, removing from the service
+                connectedBackoffice = null;
+                Log.Info("MainService", "the backoffice is not responding, closing connection...");
+            } catch (Exception ex) {
                 Log.Error("MainService", "there is an error processing callback sent" + ex.Message);
             }
         }

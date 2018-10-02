@@ -54,7 +54,9 @@ namespace UIBackoffice
                 Name = visibleName;
                 IntValue = intvalue;
             }
-        }   
+        }
+
+        frmAddBatchAsunto frmBatchAddAsunto;
 
         internal enum TimeFilteringReport
         {
@@ -161,7 +163,7 @@ namespace UIBackoffice
         {
             if(lstAsuntosWithoutAssign.Count > 0) {
                 // Generate a new instance of Batch add
-                frmAddBatchAsunto frmBatchAddAsunto = new frmAddBatchAsunto(lstDetailedOperators.GetOperatorListReadyToReceive(), lstAsuntosWithoutAssign);
+                frmBatchAddAsunto = new frmAddBatchAsunto(lstDetailedOperators.GetOperatorListReadyToReceive(), lstAsuntosWithoutAssign);
                 // Configures owner of window
                 frmBatchAddAsunto.Owner = this;
                 // Configure window related on parent
@@ -681,6 +683,19 @@ namespace UIBackoffice
             }));
         }
 
+        public async void BatchAsuntoProcessCompleted(List<Asunto> lstA)
+        {
+            try {
+                lstA.ForEach(asunto => balanceOfOperators.Increment(asunto));
+            } catch (Exception ex) {
+                Except.Throw(ex);
+            }
+            await Dispatcher.BeginInvoke((Action)(() =>
+            {
+                LoadReportInformation();
+            }));
+        }
+
         public void ForceDisconnect()
         {
             disconnectWaitingTime();
@@ -722,9 +737,16 @@ namespace UIBackoffice
 
         }
 
-        public void BatchAsuntoProcessCompleted(List<Asunto> lstA)
+        public void UpdateOnAsuntosWithoutAssignation()
         {
-
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                if(frmBatchAddAsunto != null) {
+                    frmBatchAddAsunto.Close();
+                    frmBatchAddAsunto = null;
+                }
+                getAsuntosWithoutAssignation();
+            }));
         }
 
         public async void NotifyNewAsuntoFromSolucioname()

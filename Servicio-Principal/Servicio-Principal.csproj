@@ -55,6 +55,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsuntoDeliverList.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="CommandExecution\Execution.cs" />
     <Compile Include="CommandExecution\Gestion.cs" />

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Linq;
 using System.Windows.Controls;
 using Errors;
 
@@ -73,12 +74,27 @@ namespace UIBackoffice
             return lstObsrvCol;
         }
 
-        private void btnLoadBatchAsuntos_Click(object sender, RoutedEventArgs e)
+        private async void btnLoadBatchAsuntos_Click(object sender, RoutedEventArgs e)
         {
 
             try {
-                if (!bllSelectedOnly) CheckLoadedUsersInAsunto();
-                else isOneOperatorLoaded();
+                List<Entidades.Asunto> lstToDistribute;
+                if (!bllSelectedOnly) {
+                    CheckLoadedUsersInAsunto();
+                    lstToDistribute = lstAsuntoToAssign.ToList();
+                } else {
+                    isOneOperatorLoaded();
+                    lstToDistribute = lstAsuntoToAssign.Where(asunto => asunto.Oper != null).ToList();
+                }
+                // Set sending time to current
+                DateTime dtSendingTime = DateTime.Now;
+                // On all filtered asuntos save sending date
+                lstToDistribute.ForEach(asunto => asunto.SendingDate = dtSendingTime);
+                // Generate a new logic asunto object
+                Logica.Asunto logAsunto = new Logica.Asunto();
+                Entidades.Operador currBackOffice = App.Current.Properties["user"] as Entidades.Operador;
+                // Call for asunto distribution in batch
+                await logAsunto.SentBatchAsuntoToOperators(currBackOffice, lstToDistribute);
                 Util.MsgBox.Error("Completado correctamente");
             }
             catch (Exception ex) {

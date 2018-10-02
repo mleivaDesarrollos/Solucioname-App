@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ namespace Datos.Util
         /// </summary>
         /// <param name="objetoNativo"></param>
         /// <returns></returns>
+        [DebuggerStepThrough]
         internal static System.Data.DbType TraerTipoBase(this object objetoNativo)
         {
             System.Data.DbType dbReturn;
