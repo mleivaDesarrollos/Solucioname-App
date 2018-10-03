@@ -34,6 +34,8 @@ namespace Logica
             List = CreateList(prmOperatorListToGenerate);
             // Loads starting values
             await GetStartingValues();
+            // Update average on start
+            UpdateAverage();
         }
 
 
@@ -57,7 +59,8 @@ namespace Logica
                     FirstName = operatorLogged.Nombre,
                     LastName = operatorLogged.Apellido,
                     StartTime = operatorLogged.StartTime,
-                    EndTime = operatorLogged.EndTime
+                    EndTime = operatorLogged.EndTime,
+                    TotalWorkTime = operatorLogged.TotalWorkTime          
                 };
                 if (operatorLogged.Breaks.Count >= 1) {
                     newBalance.BreakOneStart = operatorLogged.Breaks[0].Start;
@@ -82,7 +85,7 @@ namespace Logica
         /// Increment by 1 by asunto passed on parameter
         /// </summary>
         /// <param name="prmAsuntoToFetch"></param>
-        public void Increment(Entidades.Asunto prmAsuntoToFetch)
+        public void Increment(Entidades.Asunto prmAsuntoToFetch, bool refreshAverageAsuntoByHour = true)
         {
             try {
                 validateInput(prmAsuntoToFetch);
@@ -111,6 +114,7 @@ namespace Logica
                 throw ex;
             }
         }
+        
         private Entidades.Balance getBalanceByAsunto(Entidades.Asunto prmAsuntoToFetch)
         {
             return List.Find((balance) => balance.UserName == prmAsuntoToFetch.Oper.UserName);
@@ -139,6 +143,16 @@ namespace Logica
             foreach (var asunto in lstAsuntoFromToday) {
                 Increment(asunto);
             }
+        }
+
+        /// <summary>
+        /// On request, update Average asunto by hour
+        /// </summary>
+        public void UpdateAverage()
+        {
+            List.ForEach(balance => {
+                balance.CalculateAverageAsuntoByHour();                
+                });
         }
 
 

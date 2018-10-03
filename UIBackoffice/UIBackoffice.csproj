@@ -115,26 +115,11 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="Reports\RptBalanceTodayTwentyOneHour.rdlc" />
-    <EmbeddedResource Include="Reports\RptBalanceTodayTwentyHour.rdlc" />
-    <EmbeddedResource Include="Reports\RptBalanceTodayNineteenHour.rdlc" />
-    <EmbeddedResource Include="Reports\RptBalanceTodayEighteenHour.rdlc" />
-    <EmbeddedResource Include="Reports\RptBalanceTodaySeventeenHour.rdlc" />
-    <EmbeddedResource Include="Reports\RptBalanceTodaySixteenHour.rdlc" />
-    <EmbeddedResource Include="Reports\RptBalanceTodayFifteenHour.rdlc" />
-    <EmbeddedResource Include="Reports\RptBalanceTodayFourteenHour.rdlc" />
-    <EmbeddedResource Include="Reports\RptBalanceTodayThirsteenHour.rdlc" />
-    <EmbeddedResource Include="Reports\RptBalanceTodayTwelveHour.rdlc" />
-    <EmbeddedResource Include="Reports\RptBalanceTodayElevenHour.rdlc" />
-    <EmbeddedResource Include="Reports\RptBalanceTodayTenHour.rdlc" />
-    <EmbeddedResource Include="Reports\RptBalanceTodayNineHour.rdlc" />
-    <EmbeddedResource Include="Reports\RptBalanceTodayEightHour.rdlc" />
-    <EmbeddedResource Include="Reports\RptBalanceTodaySevenHour.rdlc" />
-    <EmbeddedResource Include="Reports\RptBalanceTodayWithQuarters - Copy.rdlc" />
     <EmbeddedResource Include="Reports\RptBalanceTodayWithQuarters.rdlc" />
     <None Include="packages.config" />
     <None Include="Properties\DataSources\BalanceDay.datasource" />
     <None Include="Properties\DataSources\frmBackoffice.datasource" />
+    <None Include="Properties\DataSources\Logica.Balance.datasource" />
     <None Include="Properties\DataSources\OperBackofficeList.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

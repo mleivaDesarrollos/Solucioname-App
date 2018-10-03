@@ -56,6 +56,9 @@
             <TablixColumn>
               <Width>1.40198cm</Width>
             </TablixColumn>
+            <TablixColumn>
+              <Width>1.64011cm</Width>
+            </TablixColumn>
           </TablixColumns>
           <TablixRows>
             <TablixRow>
@@ -684,7 +687,7 @@
                 </TablixCell>
                 <TablixCell>
                   <CellContents>
-                    <Textbox Name="Textbox269">
+                    <Textbox Name="TotalHeader">
                       <CanGrow>true</CanGrow>
                       <KeepTogether>true</KeepTogether>
                       <Paragraphs>
@@ -706,7 +709,45 @@
                           </Style>
                         </Paragraph>
                       </Paragraphs>
-                      <rd:DefaultName>Textbox269</rd:DefaultName>
+                      <Style>
+                        <Border>
+                          <Style>None</Style>
+                          <Width>2pt</Width>
+                        </Border>
+                        <BackgroundColor>=Variables!TotalColumnBGColor.Value</BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </CellContents>
+                </TablixCell>
+                <TablixCell>
+                  <CellContents>
+                    <Textbox Name="PromByHour">
+                      <CanGrow>true</CanGrow>
+                      <KeepTogether>true</KeepTogether>
+                      <Paragraphs>
+                        <Paragraph>
+                          <TextRuns>
+                            <TextRun>
+                              <Value>Por Hora</Value>
+                              <Style>
+                                <FontStyle>Normal</FontStyle>
+                                <FontFamily>=Variables!HeaderColumnFontFamily.Value</FontFamily>
+                                <FontSize>=Variables!HeaderColumnFontSize.Value</FontSize>
+                                <FontWeight>=Variables!HeaderColumnFontWeight.Value</FontWeight>
+                                <Color>=Variables!TotalColumnFGColor.Value</Color>
+                              </Style>
+                            </TextRun>
+                          </TextRuns>
+                          <Style>
+                            <TextAlign>Center</TextAlign>
+                          </Style>
+                        </Paragraph>
+                      </Paragraphs>
                       <Style>
                         <Border>
                           <Style>None</Style>
@@ -766,7 +807,6 @@ CStr(Fields!FirstName.Value &amp; " " &amp; Fields!LastName.Value).Length &gt; 1
                         <PaddingBottom>2pt</PaddingBottom>
                       </Style>
                     </Textbox>
-                    <rd:Selected>true</rd:Selected>
                   </CellContents>
                 </TablixCell>
                 <TablixCell>
@@ -7239,6 +7279,53 @@ Variables!BreakBGColor.Value, Variables!HourColumnOneBGColor.Value)</BackgroundC
                     </Textbox>
                   </CellContents>
                 </TablixCell>
+                <TablixCell>
+                  <CellContents>
+                    <Textbox Name="AverageAsuntoByHour">
+                      <CanGrow>true</CanGrow>
+                      <KeepTogether>true</KeepTogether>
+                      <Paragraphs>
+                        <Paragraph>
+                          <TextRuns>
+                            <TextRun>
+                              <Value>=Format(Sum(Fields!AverageAsuntoByHour.Value), "#.##")</Value>
+                              <Style>
+                                <FontFamily>=Variables!HourColumnFontFamily.Value</FontFamily>
+                                <FontSize>=Variables!HourColumnFontSize.Value</FontSize>
+                                <FontWeight>=Variables!TotalColumnFontWeight.Value</FontWeight>
+                                <Color>=Variables!TotalColumnFGColor.Value</Color>
+                              </Style>
+                            </TextRun>
+                          </TextRuns>
+                          <Style>
+                            <TextAlign>Center</TextAlign>
+                          </Style>
+                        </Paragraph>
+                      </Paragraphs>
+                      <rd:DefaultName>AverageAsuntoByHour</rd:DefaultName>
+                      <Style>
+                        <Border>
+                          <Style>None</Style>
+                          <Width>2pt</Width>
+                        </Border>
+                        <TopBorder>
+                          <Style>Solid</Style>
+                        </TopBorder>
+                        <BottomBorder>
+                          <Style>Solid</Style>
+                        </BottomBorder>
+                        <RightBorder>
+                          <Style>Solid</Style>
+                        </RightBorder>
+                        <BackgroundColor>=Variables!TotalColumnBGColor.Value</BackgroundColor>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </CellContents>
+                </TablixCell>
               </TablixCells>
             </TablixRow>
             <TablixRow>
@@ -8283,6 +8370,53 @@ Variables!BreakBGColor.Value, Variables!HourColumnOneBGColor.Value)</BackgroundC
                           </Style>
                         </Paragraph>
                       </Paragraphs>
+                      <Style>
+                        <Border>
+                          <Style>None</Style>
+                          <Width>2pt</Width>
+                        </Border>
+                        <TopBorder>
+                          <Style>Solid</Style>
+                        </TopBorder>
+                        <BottomBorder>
+                          <Style>Solid</Style>
+                        </BottomBorder>
+                        <RightBorder>
+                          <Style>Solid</Style>
+                        </RightBorder>
+                        <BackgroundColor>=Variables!TotalColumnBGColor.Value</BackgroundColor>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </CellContents>
+                </TablixCell>
+                <TablixCell>
+                  <CellContents>
+                    <Textbox Name="AverageAsuntoByHour1">
+                      <CanGrow>true</CanGrow>
+                      <KeepTogether>true</KeepTogether>
+                      <Paragraphs>
+                        <Paragraph>
+                          <TextRuns>
+                            <TextRun>
+                              <Value>=Format(Sum(Fields!AverageAsuntoByHour.Value), "#.##")</Value>
+                              <Style>
+                                <FontFamily>=Variables!HourColumnFontFamily.Value</FontFamily>
+                                <FontSize>=Variables!HourColumnFontSize.Value</FontSize>
+                                <FontWeight>=Variables!TotalColumnFontWeight.Value</FontWeight>
+                                <Color>=Variables!TotalColumnFGColor.Value</Color>
+                              </Style>
+                            </TextRun>
+                          </TextRuns>
+                          <Style>
+                            <TextAlign>Center</TextAlign>
+                          </Style>
+                        </Paragraph>
+                      </Paragraphs>
+                      <rd:DefaultName>AverageAsuntoByHour1</rd:DefaultName>
                       <Style>
                         <Border>
                           <Style>None</Style>
@@ -13005,6 +13139,54 @@ Parameters!ShowHour.Value = "twentyone", Fields!TwentyOneTotal.Value
                     </Textbox>
                   </CellContents>
                 </TablixCell>
+                <TablixCell>
+                  <CellContents>
+                    <Textbox Name="AverageAsuntoByHour2">
+                      <CanGrow>true</CanGrow>
+                      <KeepTogether>true</KeepTogether>
+                      <Paragraphs>
+                        <Paragraph>
+                          <TextRuns>
+                            <TextRun>
+                              <Value>=Format(Sum(Fields!AverageAsuntoByHour.Value), "#.##")</Value>
+                              <Style>
+                                <FontFamily>=Variables!HourColumnFontFamily.Value</FontFamily>
+                                <FontSize>=Variables!HourColumnFontSize.Value</FontSize>
+                                <FontWeight>=Variables!TotalColumnFontWeight.Value</FontWeight>
+                                <Color>=Variables!TotalColumnFGColor.Value</Color>
+                              </Style>
+                            </TextRun>
+                          </TextRuns>
+                          <Style>
+                            <TextAlign>Center</TextAlign>
+                          </Style>
+                        </Paragraph>
+                      </Paragraphs>
+                      <rd:DefaultName>AverageAsuntoByHour2</rd:DefaultName>
+                      <Style>
+                        <Border>
+                          <Style>None</Style>
+                          <Width>2pt</Width>
+                        </Border>
+                        <TopBorder>
+                          <Style>Solid</Style>
+                        </TopBorder>
+                        <BottomBorder>
+                          <Style>Solid</Style>
+                        </BottomBorder>
+                        <RightBorder>
+                          <Style>Solid</Style>
+                        </RightBorder>
+                        <BackgroundColor>=Variables!TotalColumnBGColor.Value</BackgroundColor>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                    <rd:Selected>true</rd:Selected>
+                  </CellContents>
+                </TablixCell>
               </TablixCells>
             </TablixRow>
           </TablixRows>
@@ -13223,6 +13405,7 @@ or
               </Visibility>
             </TablixMember>
             <TablixMember />
+            <TablixMember />
           </TablixMembers>
         </TablixColumnHierarchy>
         <TablixRowHierarchy>
@@ -13317,7 +13500,7 @@ or
         <Top>0.26121cm</Top>
         <Left>0.15579cm</Left>
         <Height>2.43456cm</Height>
-        <Width>23.46795cm</Width>
+        <Width>25.10806cm</Width>
         <Style>
           <Border>
             <Style>None</Style>
@@ -13345,21 +13528,25 @@ or
   </Page>
   <AutoRefresh>0</AutoRefresh>
   <DataSources>
-    <DataSource Name="UIBackoffice">
+    <DataSource Name="Logica">
       <ConnectionProperties>
         <DataProvider>System.Data.DataSet</DataProvider>
         <ConnectString>/* Local Connection */</ConnectString>
       </ConnectionProperties>
-      <rd:DataSourceID>1769b8b4-08e7-47f6-91e9-8d90f71ec43f</rd:DataSourceID>
+      <rd:DataSourceID>f8868431-2620-4542-a3b0-d1b3c9648eac</rd:DataSourceID>
     </DataSource>
   </DataSources>
   <DataSets>
     <DataSet Name="dsBalanceToday">
       <Query>
-        <DataSourceName>UIBackoffice</DataSourceName>
+        <DataSourceName>Logica</DataSourceName>
         <CommandText>/* Local Query */</CommandText>
       </Query>
       <Fields>
+        <Field Name="AverageAsuntoByHour">
+          <DataField>AverageAsuntoByHour</DataField>
+          <rd:TypeName>System.Double</rd:TypeName>
+        </Field>
         <Field Name="BreakOneEnd">
           <DataField>BreakOneEnd</DataField>
           <rd:TypeName>System.DateTime</rd:TypeName>
@@ -13644,6 +13831,10 @@ or
           <DataField>Total</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
+        <Field Name="TotalWorkTime">
+          <DataField>TotalWorkTime</DataField>
+          <rd:TypeName>System.Double</rd:TypeName>
+        </Field>
         <Field Name="TwelveFirstQuarter">
           <DataField>TwelveFirstQuarter</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
@@ -13710,10 +13901,10 @@ or
         </Field>
       </Fields>
       <rd:DataSetInfo>
-        <rd:DataSetName>UIBackoffice</rd:DataSetName>
-        <rd:TableName>BalanceDay</rd:TableName>
+        <rd:DataSetName>Logica</rd:DataSetName>
+        <rd:TableName>Balance</rd:TableName>
         <rd:ObjectDataSourceSelectMethod>List</rd:ObjectDataSourceSelectMethod>
-        <rd:ObjectDataSourceType>UIBackoffice.BalanceDay, UIBackoffice, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</rd:ObjectDataSourceType>
+        <rd:ObjectDataSourceType>Logica.Balance, Logica, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</rd:ObjectDataSourceType>
       </rd:DataSetInfo>
     </DataSet>
   </DataSets>

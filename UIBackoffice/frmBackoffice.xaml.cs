@@ -153,6 +153,7 @@ namespace UIBackoffice
                 frmNewAsunto.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                 if (frmNewAsunto.ShowDialog() == true) {
                     balanceOfOperators.Increment(frmNewAsunto.confirmedNewAsunto);
+                    balanceOfOperators.UpdateAverage();
                     frmNewAsunto.Close();
                     RefreshReportBalanceCurrentDay();
                 }
@@ -240,6 +241,8 @@ namespace UIBackoffice
             {
                 // Establish an update for report filtering
                 SetReportFiltering(currentTimeHourFilter);
+                // Update average from operators
+                balanceOfOperators.UpdateAverage();
                 // Desactivate timer
                 tmrCheckCurrentTimeHourChange.Enabled = false;
             }));
@@ -673,12 +676,14 @@ namespace UIBackoffice
         {   
             try {
                 balanceOfOperators.Increment(a);
+                balanceOfOperators.UpdateAverage();
             }
             catch (Exception ex) {
                 Except.Throw(ex);                
             }
             await Dispatcher.BeginInvoke((Action)(() =>
             {
+                getAsuntosWithoutAssignation();
                 LoadReportInformation();                
             }));
         }
@@ -687,11 +692,13 @@ namespace UIBackoffice
         {
             try {
                 lstA.ForEach(asunto => balanceOfOperators.Increment(asunto));
+                balanceOfOperators.UpdateAverage();
             } catch (Exception ex) {
                 Except.Throw(ex);
             }
             await Dispatcher.BeginInvoke((Action)(() =>
             {
+                getAsuntosWithoutAssignation();
                 LoadReportInformation();
             }));
         }

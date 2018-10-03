@@ -76,6 +76,18 @@ namespace Entidades
 
         [DataMember]
         public List<Break> Breaks { get; set; }
+                
+        public double TotalWorkTime {
+            get {
+                double totalTime = (EndTime - StartTime).TotalHours;
+                if(Breaks != null) {
+                    foreach (var breakTime in Breaks) {
+                        totalTime -= (breakTime.End - breakTime.Start).TotalHours;
+                    }
+                }
+                return totalTime;
+            }
+        }
 
         public override string ToString()
         {

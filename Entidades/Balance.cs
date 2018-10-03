@@ -42,13 +42,13 @@ namespace Entidades
 
         static readonly int TWENTY_ONE_POS = 56;
 
+        static readonly int ZERO_QUARTER_POS = 0;
+
         static readonly int FIRST_QUARTER_POS = 1;
 
         static readonly int HALF_QUARTER_POS = 2;
 
         static readonly int LAST_QUARTER_POS = 3;
-
-        static readonly int ZERO_QUARTER_POS = 0;
 
         static readonly Reference refLastQuarter = new Reference(45, LAST_QUARTER_POS);
 
@@ -522,7 +522,10 @@ namespace Entidades
         public DateTime BreakTwoEnd { get; set; }
         public DateTime BreakThreeStart { get; set; }
         public DateTime BreakThreeEnd { get; set; }
-        
+        public double TotalWorkTime { get; set; }
+        public double CurrentWorkTime { get; set; }
+        public double AverageAsuntoByHour { get; set; }
+
         /// <summary>
         /// Increment by 1 balance count filtering by hour and minute
         /// </summary>
@@ -590,6 +593,72 @@ namespace Entidades
                 return refStartQuarter.Position;
             }
         }
-        
+
+        /// <summary>
+        /// Calculates average total by hour
+        /// </summary>
+        public void CalculateAverageAsuntoByHour()
+        {
+            // Select period to calculate average
+            if(DateTime.Now <= StartTime) {
+                // If the hour is previous to StartTime sent average to zero
+                AverageAsuntoByHour = 0;
+            } else if (DateTime.Today.AddHours(DateTime.Now.Hour +1) >= EndTime) {
+                // The calculation of average is total of asuntos divided all hours
+                if (TotalWorkTime != 0) AverageAsuntoByHour = Total / TotalWorkTime;
+            } else {
+                AverageAsuntoByHour = CalculateAverageAsuntoOnWorkingActive();
+            }
+        }
+
+        private double CalculateAverageAsuntoOnWorkingActive()
+        {
+            // Get current Time plus one hour
+            DateTime currentTime = DateTime.Today.AddHours(DateTime.Now.Hour + 1);
+            // Get Base work time
+            CurrentWorkTime = (currentTime - StartTime).TotalHours;
+            if(BreakOneStart != null && currentTime > BreakOneStart) {
+                // Set up a variable for endtime break calculation
+                DateTime endTimeCalculation;
+                // if the currentime is upper end break, set up end break
+                if(currentTime > BreakOneEnd) {
+                    endTimeCalculation = BreakOneEnd;
+                // else indicates the break is in the middle of previous and next hour
+                } else {
+                    endTimeCalculation = currentTime;
+                }
+                // The difference is substracted from total worktime
+                CurrentWorkTime -= (endTimeCalculation - BreakOneStart).TotalHours;
+            }
+            if (BreakTwoStart != null && currentTime > BreakTwoStart) {
+                // Set up a variable for endtime break calculation
+                DateTime endTimeCalculation;
+                // if the currentime is upper end break, set up end break
+                if (currentTime > BreakTwoEnd) {
+                    endTimeCalculation = BreakTwoEnd;
+                    // else indicates the break is in the middle of previous and next hour
+                } else {
+                    endTimeCalculation = currentTime;
+                }
+                // The difference is substracted from total worktime
+                CurrentWorkTime -= (endTimeCalculation - BreakTwoStart).TotalHours;
+            }
+            if (BreakThreeStart != null && currentTime > BreakThreeStart) {
+                // Set up a variable for endtime break calculation
+                DateTime endTimeCalculation;
+                // if the currentime is upper end break, set up end break
+                if (currentTime > BreakThreeEnd) {
+                    endTimeCalculation = BreakThreeEnd;
+                    // else indicates the break is in the middle of previous and next hour
+                } else {
+                    endTimeCalculation = currentTime;
+                }
+                // The difference is substracted from total worktime
+                CurrentWorkTime -= (endTimeCalculation - BreakThreeStart).TotalHours;
+            }
+            // Return in process
+            return Total / CurrentWorkTime;
+        }
+
     }
 }

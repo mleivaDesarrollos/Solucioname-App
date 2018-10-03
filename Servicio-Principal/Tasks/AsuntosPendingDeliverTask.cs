@@ -212,12 +212,12 @@ namespace Servicio_Principal
         {
             // Save date of asunto assignment
             asuntoToUnqueue.AssignmentDate = DateTime.Now;
+            // Save pending information to list
+            DeliverAsuntoList.Remove(asuntoToUnqueue);
             // Removemos el asunto de la base de respaldo
             SQL.Asunto.RemoveFromQueueAndSaveHistoricData(asuntoToUnqueue);
             // Sent update request to logged backoffice
             SentBalanceRefreshOnBackoffice(asuntoToUnqueue);
-            // Save pending information to list
-            DeliverAsuntoList.Remove(asuntoToUnqueue);
             // Stop sending pending asuntos
             StopSendAsuntosPending();
         }
@@ -231,10 +231,12 @@ namespace Servicio_Principal
             // Set up the assignation date to the exact moment who run the method
             DateTime assignationTime = DateTime.Now;
             listAsuntoToUnqueue.ForEach(asunto => asunto.AssignmentDate = assignationTime);
-            // Update on Service Database confirmation asuntos
-            SQL.Asunto.RemoveFromQueueAndSaveHistoricData(listAsuntoToUnqueue);
             // Save pending information to list
             DeliverAsuntoList.Remove(listAsuntoToUnqueue);
+            // Update on Service Database confirmation asuntos
+            SQL.Asunto.RemoveFromQueueAndSaveHistoricData(listAsuntoToUnqueue);
+            // Sent balance refresh to backoffice instance
+            SentBalanceRefreshOnBackoffice(listAsuntoToUnqueue);
             // Stop sending pending asuntos
             StopSendAsuntosPending();
         }
