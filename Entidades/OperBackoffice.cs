@@ -26,13 +26,13 @@ namespace Entidades
 
         public DateTime StartTime {
             get {
-                return Operator.StartTime;
+                return Operator.WorkingDayTime.StartTime;
             }
         }
 
         public DateTime EndTime {
             get {
-                return Operator.EndTime;
+                return Operator.WorkingDayTime.EndTime;
             }
         }
 
@@ -105,10 +105,10 @@ namespace Entidades
         public WorkingDayStatus WorkStatus {
             get {
                 DateTime currentTime = DateTime.Now;
-                if (currentTime <= Operator.StartTime) {
+                if (currentTime <= StartTime) {
                     return WorkingDayStatus.PreviousToStart;
                 }
-                else if (currentTime >= Operator.EndTime) {
+                else if (currentTime >= EndTime) {
                     return WorkingDayStatus.Ended;
                 }
                 else {
@@ -136,13 +136,13 @@ namespace Entidades
         {
             switch (WorkStatus) {
                 case WorkingDayStatus.PreviousToStart:
-                    NextEvent = Operator.StartTime;
+                    NextEvent = StartTime;
                     break;
                 case WorkingDayStatus.Started:
                     NextEvent = calculateNextEventOnBreak();
                     break;
                 case WorkingDayStatus.Ended:
-                    NextEvent = Operator.EndTime;
+                    NextEvent = EndTime;
                     break;
                 default:
                     break;
@@ -156,12 +156,12 @@ namespace Entidades
         private DateTime calculateNextEventOnBreak()
         {
             foreach (var breakTime in Operator.Breaks) {
-                if(breakTime.Start >= DateTime.Now) {
-                    return breakTime.Start;
+                if(breakTime.StartTime >= DateTime.Now) {
+                    return breakTime.StartTime;
                 }
             }
             // if are not a break on the list returns end of working day
-            return Operator.EndTime;
+            return EndTime;
         }
 
         /// <summary>
@@ -183,14 +183,19 @@ namespace Entidades
             // Checks all breaks
             foreach (var breakTime in Operator.Breaks) {
                 // if now is between break range
-                if (DateTime.Now >= breakTime.Start && DateTime.Now <= breakTime.End) {
+                if (DateTime.Now >= breakTime.StartTime && DateTime.Now <= breakTime.EndTime) {
                     // Sets timespan
-                    TimeSpan diffOnBreak = breakTime.End - DateTime.Now;
+                    TimeSpan diffOnBreak = breakTime.EndTime - DateTime.Now;
                     // Save minutes difference on variable
                     StoppedTimeLeft = diffOnBreak.Minutes;
                     break;
                 }
             }
+        }
+
+        public override string ToString()
+        {
+            return UserName;
         }
     }
 }

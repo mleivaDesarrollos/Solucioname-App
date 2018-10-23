@@ -297,6 +297,8 @@ namespace Servicio_Principal
             if (SQL.Asunto.Validate(lstA)) {
                 // Adds the list to pending of distribution
                 AddPending(lstA);
+                // Sent Callback response confirming add succesful
+                CurrentCallback.UpdateOnAsuntosWithoutAssignation();
             } else {
                 String conflictedAsuntos = SQL.Asunto.GetDuplicatedConflictedAsuntoNumbers(lstA);
                 CurrentCallback.Mensaje(string.Format("No se ha podido enviar los asuntos en lote debido a que existen conflictos con los siguientes asuntos: {0}. Tienen el mismo número y operador", conflictedAsuntos));
@@ -332,7 +334,7 @@ namespace Servicio_Principal
             try {
                 
                 List<Asunto> lstAsuntosAssignedOfDay = SQL.Asunto.GetAsuntosAssignedFromToday();
-                foreach (var asuntoWithAssignationAndUndelivered in DeliverAsuntoList.Get) {
+                foreach (var asuntoWithAssignationAndUndelivered in DeliverAsuntoList.Get.Where(asunto => asunto.SendingDate.Date == DateTime.Now.Date)) {
                     lstAsuntosAssignedOfDay.Add(asuntoWithAssignationAndUndelivered);
                 }
                 return lstAsuntosAssignedOfDay;
@@ -357,6 +359,53 @@ namespace Servicio_Principal
         public List<Operador> getListOfOperatorMustWorkToday()
         {
             return lstOperatorMustConnected.Select((operators) => operators.Operator).ToList();
+        }
+        
+
+        /// <summary>
+        /// Gets Exception Saved on service based on current date and next two monts of exceptions
+        /// </summary>
+        /// <returns>List of all exception in specified range</returns>
+        public List<ExceptionDay> GetRecentExceptionDayList()
+        {
+            return null;
+        }
+
+        /// <summary>
+        /// Get exceptions based on a specific range of time
+        /// </summary>
+        /// <param name="RangeTime">Range of time of the needed exceptions</param>
+        /// <returns></returns>
+        public List<ExceptionDay> GetHistoricExceptionDayList(WorkTime RangeTime)
+        {
+            return null;
+        }
+
+        /// <summary>
+        /// Add exception to service
+        /// </summary>
+        /// <param name="newException"></param>
+        public void AddExceptionDay(ExceptionDay newException)
+        {
+
+        }
+
+        /// <summary>
+        /// Update Exception saved on service
+        /// </summary>
+        /// <param name="updatingException"></param>
+        public void UpdateException(ExceptionDay updatingException)
+        {
+
+        }
+
+        /// <summary>
+        /// Remove a exception from service
+        /// </summary>
+        /// <param name="removingException"></param>
+        public void RemoveException(ExceptionDay removingException)
+        {
+
         }
 
         /// <summary>

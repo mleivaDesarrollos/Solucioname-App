@@ -47,8 +47,10 @@ namespace Logica
             Clear();            
             // Iterates over the list
             foreach (var operBack in prmLstOperator) {
-                // add a new operator converting to OperBackoffice
-                Add(new Entidades.OperBackoffice(operBack));
+                if(operBack.Backoffice != Entidades.Operador.BackofficeType.OnlyBackoffice) {
+                    // add a new operator converting to OperBackoffice
+                    Add(new Entidades.OperBackoffice(operBack));
+                }
             }            
         }
 

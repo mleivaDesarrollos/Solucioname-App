@@ -164,7 +164,7 @@ namespace UIBackoffice
         {
             if(lstAsuntosWithoutAssign.Count > 0) {
                 // Generate a new instance of Batch add
-                frmBatchAddAsunto = new frmAddBatchAsunto(lstDetailedOperators.GetOperatorListReadyToReceive(), lstAsuntosWithoutAssign);
+                frmBatchAddAsunto = new frmAddBatchAsunto(lstDetailedOperators.GetOperatorListReadyToReceive(), lstAsuntosWithoutAssign, balanceOfOperators);
                 // Configures owner of window
                 frmBatchAddAsunto.Owner = this;
                 // Configure window related on parent
@@ -544,7 +544,7 @@ namespace UIBackoffice
             }
         }
 
-        private void RefreshReportBalanceCurrentDay()
+        public void RefreshReportBalanceCurrentDay()
         { 
             rptBalanceTotals.RefreshReport();
         }       
@@ -752,7 +752,7 @@ namespace UIBackoffice
                     frmBatchAddAsunto.Close();
                     frmBatchAddAsunto = null;
                 }
-                getAsuntosWithoutAssignation();
+                getAsuntosWithoutAssignation();                
             }));
         }
 

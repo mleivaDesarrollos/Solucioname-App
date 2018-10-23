@@ -10,6 +10,8 @@ namespace Servicio_Principal.SQL
 {
     public static class Operador
     {
+        private static readonly DateTime NO_TIME_LOADED = DateTime.MinValue;
+
         /// <summary>
         /// Valida con base de datos si el ingreso es correcto
         /// </summary>
@@ -41,7 +43,6 @@ namespace Servicio_Principal.SQL
             }
 
         }
-
 
         /// <summary>
         /// Valida si el operador informado cuenta con permisos de backoffice
@@ -116,24 +117,74 @@ namespace Servicio_Principal.SQL
                 List<Entidades.Operador> lstTodayOperators = new List<Entidades.Operador>();
                 using (SQLiteConnection c = new SQLiteConnection(Conexion.Cadena)) {
                     c.Open();
-                    string strCurrentDayOperator = "select * from view_operator_current_day_activity";
-                    if(Config.TEST) strCurrentDayOperator = "select * from view_operator_monday_day_activity";
+                    // Get operators loaded today except who is loaded on exception today
+                    string strCurrentDayOperator = @"select * from view_operator_current_day_activity";
+                    if (Config.TEST) strCurrentDayOperator = "select * from view_operator_monday_day_activity";
                     using (SQLiteCommand cmdQueryOperatorOfTheDay = new SQLiteCommand(strCurrentDayOperator, c)) {
                         using (SQLiteDataReader rdrQueryOperatorOfTheDay = cmdQueryOperatorOfTheDay.ExecuteReader()) {
                             while (rdrQueryOperatorOfTheDay.Read()) {
+                                getBreakList(rdrQueryOperatorOfTheDay);
                                 lstTodayOperators.Add(new Entidades.Operador()
                                 {
                                     UserName = rdrQueryOperatorOfTheDay["username"].ToString(),
                                     Nombre = rdrQueryOperatorOfTheDay["surname"].ToString(),
                                     Apellido = rdrQueryOperatorOfTheDay["lastname"].ToString(),
-                                    StartTime = Convert.ToDateTime(rdrQueryOperatorOfTheDay["working_start"]),
-                                    EndTime = Convert.ToDateTime(rdrQueryOperatorOfTheDay["working_end"]),
-                                    Breaks = getBreakList(rdrQueryOperatorOfTheDay)
+                                    WorkingDayTime = new Entidades.WorkTime()
+                                    {
+                                        StartTime = Convert.ToDateTime(rdrQueryOperatorOfTheDay["working_start"]),
+                                        EndTime = Convert.ToDateTime(rdrQueryOperatorOfTheDay["working_end"])
+                                    },
+                                    Breaks = getBreakList(rdrQueryOperatorOfTheDay),
+                                    Backoffice = (Entidades.Operador.BackofficeType) Convert.ToInt16(rdrQueryOperatorOfTheDay["backoffice"])
                                 });
                             }
                         }
                     }
+                    // Read exceptions for today
+                    string strCurrentDayException = "SELECT * from view_operator_planification_exception_today";
+                    using (SQLiteCommand cmdCurrentDayException = new SQLiteCommand(strCurrentDayException, c)) {
+                        using (SQLiteDataReader rdrCurrentDayException = cmdCurrentDayException.ExecuteReader()) {
+                            while (rdrCurrentDayException.Read()) {
+                                // Get username of exception
+                                string strUserName = rdrCurrentDayException["username"].ToString();
+                                // Get Starting time for operator
+                                DateTime dtmStartTime = Convert.ToDateTime(rdrCurrentDayException["working_start"]);
+                                // If the operator dont have loadeed a ausent, implies that have change on working time or come on unprogramated date
+                                if (dtmStartTime != Entidades.ExceptionDay.AUSENT_OPERATOR_TODAY) { 
+                                    // Load Working end Time
+                                    DateTime dtmEndingTime = Convert.ToDateTime(rdrCurrentDayException["working_end"]);
+                                    // Validate loaded ending time
+                                    if(dtmEndingTime == NO_TIME_LOADED) {
+                                        Log.Error("OperatorExceptions", string.Format("the exception for operator {0} has not been loaded correctly. Lacks of end of working time."));
+                                        continue;
+                                    }
+                                    // Get all breaks related to the exception
+                                    List<Entidades.WorkTime> breaksForException = getBreakList(rdrCurrentDayException);
+                                    // Get Surname and Lastname from corresponding exception
+                                    string surName = rdrCurrentDayException["surname"].ToString();
+                                    string lastName = rdrCurrentDayException["lastname"].ToString();
+                                    Entidades.Operador.BackofficeType typeOfOperator = (Entidades.Operador.BackofficeType)Convert.ToInt16(rdrCurrentDayException["backoffice"]);
+                                    // Adds the exception on the list
+                                    lstTodayOperators.Add(new Entidades.Operador()
+                                    {
+                                        UserName = strUserName,
+                                        Nombre = surName,
+                                        Apellido = lastName,
+                                        WorkingDayTime = new Entidades.WorkTime()
+                                        {
+                                            StartTime = dtmStartTime,
+                                            EndTime = dtmEndingTime
+                                        },
+                                        Breaks = breaksForException,
+                                        Backoffice = typeOfOperator
+                                    });
+                                }
+                            }
+                        }
+                    }
                 }
+                // Reorder list based on username
+                lstTodayOperators = lstTodayOperators.OrderBy(oper => oper.UserName).ToList();
                 // Returns the processed list
                 return lstTodayOperators;
             }
@@ -141,6 +192,35 @@ namespace Servicio_Principal.SQL
                 throw ex;
             }
         }
+
+        /// <summary>
+        /// Add an exception day for a specific operator
+        /// </summary>
+        /// <param name="operatorToLoadException"></param>
+        public static void AddExceptionDay(Entidades.Operador operatorToAdd)
+        {
+
+        }
+
+        /// <summary>
+        /// Remove exception day for a specific operator
+        /// </summary>
+        /// <param name="operatorToRemoveException"></param>
+        public static void RemoveExceptionDay(Entidades.Operador operatorToRemove)
+        {
+
+        }
+
+        /// <summary>
+        /// Update Exception day for specific operator
+        /// </summary>
+        /// <param name="operatorToUpdate"></param>
+        public static void UpdateExceptionDay(Entidades.Operador operatorToUpdate)
+        {
+
+        }
+
+        
         
         /// <summary>
         /// Calculates the starting hour and adds minutes to this date
@@ -152,16 +232,34 @@ namespace Servicio_Principal.SQL
         {
             return Convert.ToDateTime(paramStart).AddMinutes(paramMinutes);
         }
+        
+        /// <summary>
+        /// Calculates the starting hour and adds minutes to this date
+        /// </summary>
+        /// <param name="paramStart"></param>
+        /// <param name="iMinutes"></param>
+        /// <returns></returns>
+        private static DateTime getEndBreak(DateTime dtmBreakStart, object paramMinutesInString)
+        {
+            int paramMinutes = 0;
+            try {
+                paramMinutes = Convert.ToInt16(paramMinutesInString);
+            } finally {
+                // Nothing really needed to do
+            }
+            return dtmBreakStart.AddMinutes(paramMinutes);
 
+        }
         /// <summary>
         /// Get a break processed list by a DataReader
         /// </summary>
         /// <param name="rdrWithBreakData"></param>
         /// <returns></returns>
-        private static List<Entidades.Operador.Break> getBreakList(SQLiteDataReader rdrWithBreakData)
+        [System.Diagnostics.DebuggerHidden]
+        private static List<Entidades.WorkTime> getBreakList(SQLiteDataReader rdrWithBreakData)
         {
             // Creates a new list of breaks
-            List<Entidades.Operador.Break> lstBreaks = new List<Entidades.Operador.Break>();
+            List<Entidades.WorkTime> lstBreaks = new List<Entidades.WorkTime>();
             // Iterates over the reader to get all related breaks, dispose a flag to control
             bool hasNextBreak = true;
             // Value of current iteration
@@ -176,10 +274,10 @@ namespace Servicio_Principal.SQL
                 try {
                     // Checks if the current iteration has values. If the column value exceeds maximum of range reader object
                     if (rdrWithBreakData[breakIteration] != System.DBNull.Value && rdrWithBreakData[durationIteration] != System.DBNull.Value) {
-                        lstBreaks.Add(new Entidades.Operador.Break()
+                        lstBreaks.Add(new Entidades.WorkTime()
                         {
-                            Start = Convert.ToDateTime(rdrWithBreakData[breakIteration]),
-                            End = getEndBreak(rdrWithBreakData[breakIteration].ToString(), Convert.ToInt32(rdrWithBreakData[durationIteration]))
+                            StartTime = Convert.ToDateTime(rdrWithBreakData[breakIteration]),
+                            EndTime = getEndBreak(rdrWithBreakData[breakIteration].ToString(), Convert.ToInt32(rdrWithBreakData[durationIteration]))
                         });
                         // Plus a iteration
                         intBreakNumber++;

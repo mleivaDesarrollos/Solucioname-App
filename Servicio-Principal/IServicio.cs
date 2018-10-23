@@ -46,6 +46,21 @@ namespace Servicio_Principal
         List<Asunto> getAssignedAsuntosOfCurrentDay();
 
         [OperationContract]
+        List<ExceptionDay> GetRecentExceptionDayList();
+
+        [OperationContract]
+        List<ExceptionDay> GetHistoricExceptionDayList(WorkTime RangeTime);
+
+        [OperationContract(IsOneWay = true)]
+        void AddExceptionDay(ExceptionDay newException);
+
+        [OperationContract(IsOneWay = true)]
+        void UpdateException(ExceptionDay updatingException);
+
+        [OperationContract(IsOneWay = true)]
+        void RemoveException(ExceptionDay removingException);
+
+        [OperationContract]
         List<Asunto> getUnassignedAsuntos();
 
         [OperationContract(IsOneWay = true)]

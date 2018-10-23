@@ -58,21 +58,21 @@ namespace Logica
                     UserName = operatorLogged.UserName,
                     FirstName = operatorLogged.Nombre,
                     LastName = operatorLogged.Apellido,
-                    StartTime = operatorLogged.StartTime,
-                    EndTime = operatorLogged.EndTime,
+                    StartTime = operatorLogged.WorkingDayTime.StartTime,
+                    EndTime = operatorLogged.WorkingDayTime.EndTime,
                     TotalWorkTime = operatorLogged.TotalWorkTime          
                 };
                 if (operatorLogged.Breaks.Count >= 1) {
-                    newBalance.BreakOneStart = operatorLogged.Breaks[0].Start;
-                    newBalance.BreakOneEnd = operatorLogged.Breaks[0].End;
+                    newBalance.BreakOneStart = operatorLogged.Breaks[0].StartTime;
+                    newBalance.BreakOneEnd = operatorLogged.Breaks[0].EndTime;
                 }
                 if (operatorLogged.Breaks.Count >= 2) {
-                    newBalance.BreakTwoStart = operatorLogged.Breaks[1].Start;
-                    newBalance.BreakTwoEnd = operatorLogged.Breaks[1].End;
+                    newBalance.BreakTwoStart = operatorLogged.Breaks[1].StartTime;
+                    newBalance.BreakTwoEnd = operatorLogged.Breaks[1].EndTime;
                 }
                 if (operatorLogged.Breaks.Count >= 3) {
-                    newBalance.BreakThreeStart = operatorLogged.Breaks[2].Start;
-                    newBalance.BreakThreeEnd = operatorLogged.Breaks[2].End;
+                    newBalance.BreakThreeStart = operatorLogged.Breaks[2].StartTime;
+                    newBalance.BreakThreeEnd = operatorLogged.Breaks[2].EndTime;
                 }
                 // Generate a new instance of balance and save on the list
                 lstNewBalance.Add(newBalance);
@@ -140,6 +140,7 @@ namespace Logica
         {
             // Gets base values of balance from the service
             List<Entidades.Asunto> lstAsuntoFromToday = await getAssignedAsuntosFromToday();
+            lstAsuntoFromToday = lstAsuntoFromToday.Where(asunto => List.Exists(balance => balance.UserName == asunto.Oper.UserName)).ToList() ;
             foreach (var asunto in lstAsuntoFromToday) {
                 Increment(asunto);
             }
@@ -154,7 +155,33 @@ namespace Logica
                 balance.CalculateAverageAsuntoByHour();                
                 });
         }
-
+        
+        /// <summary>
+        /// Runs a Simulation of incrementing asuntos and automatic assign asuntos 
+        /// </summary>
+        /// <param name="lstAsuntosToAssign"></param>
+        /// <param name="lstOperatorsToAssignate"></param>
+        public void GetAutomaticAsuntoAssignationByAverageHour(List<Entidades.Asunto> lstAsuntosToAssign, List<Entidades.Operador> lstOperatorsToAssignate)
+        {            
+            // Get balance list based on parameter operators
+            List<Entidades.Balance> lstBalanceFilteredByOperatorInParameter = List.Where(balance =>
+                lstOperatorsToAssignate.Exists(
+                    oper => oper.Equals(balance.UserName)
+            )).ToList();
+            // Start Simulation status over filtered balance
+            lstBalanceFilteredByOperatorInParameter.ForEach(balance => balance.InitSimulation());
+            // Iterates over all asuntos passed by parameter
+            foreach (var asuntoToAssign in lstAsuntosToAssign) {
+                // Get operator ordered by balance
+                Entidades.Balance selectedBalance = lstBalanceFilteredByOperatorInParameter.OrderBy(balance => balance.SimulationAverageAsuntoByHour).First();
+                // Get operator Related to balance
+                Entidades.Operador selectedOperator = lstOperatorsToAssignate.Find(oper => oper.Equals(selectedBalance.UserName));
+                // Assign operador to asunto
+                asuntoToAssign.Oper = selectedOperator;
+                // Increment simulation Balance
+                selectedBalance.SimulateAverageIncrementingByOne();
+            }
+        }
 
         /// <summary>
         /// Calls data layer to get data from the service

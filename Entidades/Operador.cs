@@ -10,22 +10,17 @@ namespace Entidades
     [DataContract]
     public class Operador
     {
-        [DataContract]
-        public class Break
-        {
-            [DataMember]
-            public DateTime Start { get; set; }
-            [DataMember]
-            public DateTime End { get; set; }
-        }
-
+        [DataContract(Name = "BackofficeType")]
         public enum BackofficeType
         {
+            [EnumMember]
             Operator,
+            [EnumMember]
             BackofficeAndOperator,
+            [EnumMember]
             OnlyBackoffice
         }
-
+        
         [DataMember]
         public String UserName
         {
@@ -69,24 +64,31 @@ namespace Entidades
         }
 
         [DataMember]
-        public DateTime StartTime { get; set; }
+        public WorkTime WorkingDayTime { get; set; }
 
         [DataMember]
-        public DateTime EndTime { get; set; }
+        public List<WorkTime> Breaks { get; set; }
 
-        [DataMember]
-        public List<Break> Breaks { get; set; }
-                
         public double TotalWorkTime {
             get {
-                double totalTime = (EndTime - StartTime).TotalHours;
+                double totalTime = (WorkingDayTime.EndTime - WorkingDayTime.StartTime).TotalHours;
                 if(Breaks != null) {
                     foreach (var breakTime in Breaks) {
-                        totalTime -= (breakTime.End - breakTime.Start).TotalHours;
+                        totalTime -= (breakTime.EndTime - breakTime.StartTime).TotalHours;
                     }
                 }
                 return totalTime;
             }
+        }
+
+        public bool Equals(Operador operatorToCompare)
+        {
+            return UserName.ToLower() == operatorToCompare.UserName.ToLower();
+        }
+
+        public bool Equals(string operatorUserName)
+        {
+            return UserName.ToLower() == operatorUserName.ToLower();
         }
 
         public override string ToString()

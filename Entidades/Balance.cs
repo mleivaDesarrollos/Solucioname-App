@@ -525,6 +525,9 @@ namespace Entidades
         public double TotalWorkTime { get; set; }
         public double CurrentWorkTime { get; set; }
         public double AverageAsuntoByHour { get; set; }
+        public double SimulationAverageAsuntoByHour { get; set; }
+        public int SimulationTotal { get; set;}
+        
 
         /// <summary>
         /// Increment by 1 balance count filtering by hour and minute
@@ -547,6 +550,31 @@ namespace Entidades
             // Validates if parameter input is correctly loaded. Because is a public interface, we need validate values
             if (prmDtmReference == null) throw new Exception("BalanceEntity: datetime passed by parameter is null");
             QuarterCount[getTotalPosition(prmDtmReference)]--;
+        }
+
+        /// <summary>
+        /// Initalize variables related to simulation
+        /// </summary>
+        public void InitSimulation()
+        {
+            SimulationAverageAsuntoByHour = AverageAsuntoByHour;
+            SimulationTotal = Total;
+        }
+
+        /// <summary>
+        /// Simulate a average keeping unaffected current average
+        /// </summary>
+        /// <param name="dtmDestination"></param>
+        public void SimulateAverageIncrementingByOne()
+        {
+
+            // In case of calculation is requested out of labor time, break task
+            if (DateTime.Now > EndTime)
+                throw new Exception("SimulationAverageAsunto : Cannot simulate a balance on operator off of work time");
+            // Increment by one total of simulation
+            SimulationTotal++;
+            // Calculate average on simulation
+            CalculateSimulationAverageAsuntoByHour();
         }
 
         private int getTotalPosition(DateTime prmDtmReferenced)
@@ -600,18 +628,27 @@ namespace Entidades
         public void CalculateAverageAsuntoByHour()
         {
             // Select period to calculate average
-            if(DateTime.Now <= StartTime) {
+            if (DateTime.Now <= StartTime) {
                 // If the hour is previous to StartTime sent average to zero
                 AverageAsuntoByHour = 0;
-            } else if (DateTime.Today.AddHours(DateTime.Now.Hour +1) >= EndTime) {
+            } else if (DateTime.Today.AddHours(DateTime.Now.Hour + 1) >= EndTime) {
                 // The calculation of average is total of asuntos divided all hours
                 if (TotalWorkTime != 0) AverageAsuntoByHour = Total / TotalWorkTime;
             } else {
-                AverageAsuntoByHour = CalculateAverageAsuntoOnWorkingActive();
+                AverageAsuntoByHour = CalculateAverageAsuntoOnWorkingActive(false);
             }
         }
 
-        private double CalculateAverageAsuntoOnWorkingActive()
+        /// <summary>
+        /// Simulate Calculation for current balance
+        /// </summary>
+        private void CalculateSimulationAverageAsuntoByHour()
+        {
+            // Calculate asunto average
+            SimulationAverageAsuntoByHour = CalculateAverageAsuntoOnWorkingActive(true);
+        }
+
+        private double CalculateAverageAsuntoOnWorkingActive(bool isSimulation)
         {
             // Get current Time plus one hour
             DateTime currentTime = DateTime.Today.AddHours(DateTime.Now.Hour + 1);
@@ -657,7 +694,8 @@ namespace Entidades
                 CurrentWorkTime -= (endTimeCalculation - BreakThreeStart).TotalHours;
             }
             // Return in process
-            return Total / CurrentWorkTime;
+            if (isSimulation) return SimulationTotal / CurrentWorkTime;
+            else return Total / CurrentWorkTime;
         }
 
     }
