@@ -8,3 +8,4 @@ El frontend de la aplicación fue realizado utilizando Windows Presentation Foun
 Requisitos :
 - Net Framework 4.0 en Adelante
 - Report Viewer 2010 Runtime
+- Correr el servidor de aplicación en modo administrador
