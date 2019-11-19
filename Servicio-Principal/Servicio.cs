@@ -117,8 +117,8 @@ namespace Servicio_Principal
             ConfigSendAsuntosPending();
             StartSendAsuntosPending();            
             // Configure asunto service checking task
-            ConfigureAsuntoServiceCheckTimer();
-            StartAsuntoCheckTimer(true);
+            // ConfigureAsuntoServiceCheckTimer();
+            // StartAsuntoCheckTimer(true);
             // Load operator to must be connected today
             loadOperatorsMustWorkToday();
         }
